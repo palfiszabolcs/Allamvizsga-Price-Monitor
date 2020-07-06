@@ -1,0 +1,70 @@
+#extension{
+    box-sizing: border-box;
+    height: 100%;
+    padding: 5px;
+    width: 100%;
+    background: transparent;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+html, body{
+    /* padding: 10px; */
+    margin: 0;
+    min-height: 180px;
+    width: 384px;
+    /* background: transparent; */
+}
+
+#app{
+    /* box-shadow: 0 3px 6px rgba(171,171,171,0.16), 
+                0 3px 6px rgba(171,171,171,0.23); */
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    /* background-color: red; */
+    overflow: hidden;
+    background-clip: content-box;
+}
+
+h1{
+    margin: 0;
+}
+
+#header{
+    align-items: center;
+    text-align: center;
+    border-bottom: 0.5px solid #dadada;
+}
+
+#content{
+    padding: 0 22px;
+}
+
+#title{
+    padding: 16px;
+    margin: 0;
+}
+
+#logo{
+    text-align: center;
+}
+
+#logo_icon{
+    vertical-align: text-bottom;
+    margin-right: 12px;
+}
+
+#version{
+    color: gray;
+    font-size: 18px;
+    align-content: center;
+}
+
+#content{
+    text-align: center;
+}
+
+
