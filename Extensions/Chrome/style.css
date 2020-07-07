@@ -67,4 +67,7 @@ h1{
     text-align: center;
 }
 
+.text-center{
+    word-wrap: break-word;
+}
 
