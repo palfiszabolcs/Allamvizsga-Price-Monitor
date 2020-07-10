@@ -6,8 +6,11 @@
   "icons": {"128": "icons/icon128.png"},
   "browser_action" : {
     "default_icon": "icons/icon19.png",
-    "default_popup": "popup.html"
+    "default_popup": "login.html"
+  },
+  "background": {
+    "page": "background.html"
   },
   "permissions": ["tabs", "activeTab", "<all_urls>"],
-  "content_security_policy": "script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com; object-src 'self'; connect-src 'self' wss://*.firebaseio.com;"
+  "content_security_policy": "script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com https://securetoken.googleapis.com; object-src 'self'; connect-src 'self' https://securetoken.googleapis.com https://apis.google.com https://www.googleapis.com wss://*.firebaseio.com"
 }

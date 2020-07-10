@@ -9,6 +9,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "firebase": "^7.15.5"
+    "@fortawesome/fontawesome-free": "^5.13.1",
+    "firebase": "^7.15.5",
+    "firebaseui": "^4.5.1",
+    "sweetalert2": "^9.15.3"
   }
 }
