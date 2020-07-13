@@ -8,9 +8,13 @@
     "default_icon": "icons/icon19.png",
     "default_popup": "login.html"
   },
+  "content_scripts":[{
+    "matches":["<all_urls>"],
+    "js": ["content.js"]
+  }],
   "background": {
     "page": "background.html"
   },
-  "permissions": ["tabs", "activeTab", "<all_urls>"],
-  "content_security_policy": "script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com https://securetoken.googleapis.com; object-src 'self'; connect-src 'self' https://securetoken.googleapis.com https://apis.google.com https://www.googleapis.com wss://*.firebaseio.com"
+  "permissions": ["storage" ,"tabs", "activeTab", "<all_urls>"],
+  "content_security_policy": "script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://apis.google.com https://www.googleapis.com https://securetoken.googleapis.com; object-src 'self'; connect-src 'self' https://securetoken.googleapis.com https://apis.google.com https://www.googleapis.com wss://*.firebaseio.com"
 }

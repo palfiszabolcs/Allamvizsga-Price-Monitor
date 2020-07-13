@@ -10,22 +10,28 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+// var bg = chrome.extension.getBackgroundPage();
+// bg.login();
 
 const login_form = document.querySelector("#login-form");
 login_form.addEventListener("submit", (event) => {
     event.preventDefault();
-    
-    // const email = login_form["inputEmail"].value;
-    // const password = login_form["inputPassword"].value;
-    let email = "palfi.szabolcs.8@gmail.com";
-    let password = "terminator";
+    const email = login_form["inputEmail"].value;
+    const password = login_form["inputPassword"].value;
+    // let email = "palfi.szabolcs.8@gmail.com";
+    // let password = "terminator";
 
     firebase.auth().signInWithEmailAndPassword(email, password).then(creadential => {
-        console.log(creadential);
         Swal.fire({
             title: "Done!",
             text: "Login successfull",
             icon: "success"
+        }).then(function(){
+            chrome.storage.local.set({"firebase_uid": creadential.user.uid});
+            chrome.runtime.sendMessage({
+                msg: "login"
+            });
+            window.location.href = "popup.html";
         })
     }).catch(function(error) {
         switch(error.code){
@@ -43,18 +49,20 @@ login_form.addEventListener("submit", (event) => {
                     icon: "error"
                 })
             break;
+            default:
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                console.log("Error: " + errorCode + ", " + errorMessage);
+            break;
         }
-        // var errorCode = error.code;
-        // var errorMessage = error.message;
-        // console.log("Error: " + errorCode + ", " + errorMessage);
       });
 })
 
 document.getElementById("login-google").onclick = function(){
-    var bg = chrome.extension.getBackgroundPage();
-    bg.login();
-    // console.log("valami: " + bg.valami);
-    // console.log("google pressed");
+    chrome.runtime.sendMessage({
+        msg: "google"
+    });
+    console.log("google")
 }
 
 // document.getElementById("login-google").onclick = function(){
