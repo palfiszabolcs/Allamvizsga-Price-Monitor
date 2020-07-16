@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" id="extension">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chart</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="node_modules/@fortawesome/fontawesome-free/css/all.css">
+
+
+    <!-- <link rel="stylesheet" href="node_modul    es/sweetalert2/dist/sweetalert2.min.css"> -->
+
+</head>
+<body>
+    <header class="sticky-top">
+        <div id="header" class="container card">
+            <div class="container mb-2 mt-2">
+                <button id="back_button" title="Back" type="button" class="close float-left">
+                    <!-- <span aria-hidden="true">&Left; Back</span>  -->
+                    <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                </button>
+        </div>
+    </header>
+    
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div id="card" class="card">
+                    <div class="card-body">
+                        <canvas id="chart" width="400" height="400"></canvas>
+                    </div>
+                </div>
+            </div>
+         </div>     
+    </div>
+    
+</body>
+    <script src="js/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="/js/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <script src="js/Chart.min.js"></script>
+
+    <script type="module" src="chart.js"></script>
+</html> 

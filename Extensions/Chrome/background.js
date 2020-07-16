@@ -1,6 +1,3 @@
-// import '/node_modules/firebase/firebase-app.js';
-// import '/node_modules/firebase/firebase-auth.js'
-
 const firebaseConfig = {
     apiKey: "AIzaSyDMye3XhwYr8682BFxiA-GmPvR8hmoAvy0",
     authDomain: "price-monitor-44858.firebaseapp.com",
@@ -15,21 +12,20 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const database = firebase.database();
 
+// const user = await chrome.storage.sync.get('firebase_uid', function (result) {
+//     var uid = result.firebase_uid;
+//     console.log("user: " + uid);
+//     save_user_id(uid);
+// });
+
 function login (){
     let email = "palfi.szabolcs.8@gmail.com";
     let password = "terminator";
 
     
     firebase.auth().signInWithEmailAndPassword(email, password).then(creadential => {
-        // console.log(creadential);
         console.log("auth successfull");
-        // Swal.fire({
-        //     title: "Done!",
-        //     text: "Login successfull",
-        //     icon: "success"
-        // })
-        // window.location.href = "popup.html";
-        chrome.storage.local.set({"firebase_uid": creadential.user.uid});
+        chrome.storage.sync.set({"firebase_uid": creadential.user.uid});
     }).catch(function(error) {
         switch(error.code){
             case "auth/wrong-password":
@@ -56,19 +52,16 @@ function login (){
 }
 
 function get_uid(){
-    // var uid = "";
-    chrome.storage.local.get('firebase_uid', function (result) {
+    chrome.storage.sync.get('firebase_uid', function (result) {
        var uid = result.firebase_uid;
-    //    console.log("user id: " + uid);
        if(uid != null){
-        
         chrome.browserAction.setPopup({popup: "popup.html"});
        }
        else{
            console.log("id null");
        }
     });
-    // window.location.href = "popup.html"
+
 }
 
 
@@ -78,18 +71,32 @@ function update_popup(){
 }
 
 function logout(){
-    chrome.storage.local.set({"firebase_uid": null});
+    chrome.storage.sync.set({"firebase_uid": null});
     chrome.browserAction.setPopup({popup: "login.html"});
     chrome.runtime.reload();
 }
 
 function load_data(){
-    chrome.storage.local.get('firebase_uid', function (result) {
+    chrome.storage.sync.get('firebase_uid', function (result) {
         var uid = result.firebase_uid;
+        sessionStorage.setItem("uid", uid);
         database.ref('/USERS/' + uid).on("value", function(item){
            let items = item.val();
-           chrome.storage.local.set({"products": items});
+           chrome.storage.sync.set({"products": items});
     
+        },function (errorObject) {
+           console.log("The read failed: " + errorObject.code);
+        });
+    });
+}
+
+function load_chart_data(prod_id){
+    chrome.storage.sync.get('firebase_uid', function (result) {
+        var uid = result.firebase_uid;
+        database.ref('/USERS/' + uid + "/" + prod_id).on("value", function(item){
+            let prod = item.val();
+            chrome.storage.sync.set({"chart": prod});
+           
         },function (errorObject) {
            console.log("The read failed: " + errorObject.code);
         });
@@ -137,6 +144,9 @@ chrome.runtime.onMessage.addListener(
                 // console.log("google");
             break;
 
+            case "load_chart_data":
+               load_chart_data(request.id);
+            break;
 
             default:
             break;

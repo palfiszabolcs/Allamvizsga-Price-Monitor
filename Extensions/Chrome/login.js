@@ -27,7 +27,7 @@ login_form.addEventListener("submit", (event) => {
             text: "Login successfull",
             icon: "success"
         }).then(function(){
-            chrome.storage.local.set({"firebase_uid": creadential.user.uid});
+            chrome.storage.sync.set({"firebase_uid": creadential.user.uid});
             chrome.runtime.sendMessage({
                 msg: "login"
             });
@@ -65,22 +65,3 @@ document.getElementById("login-google").onclick = function(){
     console.log("google")
 }
 
-// document.getElementById("login-google").onclick = function(){
-//     var provider = new firebase.auth.GoogleAuthProvider();
-//     firebase.auth().signInWithPopup(provider).then(function(result) {
-//         // This gives you a Google Access Token. You can use it to access the Google API.
-//         var token = result.credential.accessToken;
-//         // The signed-in user info.
-//         var user = result.user;
-//         // ...
-//       }).catch(function(error) {
-        
-//         var errorCode = error.code;
-//         var errorMessage = error.message;
-//         // The email of the user's account used.
-//         var email = error.email;
-//         // The firebase.auth.AuthCredential type that was used.
-//         var credential = error.credential;
-//         // ...
-//       });
-// }

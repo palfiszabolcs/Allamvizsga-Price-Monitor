@@ -12,7 +12,8 @@ firebase.initializeApp(config);
 const auth = firebase.auth();
 const database = firebase.database();
 
-
+var html = document.querySelector("#extension");
+var body = document.querySelector("body");
 var header = document.getElementById('header');
 var container = document.getElementById('container');
 
@@ -48,9 +49,9 @@ function upload_URL(user = "TEST-user", url = "test-url", category = "test categ
 }
 
 function push_to_new(url = "test-url") {
-   chrome.storage.local.get('firebase_uid', function (result) {
+   chrome.storage.sync.get('firebase_uid', function (result) {
       let user = result.firebase_uid;
-      let postsRef = database.ref('/test').child(user);
+      let postsRef = database.ref('/test').child(id);
       postsRef.push().set({
          url : url
       }).then(function(){
@@ -62,7 +63,6 @@ function push_to_new(url = "test-url") {
          });
   });
 }
-
 
 function fill_category(user_id, category){
    database.ref('/USERS/' + user_id).on("value", function(item){
@@ -120,8 +120,8 @@ function fill_category(user_id, category){
    
 }
 
-function fill_category2(category){
-   chrome.storage.local.get('products', function (result) {
+function fill_category2(){
+   chrome.storage.sync.get('products', function (result) {
       var items = result.products;
       
       for(let id of Object.keys(items)){
@@ -133,6 +133,7 @@ function fill_category2(category){
          let currency = items[id].currency;
          let image = items[id].image;
          let price = checks[last].price;
+         
          
          let row = document.createElement("div");
          row.setAttribute("class", "row");
@@ -155,32 +156,76 @@ function fill_category2(category){
          a_url.setAttribute("href", url);
          a_url.setAttribute("target", "_blank");
          name_price_div.appendChild(a_url);
-         
+
          let h5_name = document.createElement("h5");
          h5_name.setAttribute("class", "card-title crop-text-2 text-wrap");
          h5_name.textContent = name
          a_url.appendChild(h5_name);
 
+         let div = document.createElement("div");
+         name_price_div.appendChild(div);
+
          let p_price = document.createElement("p");
-         p_price.setAttribute("class", "card-text");
-         p_price.setAttribute("ID", "price");
+         p_price.setAttribute("class", "card-text w-70 float-left");
+         p_price.setAttribute("id", "price");
          p_price.textContent = currency + " " + price;
-         name_price_div.appendChild(p_price);
+         div.appendChild(p_price);
+
+         let chart_button = document.createElement("button");
+         chart_button.setAttribute("type", "button");
+         chart_button.setAttribute("class", "btn btn-outline-primary w-30 float-right");
+         chart_button.setAttribute("id", "chart_button");
+         div.appendChild(chart_button);
+         
+         let icon = document.createElement("i");
+         icon.setAttribute("class", "fa fa-bar-chart-o");
+         chart_button.appendChild(icon);
+
+         let button_text = document.createTextNode(" Chart");
+         chart_button.appendChild(button_text);
          
          let divider = document.createElement("hr");
          container.appendChild(divider);
+
+         let hidden_input = document.createElement("input");
+         hidden_input.setAttribute("id", "prod_id");
+         hidden_input.setAttribute("type", "hidden");
+         hidden_input.setAttribute("value", id);
+         div.appendChild(hidden_input);
+
+         chart_button.onclick = function(){
+            // let prod_id = document.getElementById("prod_id").value;
+            // console.log("prod_id " + prod_id);
+            
+            chrome.runtime.sendMessage({
+               msg: "load_chart_data",
+               id: id
+            });
+            window.location.href = "chart.html";
+         }
+
       }
 
    });
 
 }
 
-// document.addEventListener("DOMContentLoaded", push_to_new('feri', get_URL(), 'sports'));
-// document.addEventListener("DOMContentLoaded", fill_category2(user_id));
-// document.getElementById("upload_button").onclick = function(){
-//    upload_URL();
-// }
+function init(){
+   chrome.storage.sync.get(["firebase_uid"], function (res) {
+      var uid = res.firebase_uid;
+      console.log("user: ", uid);
+   
+      if(uid != null){
+         fill_category2();
+      }else{
+         chrome.runtime.sendMessage({
+            msg: "id_null"
+         });
+      }
+   });
+}
 
+document.addEventListener("DOMContentLoaded", show_URL());
 
 document.getElementById("logout_button").onclick = function(){
    chrome.runtime.sendMessage({
@@ -200,25 +245,30 @@ document.getElementById("track_buton").onclick = function(){
             title: "Sorry!",
             text: "Store not supported!",
             icon: "info"
-      })
-      return;
+         })
+         return;
       }else{
          push_to_new(url);
       }
    });
 }
-      
-document.addEventListener("DOMContentLoaded", show_URL());
 
-chrome.storage.local.get('firebase_uid', function (result) {
-      var uid = result.firebase_uid;
-      // console.log("user id: " + uid);
-      // // fill_category(uid, uid);
-      if(uid != null){
-         fill_category2(uid);
-      }else{
-         chrome.runtime.sendMessage({
-            msg: "id_null"
-        });
-      }
-});
+
+
+// document.getElementById("chart_button").onclick = function(){
+//    // chrome.storage.sync.set({"scroll": window.scrollY});
+//    // sessionStorage.setItem("scroll", window.scrollY);
+
+//    console.log("before scroll" ,  window.scrollY)
+
+//    let prod_id = document.getElementById("prod_id").value;
+//    chrome.runtime.sendMessage({
+//       msg: "load_chart_data",
+//       id: prod_id
+//    });
+//    // history.pushState("chart.html");
+//    // window.location.href = "chart.html";
+
+// }
+
+init();
