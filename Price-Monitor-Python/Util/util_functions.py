@@ -12,7 +12,10 @@ def find_price(soup, tag, class_name):
 
 
 def find_title(soup, tag, class_name):
-    title = soup.find(tag, attrs={"class": class_name}).text.strip()
+    try:
+        title = soup.find(tag, attrs={"class": class_name}).text.strip()
+    except AttributeError:
+        raise Exception("object has no attribute: text (title tag changed / url may not exist)")
     return title
 
 
@@ -71,11 +74,16 @@ def get_existing_users():
 def get_new_users():
     from firebase import firebase
     firebase = firebase.FirebaseApplication(database.firebase_link, None)
+
     result = firebase.get("NEW", None)
-    users_list = []
-    for user in result:
-        users_list.append(user)
-    return users_list
+
+    if result == None:
+        return "none"
+    else:
+        users_list = []
+        for user in result:
+            users_list.append(user)
+        return users_list
 
 
 def make_product_list(user):
@@ -127,8 +135,9 @@ def get_and_parse_emag(soup):
     s.insert(-6, ",")
     price = "".join(s)
     price = re.sub("Lei", '', price)
+    price = re.sub("\.", "", price)
     price = re.sub(",", ".", price)
-    price = float(price)
+    price = float(price.strip())
     currency = "LEI"
     image = soup.find("div", attrs={"class": "ph-body"}).img['data-src'].strip()
     product_data = class_ProductData.ProductData(title, price, currency, image)
@@ -152,7 +161,12 @@ def get_and_parse_mediagalaxy(soup):
 
 
 def get_and_parse_flanco(soup):
-    title = soup.find("h1", attrs={"id": "product-title"}).text.strip()
+    try:
+        title = soup.find("h2", attrs={"id": "product-title"}).text.strip()
+    except AttributeError:
+        raise Exception("object has no attribute: text (title tag changed / url may not exist)")
+
+
     price = find_price(soup, "div", "produs-price")
     price = re.sub("\.", '', price)
     price = re.sub(",", ".", price)
@@ -198,7 +212,7 @@ def get_and_parse_autovit(soup):
 
 def get_and_parse_altex(soup):
     title = find_title(soup, "h1",
-                       "font-bold leading-none text-black m-0 text-center text-base lg:text-3xl bg-gray-lighter lg:bg-transparent -mx-15px lg:mx-auto px-3 pt-4 pb-3 lg:p-0 border-b lg:border-b-0")
+                       "font-bold leading-none text-black m-0 text-2xl lg:text-3xl")
     price = find_price(soup, "div", "Price-current")
     price = re.sub("\.", '', price)
     price = re.sub(",", ".", price)

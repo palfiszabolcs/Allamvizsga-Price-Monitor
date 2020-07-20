@@ -1,10 +1,12 @@
-
 var ctx = document.getElementById('chart');
 var card = document.getElementById('card');
 var dates = [];
 var prices = [];
-chrome.storage.sync.get("chart", function (result) {
+
+chrome.storage.sync.get(["chart", "chart_prod_id"], function (result) {
     var checks = Object.values(result.chart.check);
+    var prod_id = result.chart_prod_id;
+
     let url = result.chart.url;
     for(let id of Object.keys(checks)){
         dates.push(checks[id].date);
@@ -55,6 +57,7 @@ chrome.storage.sync.get("chart", function (result) {
 
     let delete_button = document.createElement("button");
     delete_button.setAttribute("type", "button");
+    delete_button.setAttribute("id", "delete_button");
     delete_button.setAttribute("class", "btn btn-outline-danger btn-block");
     card.appendChild(delete_button);
 
@@ -71,19 +74,50 @@ chrome.storage.sync.get("chart", function (result) {
     a_url.textContent = url
     div.appendChild(a_url);
 
-    // <button type="button" class="btn btn-outline-danger btn-block"><i class="fa fa-trash"></i> Delete</button>
-
-
+    
+    document.getElementById("delete_button").onclick = function(){
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+              confirmButton: 'btn btn-success',
+              cancelButton: 'btn btn-danger'
+            },
+            buttonsStyling: true
+          })
+          
+          swalWithBootstrapButtons.fire({
+            title: 'Are you sure?',
+            text: "Your product will be permanently deleted!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            cancelButtonText: 'Cancel!',
+            reverseButtons: false
+          }).then((result) => {
+            if (result.value) {
+                // chrome.runtime.sendMessage({
+                // msg: "delete",
+                // id: prod_id
+                // });
+              
+                swalWithBootstrapButtons.fire(
+                "Deleted!",
+                "You won't follow this product anymore.",
+                "success"
+                ).then(function(){
+                    history.back();
+                })
+            } else if (result.dismiss === Swal.DismissReason.cancel){
+                        return;
+                    }
+          })
+        
+    }
 });
 
 // console.log("referrer " + document.referrer)
 
 document.getElementById("back_button").onclick = function(){
-    // history.
     history.back();
-    console.log(document.anchors);
-    // history.scrollRestoration;
-    // window.location = document.referrer;
-    // console.log(document.referrer)
 }
+
 

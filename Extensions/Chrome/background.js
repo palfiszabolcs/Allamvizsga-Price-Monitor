@@ -95,11 +95,18 @@ function load_chart_data(prod_id){
         var uid = result.firebase_uid;
         database.ref('/USERS/' + uid + "/" + prod_id).on("value", function(item){
             let prod = item.val();
-            chrome.storage.sync.set({"chart": prod});
+            chrome.storage.sync.set({"chart": prod, "chart_prod_id": prod_id});
            
         },function (errorObject) {
            console.log("The read failed: " + errorObject.code);
         });
+    });
+}
+
+function delete_prod(prod_id){
+    chrome.storage.sync.get('firebase_uid', function (result) {
+        var uid = result.firebase_uid;
+        database.ref('/USERS/' + uid + "/" + prod_id).remove();
     });
 }
 
@@ -148,6 +155,10 @@ chrome.runtime.onMessage.addListener(
                load_chart_data(request.id);
             break;
 
+            case "delete":
+                delete_prod(request.id);
+            break;
+
             default:
             break;
         }
@@ -157,7 +168,3 @@ chrome.runtime.onMessage.addListener(
 console.log("background");
 get_uid();
 load_data();
-// login();
-// chrome.storage.local.set({"firebase_uid": null});
-// var valami = "valami";
-// login_google();

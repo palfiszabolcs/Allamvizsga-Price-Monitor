@@ -27,7 +27,7 @@ function show_URL(){
    chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
       let url = tabs[0].url;
       let short_address = get_site_address(url);
-         if (short_address == "emag.ro"){
+         if (short_address == "emag.ro" || short_address == "flanco.ro"){
          let p = document.createElement("p");
          p.setAttribute("class", "text-center");
          let text = document.createTextNode(url);
@@ -51,13 +51,13 @@ function upload_URL(user = "TEST-user", url = "test-url", category = "test categ
 function push_to_new(url = "test-url") {
    chrome.storage.sync.get('firebase_uid', function (result) {
       let user = result.firebase_uid;
-      let postsRef = database.ref('/test').child(id);
+      let postsRef = database.ref("/NEW").child(user);
       postsRef.push().set({
          url : url
       }).then(function(){
             Swal.fire({
                title: "Done!",
-               text: "Item will be added shortly",
+               text: "Item will be added within 5 minutes",
                icon: "success"
             })
          });
@@ -232,15 +232,29 @@ document.getElementById("logout_button").onclick = function(){
       msg: "logout"
    });
 }
+document.getElementById("info").onclick = function(){
+   Swal.fire({
+      title: "Description",
+      html: "blablablablablablablablablablablablablablabla\
+      blablablablablablablablablablab lablablablabla blablablablablablablablablablablablablablabla\
+      blablablablablab lablablablablablablablablablablablablablablablablablabl ablablablablablabla\
+      blablablablablablablablabl blablablablablabla blablablablablablab lablablablablablablablabla\
+      blablab lablablablabl ablablablabla blablablabla bla blablablablablab lablab lablabla blabla blabla\
+      \ <br> Supported stores: <a href='https://www.emag.ro' target='_blank'>emag.ro</a>",
+      icon: "info"
+   });
+}
 document.getElementById("close").onclick = function(){
    window.close();
 }
+
 document.getElementById("track_buton").onclick = function(){
    chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-      console.log(tabs);
+      // console.log(tabs);
       let url = tabs[0].url;
       let short_address = get_site_address(url);
-      if(short_address != "emag.ro"){
+      // console.log(short_address[0])
+      if(short_address[0] != "emag.ro" ){
          Swal.fire({
             title: "Sorry!",
             text: "Store not supported!",

@@ -16,10 +16,10 @@ const auth = firebase.auth();
 const login_form = document.querySelector("#login-form");
 login_form.addEventListener("submit", (event) => {
     event.preventDefault();
-    // const email = login_form["inputEmail"].value;
-    // const password = login_form["inputPassword"].value;
-    let email = "palfi.szabolcs.8@gmail.com";
-    let password = "terminator";
+    const email = login_form["inputEmail"].value;
+    const password = login_form["inputPassword"].value;
+    // let email = "palfi.szabolcs.8@gmail.com";
+    // let password = "terminator";
 
     firebase.auth().signInWithEmailAndPassword(email, password).then(creadential => {
         Swal.fire({
