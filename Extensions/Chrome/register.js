@@ -35,9 +35,14 @@ register_form.addEventListener("submit", (event) => {
     }
 
     auth.createUserWithEmailAndPassword(email, password).then(credential => {
+        auth.currentUser.sendEmailVerification().then(function() {
+            // Email sent.
+        }).catch(function(error) {
+            // An error happened.
+        });
         Swal.fire({
             title: "Done!",
-            text: "Registered successfully",
+            text: "Registered successfully. Don't forget to verify your email address before you sign in!",
             icon: "success"
         }).then(function(){
             window.location.href = "login.html";

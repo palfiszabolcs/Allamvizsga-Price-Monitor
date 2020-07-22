@@ -11,30 +11,73 @@ var config = {
 firebase.initializeApp(config);
 const auth = firebase.auth();
 const database = firebase.database();
+const addresses = ['emag.ro', "flanco.ro", "altex.ro", "qucikmobile.ro"];
 
 var html = document.querySelector("#extension");
 var body = document.querySelector("body");
 var header = document.getElementById('header');
 var container = document.getElementById('container');
 
+
 function get_site_address(url) {
    let patt = new RegExp("[a-zA-z]+\.ro+|[a-zA-z]+\.com+|[a-zA-z]+\.eu+");
    let res = patt.exec(url);
-   return res;
- }
+   return String(res);
+}
 
-function show_URL(){
-   chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-      let url = tabs[0].url;
-      let short_address = get_site_address(url);
-         if (short_address == "emag.ro" || short_address == "flanco.ro"){
-         let p = document.createElement("p");
-         p.setAttribute("class", "text-center");
-         let text = document.createTextNode(url);
-         p.appendChild(text);
-         header.appendChild(p);
+async function get_products_url(){
+   let urls = [];
+   await chrome.storage.sync.get('products', function (result){
+      let products = result.products;
+      for(let id of Object.keys(result.products)){
+         urls.push(String(products[id].url))
       }
    });
+   return urls;
+}
+
+function show_URL_track(){
+   var urls = []
+   get_products_url().then(function(res){
+      urls = res
+      console.log(urls)
+
+      // console.log(urls)
+      chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+         let url = tabs[0].url;
+         let short_address = get_site_address(url);
+         if (addresses.includes(short_address)){
+            // console.log("url: " + url)
+            // console.log(urls)
+            // console.log(urls.includes(url))
+            // console.log(jQuery.inArray( url, urls))
+            // urls.forEach(valami => console.log(valami))
+
+            if(urls.includes(url)){
+               // console.log(urls, url)
+               let p = document.createElement("p");
+               p.setAttribute("class", "text-center");
+               let text = document.createTextNode("Product Already Tracked");
+               p.appendChild(text);
+               header.appendChild(p);
+            }else{
+               let track_button = document.createElement("button");
+               track_button.setAttribute("id", "track_buton");
+               track_button.setAttribute("type", "button");
+               track_button.setAttribute("class", "btn btn-primary mr-1");
+               track_button.textContent = "Track product on this page";
+               header.appendChild(track_button);
+      
+               track_button.onclick  = function(){push_to_new(url);}
+            }
+
+         }
+      })
+
+
+   })
+   
+   
 }
 
 function upload_URL(user = "TEST-user", url = "test-url", category = "test category"){
@@ -49,162 +92,116 @@ function upload_URL(user = "TEST-user", url = "test-url", category = "test categ
 }
 
 function push_to_new(url = "test-url") {
-   chrome.storage.sync.get('firebase_uid', function (result) {
-      let user = result.firebase_uid;
-      let postsRef = database.ref("/NEW").child(user);
+   // chrome.storage.sync.get('firebase_uid', function (result) {
+      // let user = result.firebase_uid;
+      let postsRef = database.ref("/NEW").child(auth.currentUser.uid);
       postsRef.push().set({
          url : url
       }).then(function(){
             Swal.fire({
                title: "Done!",
                text: "Item will be added within 5 minutes",
-               icon: "success"
+               customClass: "swall_wide",
+               icon: "success",
+               showConfirmButton: false,
+               timer: 2500
             })
          });
-  });
+//   });
 }
 
-function fill_category(user_id, category){
-   database.ref('/USERS/' + user_id).on("value", function(item){
-      let items = item.val();
-      
-      let div_cateogry = document.createElement("div");
-      div_cateogry.setAttribute("class", "my-3 p-3 bg-white rounded shadow-sm");
-      let h6 = document.createElement("h6");
-      h6.setAttribute("class", "border-bottom border-gray pb-2 mb-0");
-      h6.textContent = category;
-      div_cateogry.appendChild(h6);
-      
-      for(let id of Object.keys(items)){
-         let checks = items[id].check
-         let last = Object.keys(items[id].check)[Object.keys(items[id].check).length-1];
-         let url = items[id].url;
-         let category = items[id].category;
-         let name = items[id].name;
-         let currency = items[id].currency;
-         let price = checks[last].price;
-         
-         let a_url = document.createElement("a");
-         a_url.setAttribute("href", url);
-         div_cateogry.appendChild(a_url);
-         
-         let div_media_muted = document.createElement("div");
-         div_media_muted.setAttribute("class", "media text-muted pt-3");
-         a_url.appendChild(div_media_muted);
-         
-         let div_media_body = document.createElement("div");
-         div_media_body.setAttribute("class", "media-body pb-3 mb-0 small lh-125 border-bottom border-gray");
-         div_media_muted.appendChild(div_media_body);
-         
-         let div_media_holder = document.createElement("div");
-         div_media_holder.setAttribute("class", "d-flex justify-content-between align-items-center w-100");
-         div_media_body.appendChild(div_media_holder);
-         
-         let strong_name = document.createElement("strong");
-         strong_name.setAttribute("class", "text-gray-dark");
-         strong_name.textContent = name;
-         div_media_holder.appendChild(strong_name);
-         
-         let strong_price = document.createElement("strong");
-         strong_price.setAttribute("class", "text-gray-dark");
-         strong_price.textContent = currency + " " + price;
-         div_media_holder.appendChild(strong_price);
-         
-      }
-      
-      container.appendChild(div_cateogry);
-      
-   },function (errorObject) {
-      console.log("The read failed: " + errorObject.code);
-   });
-   
-}
-
-function fill_category2(){
+function fill_category(){
    chrome.storage.sync.get('products', function (result) {
       var items = result.products;
-      
-      for(let id of Object.keys(items)){
-         let checks = items[id].check
-         let last = Object.keys(items[id].check)[Object.keys(items[id].check).length-1];
-         let url = items[id].url;
-         let category = items[id].category;
-         let name = items[id].name;
-         let currency = items[id].currency;
-         let image = items[id].image;
-         let price = checks[last].price;
-         
-         
-         let row = document.createElement("div");
-         row.setAttribute("class", "row");
-         container.appendChild(row);
-
-         let flex_div = document.createElement("div");
-         flex_div.setAttribute("class", "col-md-4 d-flex");
-         row.appendChild(flex_div);
-
-         let img = document.createElement("img");
-         img.setAttribute("class", "rounded float-left w-25 my-auto");
-         img.setAttribute("src", image);
-         flex_div.appendChild(img);
-
-         let name_price_div = document.createElement("div");
-         name_price_div.setAttribute("class", "card-block px-3 w-75 float-right");
-         flex_div.appendChild(name_price_div);
-
-         let a_url = document.createElement("a");
-         a_url.setAttribute("href", url);
-         a_url.setAttribute("target", "_blank");
-         name_price_div.appendChild(a_url);
-
-         let h5_name = document.createElement("h5");
-         h5_name.setAttribute("class", "card-title crop-text-2 text-wrap");
-         h5_name.textContent = name
-         a_url.appendChild(h5_name);
-
-         let div = document.createElement("div");
-         name_price_div.appendChild(div);
-
-         let p_price = document.createElement("p");
-         p_price.setAttribute("class", "card-text w-70 float-left");
-         p_price.setAttribute("id", "price");
-         p_price.textContent = currency + " " + price;
-         div.appendChild(p_price);
-
-         let chart_button = document.createElement("button");
-         chart_button.setAttribute("type", "button");
-         chart_button.setAttribute("class", "btn btn-outline-primary w-30 float-right");
-         chart_button.setAttribute("id", "chart_button");
-         div.appendChild(chart_button);
-         
-         let icon = document.createElement("i");
-         icon.setAttribute("class", "fa fa-bar-chart-o");
-         chart_button.appendChild(icon);
-
-         let button_text = document.createTextNode(" Chart");
-         chart_button.appendChild(button_text);
-         
-         let divider = document.createElement("hr");
-         container.appendChild(divider);
-
-         let hidden_input = document.createElement("input");
-         hidden_input.setAttribute("id", "prod_id");
-         hidden_input.setAttribute("type", "hidden");
-         hidden_input.setAttribute("value", id);
-         div.appendChild(hidden_input);
-
-         chart_button.onclick = function(){
-            // let prod_id = document.getElementById("prod_id").value;
-            // console.log("prod_id " + prod_id);
+      if(items === null){
+         let empty_text = document.createElement("p");
+         empty_text.setAttribute("class", "card-text text-center");
+         empty_text.textContent = "No products yet";
+         container.appendChild(empty_text);
+      }else{
+         for(let id of Object.keys(items)){
+            let checks = items[id].check
+            let last = Object.keys(items[id].check)[Object.keys(items[id].check).length-1];
+            let url = items[id].url;
+            let category = items[id].category;
+            let name = items[id].name;
+            let currency = items[id].currency;
+            let image = items[id].image;
+            let price = checks[last].price;
             
-            chrome.runtime.sendMessage({
-               msg: "load_chart_data",
-               id: id
-            });
-            window.location.href = "chart.html";
+            
+            let row = document.createElement("div");
+            row.setAttribute("class", "row");
+            container.appendChild(row);
+   
+            let flex_div = document.createElement("div");
+            flex_div.setAttribute("class", "col-md-4 d-flex");
+            row.appendChild(flex_div);
+   
+            let img = document.createElement("img");
+            img.setAttribute("class", "rounded float-left w-25 my-auto");
+            img.setAttribute("src", image);
+            flex_div.appendChild(img);
+   
+            let name_price_div = document.createElement("div");
+            name_price_div.setAttribute("class", "card-block px-3 w-75 float-right");
+            flex_div.appendChild(name_price_div);
+   
+            let a_url = document.createElement("a");
+            a_url.setAttribute("href", url);
+            a_url.setAttribute("target", "_blank");
+            name_price_div.appendChild(a_url);
+   
+            let h5_name = document.createElement("h5");
+            h5_name.setAttribute("class", "card-title crop-text-2 text-wrap");
+            h5_name.textContent = name
+            a_url.appendChild(h5_name);
+   
+            let div = document.createElement("div");
+            name_price_div.appendChild(div);
+   
+            let p_price = document.createElement("p");
+            p_price.setAttribute("class", "card-text w-70 float-left");
+            p_price.setAttribute("id", "price");
+            p_price.textContent = currency + " " + price;
+            div.appendChild(p_price);
+   
+            let chart_button = document.createElement("button");
+            chart_button.setAttribute("type", "button");
+            chart_button.setAttribute("class", "btn btn-outline-primary w-30 float-right");
+            chart_button.setAttribute("id", "chart_button");
+            div.appendChild(chart_button);
+            
+            let icon = document.createElement("i");
+            icon.setAttribute("class", "fa fa-bar-chart-o");
+            chart_button.appendChild(icon);
+   
+            let button_text = document.createTextNode(" Chart");
+            chart_button.appendChild(button_text);
+            
+            let divider = document.createElement("hr");
+            container.appendChild(divider);
+   
+            let hidden_input = document.createElement("input");
+            hidden_input.setAttribute("id", "prod_id");
+            hidden_input.setAttribute("type", "hidden");
+            hidden_input.setAttribute("value", id);
+            div.appendChild(hidden_input);
+   
+            chart_button.onclick = function(){
+               // let prod_id = document.getElementById("prod_id").value;
+               // console.log("prod_id " + prod_id);
+               
+               chrome.runtime.sendMessage({
+                  msg: "load_chart_data",
+                  id: id
+               });
+               window.location.href = "chart.html";
+            }
+   
          }
-
       }
+
 
    });
 
@@ -216,7 +213,7 @@ function init(){
       console.log("user: ", uid);
    
       if(uid != null){
-         fill_category2();
+         fill_category();
       }else{
          chrome.runtime.sendMessage({
             msg: "id_null"
@@ -225,64 +222,137 @@ function init(){
    });
 }
 
-document.addEventListener("DOMContentLoaded", show_URL());
-
-document.getElementById("logout_button").onclick = function(){
+function logout(){
    chrome.runtime.sendMessage({
       msg: "logout"
    });
 }
+
+function delete_user(){
+   database.ref('/USERS/' + auth.currentUser.uid).remove();
+   auth.currentUser.delete().then(function(){
+      Swal.fire({
+         title: 'Your account has been deleted!',
+         customClass: "swall_wide",
+         icon: 'success'
+      }).then(function(){
+         logout();
+      })
+   }).catch(function(error) {
+      console.log(error.code);
+   });
+}
+
+// document.addEventListener("DOMContentLoaded", get_products_url());
+document.addEventListener("DOMContentLoaded", show_URL_track());
+
+
+
 document.getElementById("info").onclick = function(){
    Swal.fire({
       title: "Description",
-      html: "blablablablablablablablablablablablablablabla\
-      blablablablablablablablablablab lablablablabla blablablablablablablablablablablablablablabla\
-      blablablablablab lablablablablablablablablablablablablablablablablablabl ablablablablablabla\
-      blablablablablablablablabl blablablablablabla blablablablablablab lablablablablablablablabla\
-      blablab lablablablabl ablablablabla blablablabla bla blablablablablab lablab lablabla blabla blabla\
-      \ <br> Supported stores: <a href='https://www.emag.ro' target='_blank'>emag.ro</a>",
-      icon: "info"
+      showCloseButton: true,
+      showConfirmButton: false,
+      scrollbarPadding: false,
+      icon: "info",
+      html: `blablablablablablablablablablablablablablabla
+      blablablablablablablablablablab lablablablabla blablablablablablablablablablablablablablabla
+      blablablablablablablablablablab lablablablabla blablablablablablablablablablablablablablabla
+      
+      blablablablablablablablabl blablablablablabla blablablablablablab lablablablablablablablabla
+      blablab lablablablabl ablablablabla blablablabla bla blablablablablab lablab lablabla blabla blabla
+      \ <br> <b>Supported stores:</b> <br> <a href='https://www.emag.ro' target='_blank'>emag.ro</a> <br>
+      <a href='https://www.flanco.ro' target='_blank'>flanco.ro</a> <br>
+      <a href='https://www.altex.ro' target='_blank'>altex.ro</a> <br>
+      <a href='https://www.quickmobile.ro' target='_blank'>quickmobile.ro</a> <br>
+      `
    });
 }
+
+document.getElementById("user").onclick = function(){
+   Swal.fire({
+      title: auth.currentUser.email,
+      customClass: "swall_title",
+      icon: "info",
+      showConfirmButton: false,
+      showCloseButton : true,
+      html: `<button id="reset" type="button" class="btn btn-warning btn-block">Reset Password</button>
+      <button id="delete_account" type="button" class="btn btn-secondary btn-block">Delete Account</button>
+      <button id="logout" type="button" class="btn btn-danger btn-block">Sign Out</button>`,
+      onOpen: (doc) => {
+         document.getElementById("reset").onclick = function(){
+            Swal.fire({ 
+               title: "Reset",
+               text: "Reset email will be sent to this address: " + auth.currentUser.email,
+               customClass: "swall_wide",
+               icon: "warning",
+               showCloseButton: true,
+               showCancelButton: true,
+               confirmButtonText: 'Send',
+               cancelButtonText: 'Cancel'
+            }).then((result) => {
+                  if (result.value) {
+                     auth.sendPasswordResetEmail(auth.currentUser.email).then(function(){
+                        Swal.fire({
+                           title: "Done!",
+                           text: "Password reset email sent!",
+                           customClass: "swall_wide",
+                           icon: "success"
+                       }).then(function(){
+                           logout();
+                       })
+                     })
+                  } else if (result.dismiss === Swal.DismissReason.cancel) {
+                     
+                  }
+            })
+         }
+         document.getElementById("delete_account").onclick = function(){
+            Swal.fire({
+               title: 'Delete Account',
+               text: "Are you sure?",
+               customClass: "swall_wide",
+               icon: 'warning',
+               showCancelButton: true,
+               confirmButtonColor: '#3085d6',
+               cancelButtonColor: '#d33',
+               confirmButtonText: 'Delete'
+             }).then((result) => {
+               if (result.value) {
+                 delete_user();
+               }
+             })
+         }
+         document.getElementById("logout").onclick = function(){
+            Swal.fire({
+               title: 'Log Out',
+               text: "Do you want to log out?",
+               customClass: "swall_wide",
+               icon: 'warning',
+               showCancelButton: true,
+               confirmButtonColor: '#3085d6',
+               cancelButtonColor: '#d33',
+               confirmButtonText: 'Log Out'
+             }).then((result) => {
+               if (result.value) {
+                 Swal.fire({
+                    title: 'Logged Out',
+                    icon: 'success',
+                    timer: 3000
+                 }).then(function(){
+                    logout();
+                 })
+               }
+             })
+         }
+      }
+   })
+
+}
+
 document.getElementById("close").onclick = function(){
    window.close();
 }
 
-document.getElementById("track_buton").onclick = function(){
-   chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-      // console.log(tabs);
-      let url = tabs[0].url;
-      let short_address = get_site_address(url);
-      // console.log(short_address[0])
-      if(short_address[0] != "emag.ro" ){
-         Swal.fire({
-            title: "Sorry!",
-            text: "Store not supported!",
-            icon: "info"
-         })
-         return;
-      }else{
-         push_to_new(url);
-      }
-   });
-}
-
-
-
-// document.getElementById("chart_button").onclick = function(){
-//    // chrome.storage.sync.set({"scroll": window.scrollY});
-//    // sessionStorage.setItem("scroll", window.scrollY);
-
-//    console.log("before scroll" ,  window.scrollY)
-
-//    let prod_id = document.getElementById("prod_id").value;
-//    chrome.runtime.sendMessage({
-//       msg: "load_chart_data",
-//       id: prod_id
-//    });
-//    // history.pushState("chart.html");
-//    // window.location.href = "chart.html";
-
-// }
 
 init();

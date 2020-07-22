@@ -51,15 +51,19 @@ chrome.storage.sync.get(["chart", "chart_prod_id"], function (result) {
         }
     });
 
-    let div = document.createElement("div");
-    div.setAttribute("class", "prod_link");
-    card.appendChild(div);
+    let link_div = document.createElement("div");
+    link_div.setAttribute("class", "prod_link");
+    card.appendChild(link_div);
+
+    let button_div = document.createElement("div");
+    button_div.setAttribute("class", "delete_div")
+    card.appendChild(button_div)
 
     let delete_button = document.createElement("button");
     delete_button.setAttribute("type", "button");
     delete_button.setAttribute("id", "delete_button");
     delete_button.setAttribute("class", "btn btn-outline-danger btn-block");
-    card.appendChild(delete_button);
+    button_div.appendChild(delete_button);
 
     let icon = document.createElement("i");
     icon.setAttribute("class", "fa fa-trash");
@@ -72,7 +76,7 @@ chrome.storage.sync.get(["chart", "chart_prod_id"], function (result) {
     a_url.setAttribute("href", url);
     a_url.setAttribute("target", "_blank");
     a_url.textContent = url
-    div.appendChild(a_url);
+    link_div.appendChild(a_url);
 
     
     document.getElementById("delete_button").onclick = function(){
@@ -94,15 +98,17 @@ chrome.storage.sync.get(["chart", "chart_prod_id"], function (result) {
             reverseButtons: false
           }).then((result) => {
             if (result.value) {
-                // chrome.runtime.sendMessage({
-                // msg: "delete",
-                // id: prod_id
-                // });
+                chrome.runtime.sendMessage({
+                    msg: "delete",
+                    id: prod_id
+                });
               
-                swalWithBootstrapButtons.fire(
-                "Deleted!",
-                "You won't follow this product anymore.",
-                "success"
+                swalWithBootstrapButtons.fire({
+                    title: "Deleted!",
+                    text: "You won't follow this product anymore.",
+                    icon: "success",
+                    timer: 2500
+                }
                 ).then(function(){
                     history.back();
                 })

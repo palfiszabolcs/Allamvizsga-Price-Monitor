@@ -11,6 +11,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const database = firebase.database();
+// const uid = auth.currentUser.uid;
 
 // const user = await chrome.storage.sync.get('firebase_uid', function (result) {
 //     var uid = result.firebase_uid;
@@ -61,9 +62,7 @@ function get_uid(){
            console.log("id null");
        }
     });
-
 }
-
 
 function update_popup(){
     chrome.browserAction.setPopup({popup: "popup.html"});
@@ -74,6 +73,7 @@ function logout(){
     chrome.storage.sync.set({"firebase_uid": null});
     chrome.browserAction.setPopup({popup: "login.html"});
     chrome.runtime.reload();
+    auth.signOut();
 }
 
 function load_data(){

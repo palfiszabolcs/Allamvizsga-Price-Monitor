@@ -40,8 +40,8 @@ def get_url_info(url):
     # if address == "evomag.ro":
     #     return util.get_and_parse_evomag(soup)
 
-    # if address == "quickmobile.ro":
-    #     return util.get_and_parse_quickmobile(soup)
+    if address == "quickmobile.ro":
+        return util.get_and_parse_quickmobile(soup)
 
     # if address == "gymbeam.ro":
     #     return util.get_and_parse_gymbeam(soup)
@@ -256,16 +256,16 @@ def test_push_to_new():
 
 # test_push_to_users()
 
-# update_users()
+# update_users_new_products()
 
-# update_prices()
+update_prices()
 
 
-schedule.every(5).minutes.do(update_users_new_products)
-schedule.every().day.at('6:00').do(update_prices)
-
-while True:
-    schedule.run_pending()
-    time.sleep(5)
+# schedule.every(5).minutes.do(update_users_new_products)
+# schedule.every().day.at('6:00').do(update_prices)
+#
+# while True:
+#     schedule.run_pending()
+#     time.sleep(5)
 
 # ############################################ - TEST BENCH - ####################################################

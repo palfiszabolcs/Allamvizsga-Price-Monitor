@@ -21,24 +21,38 @@ login_form.addEventListener("submit", (event) => {
     // let email = "palfi.szabolcs.8@gmail.com";
     // let password = "terminator";
 
-    firebase.auth().signInWithEmailAndPassword(email, password).then(creadential => {
-        Swal.fire({
-            title: "Done!",
-            text: "Login successfull",
-            icon: "success"
-        }).then(function(){
-            chrome.storage.sync.set({"firebase_uid": creadential.user.uid});
-            chrome.runtime.sendMessage({
-                msg: "login"
-            });
-            window.location.href = "popup.html";
-        })
+    auth.signInWithEmailAndPassword(email, password).then(creadential => {
+        if (auth.currentUser.emailVerified === true){
+            Swal.fire({
+                title: "Done!",
+                text: "Login successfull",
+                customClass: "swall_wide",
+                icon: "success",
+               timer: 2500
+            }).then(function(){
+                chrome.storage.sync.set({"firebase_uid": creadential.user.uid});
+                chrome.runtime.sendMessage({
+                    msg: "login"
+                });
+                // window.location.href = "popup.html";
+            })
+        }else{
+            Swal.fire({
+                title: "Verification!",
+                text: "You need to confirm your email address first!",
+                customClass: "swall_wide",
+                icon: "info"
+            }).then(function(){
+                return
+            })
+        }
     }).catch(function(error) {
         switch(error.code){
             case "auth/wrong-password":
                 Swal.fire({
                     title: "Error!",
                     text: "Wrong password!",
+                    customClass: "swall_wide",
                     icon: "error"
                 })
             break;
@@ -46,6 +60,7 @@ login_form.addEventListener("submit", (event) => {
                 Swal.fire({
                     title: "Error!",
                     text: "User not found",
+                    customClass: "swall_wide",
                     icon: "error"
                 })
             break;
