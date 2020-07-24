@@ -7,17 +7,30 @@ var config = {
    messagingSenderId: "64162639666",
    appId: "1:64162639666:web:e52835cf7db1e501f5f12b",
    measurementId: "G-J2V35CT5HN"
- };
+};
+var test_config = {
+   apiKey: "AIzaSyBzVh8iJa5OFoQWlySTYpyIsaiBvAtKGzY",
+   authDomain: "price-monitor-test.firebaseapp.com",
+   databaseURL: "https://price-monitor-test.firebaseio.com",
+   projectId: "price-monitor-test",
+   storageBucket: "price-monitor-test.appspot.com",
+   messagingSenderId: "1011311146437",
+   appId: "1:1011311146437:web:b7cac35ff3c0dd1b7c47ac",
+   measurementId: "G-0FH22DHZW3"
+};
 firebase.initializeApp(config);
 const auth = firebase.auth();
 const database = firebase.database();
 const addresses = ['emag.ro', "flanco.ro", "altex.ro", "qucikmobile.ro"];
+$(function(){ $(document).scrollreminder(); });
+// $(function(){ $.positionTrack(); });
+// $.positionTrack()
+
 
 var html = document.querySelector("#extension");
 var body = document.querySelector("body");
 var header = document.getElementById('header');
 var container = document.getElementById('container');
-
 
 function get_site_address(url) {
    let patt = new RegExp("[a-zA-z]+\.ro+|[a-zA-z]+\.com+|[a-zA-z]+\.eu+");
@@ -40,7 +53,7 @@ function show_URL_track(){
    var urls = []
    get_products_url().then(function(res){
       urls = res
-      console.log(urls)
+      // console.log(urls)
 
       // console.log(urls)
       chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
@@ -111,8 +124,13 @@ function push_to_new(url = "test-url") {
 }
 
 function fill_category(){
-   chrome.storage.sync.get('products', function (result) {
-      var items = result.products;
+   // let data = JSON.parse(localStorage.getItem("products"));
+   let prod = localStorage.getItem("products");
+   let data = JSON.parse(prod);
+   data = Array(data);
+   // console.log("data: " + Object.keys(data[0]))
+   data.forEach(items => {
+      // console.log(element)
       if(items === null){
          let empty_text = document.createElement("p");
          empty_text.setAttribute("class", "card-text text-center");
@@ -163,7 +181,12 @@ function fill_category(){
             let p_price = document.createElement("p");
             p_price.setAttribute("class", "card-text w-70 float-left");
             p_price.setAttribute("id", "price");
-            p_price.textContent = currency + " " + price;
+            if(price != "error"){
+               p_price.textContent = currency + " " + price;
+            }else{
+               p_price.textContent = "UNAVAILABLE"
+                
+            }
             div.appendChild(p_price);
    
             let chart_button = document.createElement("button");
@@ -201,9 +224,16 @@ function fill_category(){
    
          }
       }
-
-
+      
    });
+
+   // chrome.storage.sync.get('products', function (result) {
+      
+      // var items = result.products;
+      // console.log(items)
+
+
+   // });
 
 }
 
@@ -245,7 +275,6 @@ function delete_user(){
 
 // document.addEventListener("DOMContentLoaded", get_products_url());
 document.addEventListener("DOMContentLoaded", show_URL_track());
-
 
 
 document.getElementById("info").onclick = function(){

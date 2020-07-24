@@ -1,4 +1,4 @@
-const firebaseConfig = {
+const config = {
     apiKey: "AIzaSyDMye3XhwYr8682BFxiA-GmPvR8hmoAvy0",
     authDomain: "price-monitor-44858.firebaseapp.com",
     databaseURL: "https://price-monitor-44858.firebaseio.com",
@@ -8,7 +8,17 @@ const firebaseConfig = {
     appId: "1:64162639666:web:e52835cf7db1e501f5f12b",
     measurementId: "G-J2V35CT5HN"
 };
-firebase.initializeApp(firebaseConfig);
+var test_config = {
+    apiKey: "AIzaSyBzVh8iJa5OFoQWlySTYpyIsaiBvAtKGzY",
+    authDomain: "price-monitor-test.firebaseapp.com",
+    databaseURL: "https://price-monitor-test.firebaseio.com",
+    projectId: "price-monitor-test",
+    storageBucket: "price-monitor-test.appspot.com",
+    messagingSenderId: "1011311146437",
+    appId: "1:1011311146437:web:b7cac35ff3c0dd1b7c47ac",
+    measurementId: "G-0FH22DHZW3"
+};
+firebase.initializeApp(config);
 const auth = firebase.auth();
 const database = firebase.database();
 // const uid = auth.currentUser.uid;
@@ -76,14 +86,17 @@ function logout(){
     auth.signOut();
 }
 
+var valami = "valami";
 function load_data(){
     chrome.storage.sync.get('firebase_uid', function (result) {
         var uid = result.firebase_uid;
         sessionStorage.setItem("uid", uid);
         database.ref('/USERS/' + uid).on("value", function(item){
            let items = item.val();
-           chrome.storage.sync.set({"products": items});
-    
+        //    chrome.storage.sync.set({"products": items});
+            // console.log(items)
+            localStorage.setItem("products", JSON.stringify(items));
+            console.log(JSON.stringify(items))
         },function (errorObject) {
            console.log("The read failed: " + errorObject.code);
         });
@@ -95,7 +108,9 @@ function load_chart_data(prod_id){
         var uid = result.firebase_uid;
         database.ref('/USERS/' + uid + "/" + prod_id).on("value", function(item){
             let prod = item.val();
-            chrome.storage.sync.set({"chart": prod, "chart_prod_id": prod_id});
+            // chrome.storage.sync.set({"chart": prod, "chart_prod_id": prod_id});
+            localStorage.setItem("chart", JSON.stringify(prod));
+            localStorage.setItem("chart_prod_id", prod_id);
            
         },function (errorObject) {
            console.log("The read failed: " + errorObject.code);

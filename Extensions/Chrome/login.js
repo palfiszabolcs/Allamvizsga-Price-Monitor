@@ -1,4 +1,4 @@
-const firebaseConfig = {
+const config = {
     apiKey: "AIzaSyDMye3XhwYr8682BFxiA-GmPvR8hmoAvy0",
     authDomain: "price-monitor-44858.firebaseapp.com",
     databaseURL: "https://price-monitor-44858.firebaseio.com",
@@ -8,7 +8,17 @@ const firebaseConfig = {
     appId: "1:64162639666:web:e52835cf7db1e501f5f12b",
     measurementId: "G-J2V35CT5HN"
 };
-firebase.initializeApp(firebaseConfig);
+var test_config = {
+    apiKey: "AIzaSyBzVh8iJa5OFoQWlySTYpyIsaiBvAtKGzY",
+    authDomain: "price-monitor-test.firebaseapp.com",
+    databaseURL: "https://price-monitor-test.firebaseio.com",
+    projectId: "price-monitor-test",
+    storageBucket: "price-monitor-test.appspot.com",
+    messagingSenderId: "1011311146437",
+    appId: "1:1011311146437:web:b7cac35ff3c0dd1b7c47ac",
+    measurementId: "G-0FH22DHZW3"
+  };
+firebase.initializeApp(config);
 const auth = firebase.auth();
 // var bg = chrome.extension.getBackgroundPage();
 // bg.login();
@@ -73,10 +83,10 @@ login_form.addEventListener("submit", (event) => {
       });
 })
 
-document.getElementById("login-google").onclick = function(){
-    chrome.runtime.sendMessage({
-        msg: "google"
-    });
-    console.log("google")
-}
+// document.getElementById("login-google").onclick = function(){
+//     chrome.runtime.sendMessage({
+//         msg: "google"
+//     });
+//     console.log("google")
+// }
 

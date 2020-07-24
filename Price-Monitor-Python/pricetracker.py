@@ -130,7 +130,13 @@ def update_prices():
         users_product_list = util.make_product_list(user)
         for item in users_product_list:
             product_data = get_url_info(item.product_data.url)
-            price = product_data.price
+            if product_data:
+                price = product_data.price
+            else:
+                price = "error"
+                util.upload_error(user, item.product_id, date.today(), item.product_data.url)
+                print("!!! ERROR FOUND !!!")
+                print("----------------")
             # print(user + ":" + item.product_data.name + ": (" + str(price) + "," + str(cur_date) + ")")
             res = util.upload_check_data(user, item.product_id, price, date.today())
         print("Updated " + user + "'s products prices")
@@ -258,7 +264,7 @@ def test_push_to_new():
 
 # update_users_new_products()
 
-update_prices()
+# update_prices()
 
 
 # schedule.every(5).minutes.do(update_users_new_products)
@@ -268,4 +274,16 @@ update_prices()
 #     schedule.run_pending()
 #     time.sleep(5)
 
+bad_url1 = "https://www.flanco.ro/apple-watch-series-5-gps-44mm-space-grey-aluminium-case-black-sport-band.html"
+bad_url2 = "https://altex.ro/boxe-audio-5-0-jamo-s-628-hcs-negru/cpd/BOXS628HCSBA/"
+# try:
+#     test = get_url_info(bad_url1)
+#     print(test)
+# except None:
+#     print("exception")
 # ############################################ - TEST BENCH - ####################################################
+# test = get_url_info(bad_url2)
+# if test:
+#     print("ok")
+# else:
+#     util.upload_error("user", "id", date.today(), bad_url2)

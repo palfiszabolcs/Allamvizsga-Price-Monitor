@@ -7,7 +7,11 @@ from Util import database, currency as cur
 
 
 def find_price(soup, tag, class_name):
-    price = soup.find(tag, attrs={"class": class_name}).text.strip()
+    try:
+        price = soup.find(tag, attrs={"class": class_name}).text.strip()
+    except AttributeError:
+        return None
+        # raise Exception("object has no attribute: text (title tag changed / url may not exist)")
     return price
 
 
@@ -15,7 +19,8 @@ def find_title(soup, tag, class_name):
     try:
         title = soup.find(tag, attrs={"class": class_name}).text.strip()
     except AttributeError:
-        raise Exception("object has no attribute: text (title tag changed / url may not exist)")
+        return None
+        # raise Exception("object has no attribute: text (title tag changed / url may not exist)")
     return title
 
 
@@ -114,6 +119,21 @@ def pretty_print_dict(data):
     print(json.dumps(data, indent=4, sort_keys=True))
 
 
+def upload_error(user, product_id, cur_date, url):
+    from firebase import firebase
+
+    firebase = firebase.FirebaseApplication(database.firebase_link2, None)
+
+    error_data = {
+        'prod_id:': product_id,
+        'url': url,
+        'date': cur_date
+    }
+
+    response = firebase.post("ERROR/" + user, error_data)
+    return response
+
+
 def upload_check_data(user, product_id, price, cur_date):
     from firebase import firebase
 
@@ -164,8 +184,8 @@ def get_and_parse_flanco(soup):
     try:
         title = soup.find("h2", attrs={"id": "product-title"}).text.strip()
     except AttributeError:
+        return None
         raise Exception("object has no attribute: text (title tag changed / url may not exist)")
-
 
     price = find_price(soup, "div", "produs-price")
     price = re.sub("\.", '', price)
@@ -211,9 +231,10 @@ def get_and_parse_autovit(soup):
 
 
 def get_and_parse_altex(soup):
-    title = find_title(soup, "h1",
-                       "font-bold leading-none text-black m-0 text-2xl lg:text-3xl")
+    title = find_title(soup, "h1", "font-bold leading-none text-black m-0 text-2xl lg:text-3xl")
     price = find_price(soup, "div", "Price-current")
+    if title or price is None:
+        return None
     price = re.sub("\.", '', price)
     price = re.sub(",", ".", price)
     price = re.sub("lei", '', price)
