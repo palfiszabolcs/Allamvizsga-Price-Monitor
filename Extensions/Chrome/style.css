@@ -95,6 +95,10 @@ h1{
     font-size: 20px;
 }
 
+.fa-arrow-right, .fa-arrow-down, .fa-arrow-up, .fa-exclamation{
+    padding-left: 15px;
+}
+
 .text-center{
     word-wrap: break-word;
 }

@@ -140,7 +140,7 @@ var prices = [];
         document.getElementById("delete_button").onclick = function(){
             const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
-                  confirmButton: 'btn btn-success',
+                  confirmButton: 'btn btn-danger',
                   cancelButton: 'btn btn-danger'
                 },
                 buttonsStyling: true
@@ -173,7 +173,7 @@ var prices = [];
                 } else if (result.dismiss === Swal.DismissReason.cancel){
                             return;
                         }
-              })
+            })
             
         }
 

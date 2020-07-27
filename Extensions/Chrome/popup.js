@@ -140,13 +140,13 @@ function fill_category(){
          for(let id of Object.keys(items)){
             let checks = items[id].check
             let last = Object.keys(items[id].check)[Object.keys(items[id].check).length-1];
+            let second_last = Object.keys(items[id].check)[Object.keys(items[id].check).length-2];
             let url = items[id].url;
             let category = items[id].category;
             let name = items[id].name;
             let currency = items[id].currency;
             let image = items[id].image;
             let price = checks[last].price;
-            
             
             let row = document.createElement("div");
             row.setAttribute("class", "row");
@@ -178,30 +178,58 @@ function fill_category(){
             let div = document.createElement("div");
             name_price_div.appendChild(div);
    
-            let p_price = document.createElement("p");
-            p_price.setAttribute("class", "card-text w-70 float-left");
-            p_price.setAttribute("id", "price");
-            if(price != "error"){
-               p_price.textContent = currency + " " + price;
-            }else{
-               p_price.textContent = "UNAVAILABLE"
-                
-            }
-            div.appendChild(p_price);
-   
-            let chart_button = document.createElement("button");
-            chart_button.setAttribute("type", "button");
-            chart_button.setAttribute("class", "btn btn-outline-primary w-30 float-right");
-            chart_button.setAttribute("id", "chart_button");
-            div.appendChild(chart_button);
+            // let p_price = document.createElement("p");
+            // p_price.setAttribute("class", "card-text w-70 float-left");
+            // p_price.setAttribute("id", "price");
             
+            var chart_button = document.createElement("button");
+            chart_button.setAttribute("type", "button");
+            chart_button.setAttribute("id", "chart_button");
+
             let icon = document.createElement("i");
-            icon.setAttribute("class", "fa fa-bar-chart-o");
-            chart_button.appendChild(icon);
-   
-            let button_text = document.createTextNode(" Chart");
+
+
+            if(price != "error"){
+               var button_price = currency + " " + price;
+
+               if(items[id].check[last].price < items[id].check[second_last].price){
+                  
+                  chart_button.setAttribute("class", "btn btn-success btn-block w-30");
+                  div.appendChild(chart_button);
+                  
+                  icon.setAttribute("class", "fa fa-arrow-down");
+
+               }
+               if(items[id].check[last].price > items[id].check[second_last].price){
+                  chart_button.setAttribute("class", "btn btn-danger btn-block w-30");
+                  div.appendChild(chart_button);
+                  
+                  icon.setAttribute("class", "fa fa-arrow-up");
+
+               }
+               if(items[id].check[last].price == items[id].check[second_last].price){
+                  chart_button.setAttribute("class", "btn btn-primary btn-block w-30");
+                  div.appendChild(chart_button);
+                  
+                  icon.setAttribute("class", "fa fa-arrow-right align-right");
+
+               }
+               
+            }else{
+               var button_price = "UNAVAILABLE"
+               chart_button.setAttribute("class", "btn btn-warning btn-block w-30");
+               div.appendChild(chart_button);
+                  
+               icon.setAttribute("class", "fa fa-exclamation");
+            }
+            // div.appendChild(p_price);
+            
+            let button_text = document.createTextNode(button_price + "     ");
             chart_button.appendChild(button_text);
             
+            chart_button.appendChild(icon);
+            
+   
             let divider = document.createElement("hr");
             container.appendChild(divider);
    
@@ -284,12 +312,10 @@ document.getElementById("info").onclick = function(){
       showConfirmButton: false,
       scrollbarPadding: false,
       icon: "info",
-      html: `blablablablablablablablablablablablablablabla
-      blablablablablablablablablablab lablablablabla blablablablablablablablablablablablablablabla
-      blablablablablablablablablablab lablablablabla blablablablablablablablablablablablablablabla
-      
-      blablablablablablablablabl blablablablablabla blablablablablablab lablablablablablablablabla
-      blablab lablablablabl ablablablabla blablablabla bla blablablablablab lablab lablabla blabla blabla
+      html: `You can use this extension to follow your desired products price changes overtime.<br>
+      Once you are on one of the supported web shops, just press the “Track product on this page” button and your product will we added shortly to your list.<br>
+      The arrow and color coding on each product’s price makes it easier to quickly see changes, compared to yesterday’s data.
+      Clicking the button will show you a chart of price changes.
       \ <br> <b>Supported stores:</b> <br> <a href='https://www.emag.ro' target='_blank'>emag.ro</a> <br>
       <a href='https://www.flanco.ro' target='_blank'>flanco.ro</a> <br>
       <a href='https://www.altex.ro' target='_blank'>altex.ro</a> <br>

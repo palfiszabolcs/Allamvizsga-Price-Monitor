@@ -136,136 +136,16 @@ def update_prices():
                 price = "error"
                 util.upload_error(user, item.product_id, date.today(), item.product_data.url)
                 print("!!! ERROR FOUND !!!")
-                print("----------------")
+                # print("----------------")
             # print(user + ":" + item.product_data.name + ": (" + str(price) + "," + str(cur_date) + ")")
             res = util.upload_check_data(user, item.product_id, price, date.today())
         print("Updated " + user + "'s products prices")
         print("----------------")
 
-
-# ############################################ - TEST BENCH - ####################################################
-
-
-def test_push_to_users():
-    # 1.1
-    url = test_url.flanco
-    # category = cat.electronics
-    result = push_new_data_to_db("Devin Clarkson", url)
-    print(result)
-
-    # 1.2
-    url = test_url.quickmobile
-    # category = cat.electronics
-    result = push_new_data_to_db("Devin Clarkson", url)
-    print(result)
-
-    # 1.3
-    url = test_url.altex
-    # category = cat.electronics
-    result = push_new_data_to_db("Devin Clarkson", url)
-    print(result)
-
-    # 2.1
-    url = test_url.marso
-    # category = cat.vehicles
-    result = push_new_data_to_db("Komal Gates", url)
-    print(result)
-
-    # 2.2
-    url = test_url.dedeman
-    # category = cat.other
-    result = push_new_data_to_db("Komal Gates", url)
-    print(result)
-
-    # 3.1
-    url = test_url.footshop
-    # category = cat.clothing
-    result = push_new_data_to_db(constant.test_user_mcGregor, url)
-    print(result)
-
-    # 3.2
-    url = test_url.mediagalaxy
-    # category = cat.electronics
-    result = push_new_data_to_db(constant.test_user_mcGregor, url)
-    print(result)
-
-    # 4
-    url = test_url.megaproteine
-    # category = cat.sports
-    result = push_new_data_to_db("Adina Watson", url)
-    print(result)
-
-    # 5.1
-    url = test_url.cel
-    # category = cat.electronics
-    result = push_new_data_to_db("Arun Baker", url)
-    print(result)
-
-    # 5.2
-    url = test_url.cel
-    # category = cat.electronics
-    result = push_new_data_to_db("Arun Baker", url)
-    print(result)
-
-    # 5.3
-    url = test_url.emag
-    # category = cat.electronics
-    result = push_new_data_to_db("Arun Baker", url)
-    print(result)
-
-    # 6
-    url = test_url.megaproteine
-    # category = cat.sports
-    result = push_new_data_to_db("Adina Watson", url)
-    print(result)
-
-    # 7.1
-    url = test_url.gymbeam
-    # category = cat.sports
-    result = push_new_data_to_db("Elise Russo", url)
-    print(result)
-
-    # 7.2
-    url = test_url.intersport
-    # category = cat.sports
-    result = push_new_data_to_db("Elise Russo", url)
-    print(result)
-
-    # 7.2
-    url = test_url.sportisimoegory = cat.sports
-    result = push_new_data_to_db("Elise Russo", url)
-    print(result)
-
-
-def push_to_new(user, url):
-    firebase = fb.FirebaseApplication(database.firebase_link, None)
-    data = {
-        'url': url
-    }
-    response = firebase.post("NEW/" + user, data)
-    return response
-
-
-def test_push_to_new():
-    url = test_url.altex
-    # category = cat.electronics
-    result = push_to_new(constant.test_new_johnCena, url)
-    print(result)
-
-    url = test_url.quickmobile
-    # category = cat.electronics
-    result = push_to_new(constant.test_new_theRock, url)
-    print(result)
-
-
-# test_push_to_new()
-
-# test_push_to_users()
+# ############################################ - MAIN - ####################################################
 
 # update_users_new_products()
-
 # update_prices()
-
 
 # schedule.every(5).minutes.do(update_users_new_products)
 # schedule.every().day.at('6:00').do(update_prices)
@@ -273,6 +153,8 @@ def test_push_to_new():
 # while True:
 #     schedule.run_pending()
 #     time.sleep(5)
+# ############################################ - TEST BENCH - ####################################################
+
 
 bad_url1 = "https://www.flanco.ro/apple-watch-series-5-gps-44mm-space-grey-aluminium-case-black-sport-band.html"
 bad_url2 = "https://altex.ro/boxe-audio-5-0-jamo-s-628-hcs-negru/cpd/BOXS628HCSBA/"

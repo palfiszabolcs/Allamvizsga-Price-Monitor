@@ -122,7 +122,7 @@ def pretty_print_dict(data):
 def upload_error(user, product_id, cur_date, url):
     from firebase import firebase
 
-    firebase = firebase.FirebaseApplication(database.firebase_link2, None)
+    firebase = firebase.FirebaseApplication(database.firebase_link, None)
 
     error_data = {
         'prod_id:': product_id,
@@ -158,7 +158,7 @@ def get_and_parse_emag(soup):
     price = re.sub("\.", "", price)
     price = re.sub(",", ".", price)
     price = float(price.strip())
-    currency = "LEI"
+    currency = cur.ron
     image = soup.find("div", attrs={"class": "ph-body"}).img['data-src'].strip()
     product_data = class_ProductData.ProductData(title, price, currency, image)
     return product_data
