@@ -86,7 +86,6 @@ function logout(){
     auth.signOut();
 }
 
-var valami = "valami";
 function load_data(){
     chrome.storage.sync.get('firebase_uid', function (result) {
         var uid = result.firebase_uid;
@@ -96,7 +95,7 @@ function load_data(){
         //    chrome.storage.sync.set({"products": items});
             // console.log(items)
             localStorage.setItem("products", JSON.stringify(items));
-            console.log(JSON.stringify(items))
+            // console.log(JSON.stringify(items))
         },function (errorObject) {
            console.log("The read failed: " + errorObject.code);
         });

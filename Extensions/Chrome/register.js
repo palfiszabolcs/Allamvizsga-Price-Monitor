@@ -46,7 +46,7 @@ register_form.addEventListener("submit", (event) => {
         auth.currentUser.sendEmailVerification().then(function() {
             // Email sent.
         }).catch(function(error) {
-            // An error happened.
+            
         });
         Swal.fire({
             title: "Done!",
