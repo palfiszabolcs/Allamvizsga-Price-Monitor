@@ -141,6 +141,7 @@ function fill_category(){
             let checks = items[id].check
             let last = Object.keys(items[id].check)[Object.keys(items[id].check).length-1];
             let second_last = Object.keys(items[id].check)[Object.keys(items[id].check).length-2];
+            
             let url = items[id].url;
             let category = items[id].category;
             let name = items[id].name;
@@ -191,28 +192,35 @@ function fill_category(){
 
             if(price != "error"){
                var button_price = currency + " " + price;
-
-               if(items[id].check[last].price < items[id].check[second_last].price){
-                  
-                  chart_button.setAttribute("class", "btn btn-success btn-block w-30");
-                  div.appendChild(chart_button);
-                  
-                  icon.setAttribute("class", "fa fa-arrow-down");
-
-               }
-               if(items[id].check[last].price > items[id].check[second_last].price){
-                  chart_button.setAttribute("class", "btn btn-danger btn-block w-30");
-                  div.appendChild(chart_button);
-                  
-                  icon.setAttribute("class", "fa fa-arrow-up");
-
-               }
-               if(items[id].check[last].price == items[id].check[second_last].price){
+               if(second_last === undefined){
                   chart_button.setAttribute("class", "btn btn-primary btn-block w-30");
                   div.appendChild(chart_button);
                   
-                  icon.setAttribute("class", "fa fa-arrow-right align-right");
-
+                  icon.setAttribute("class", "fa fa-arrow-right");
+                  
+               }else{
+                  if(items[id].check[last].price < items[id].check[second_last].price){
+                     
+                     chart_button.setAttribute("class", "btn btn-success btn-block w-30");
+                     div.appendChild(chart_button);
+                     
+                     icon.setAttribute("class", "fa fa-arrow-down");
+   
+                  }
+                  if(items[id].check[last].price > items[id].check[second_last].price){
+                     chart_button.setAttribute("class", "btn btn-danger btn-block w-30");
+                     div.appendChild(chart_button);
+                     
+                     icon.setAttribute("class", "fa fa-arrow-up");
+   
+                  }
+                  if(items[id].check[last].price == items[id].check[second_last].price){
+                     chart_button.setAttribute("class", "btn btn-primary btn-block w-30");
+                     div.appendChild(chart_button);
+                     
+                     icon.setAttribute("class", "fa fa-arrow-right");
+   
+                  }
                }
                
             }else{
