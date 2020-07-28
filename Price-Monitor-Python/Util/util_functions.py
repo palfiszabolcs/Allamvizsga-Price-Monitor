@@ -150,20 +150,86 @@ def upload_check_data(user, product_id, price, cur_date):
 
 def get_and_parse_emag(soup):
     title = find_title(soup, "h1", "page-title")
-    price = soup.find("p", attrs={"class": "product-new-price"}).text.strip()
+    if title is None:
+        return None
+    try:
+        price = soup.find("p", attrs={"class": "product-new-price"}).text.strip()
+    except AttributeError:
+        return None
+
     s = list(price)
     s.insert(-6, ",")
     price = "".join(s)
     price = re.sub("Lei", '', price)
     price = re.sub("\.", "", price)
     price = re.sub(",", ".", price)
-    price = float(price.strip())
+    try:
+        price = float(price.strip())
+    except ValueError:
+        return None
+
     currency = cur.ron
     image = soup.find("div", attrs={"class": "ph-body"}).img['data-src'].strip()
     product_data = class_ProductData.ProductData(title, price, currency, image)
     return product_data
 
 
+def get_and_parse_flanco(soup):
+    try:
+        title = soup.find("h2", attrs={"id": "product-title"}).text.strip()
+    except AttributeError:
+        return None
+    price = find_price(soup, "div", "produs-price")
+    if price is None:
+        return None
+    price = re.sub("\.", '', price)
+    price = re.sub(",", ".", price)
+    price = re.sub("lei", '', price)
+    try:
+        price = float(price)
+    except ValueError:
+        return None
+    currency = cur.ron
+    image = soup.find("img", attrs={"class": "product-main-image-img desktop"})['data-lazy']
+    product_data = class_ProductData.ProductData(title, price, currency, image)
+    return product_data
+
+
+def get_and_parse_altex(soup):
+    title = find_title(soup, "h1", "font-bold leading-none text-black m-0 text-2xl lg:text-3xl")
+    price = find_price(soup, "div", "Price-current")
+    if (title is None) or (price is None):
+        return None
+    price = re.sub("\.", '', price)
+    price = re.sub(",", ".", price)
+    price = re.sub("lei", '', price)
+    try:
+        price = float(price)
+    except ValueError:
+        return None
+    currency = cur.ron
+    image = soup.find("div", attrs={"class": "slick-slide slick-active slick-current"}).img['src'].strip()
+    product_data = class_ProductData.ProductData(title, price, currency, image)
+    return product_data
+
+
+def get_and_parse_quickmobile(soup):
+    title = find_title(soup, "div", "product-page-title page-product-title-wth")
+    price = find_price(soup, "div", "priceFormat total-price price-fav product-page-price")
+    if (title is None) or (price is None):
+         return None
+    price = re.sub("Lei", '', price)
+    try:
+        price = float(price)
+    except ValueError:
+        return None
+    currency = cur.ron
+    image = soup.find("img", attrs={"class": "img-responsive image-gallery"})['src'].strip()
+    product_data = class_ProductData.ProductData(title, price, currency, image)
+    return product_data
+
+
+#--------------------------------------------
 def get_and_parse_mediagalaxy(soup):
     title = find_title(soup, "h1", "font-bold leading-none text-black m-0"
                                    " text-center text-base lg:text-3xl bg-gray-lighter "
@@ -179,23 +245,6 @@ def get_and_parse_mediagalaxy(soup):
     product_data = class_ProductData.ProductData(title, price, currency, image)
     return product_data
 
-
-def get_and_parse_flanco(soup):
-    try:
-        title = soup.find("h2", attrs={"id": "product-title"}).text.strip()
-    except AttributeError:
-        return None
-        raise Exception("object has no attribute: text (title tag changed / url may not exist)")
-
-    price = find_price(soup, "div", "produs-price")
-    price = re.sub("\.", '', price)
-    price = re.sub(",", ".", price)
-    price = re.sub("lei", '', price)
-    price = float(price)
-    currency = cur.ron
-    image = soup.find("img", attrs={"class": "product-main-image-img desktop"})['data-lazy']
-    product_data = class_ProductData.ProductData(title, price, currency, image)
-    return product_data
 
 
 def get_and_parse_cel(soup):
@@ -230,21 +279,6 @@ def get_and_parse_autovit(soup):
     return product_data
 
 
-def get_and_parse_altex(soup):
-    title = find_title(soup, "h1", "font-bold leading-none text-black m-0 text-2xl lg:text-3xl")
-    price = find_price(soup, "div", "Price-current")
-    if title or price is None:
-        return None
-    price = re.sub("\.", '', price)
-    price = re.sub(",", ".", price)
-    price = re.sub("lei", '', price)
-    price = float(price)
-    currency = cur.ron
-    image = soup.find("div", attrs={"class": "slick-slide slick-active slick-current"}).img['src'].strip()
-    product_data = class_ProductData.ProductData(title, price, currency, image)
-    return product_data
-
-
 def get_and_parse_evomag(soup):
     title = find_title(soup, "h1", "product_name")
     price = find_price(soup, "div", "pret_rons")
@@ -254,17 +288,6 @@ def get_and_parse_evomag(soup):
     price = float(price)
     currency = cur.ron
     image = soup.find("a", attrs={"class": "fancybox fancybox.iframe"}).img['src'].strip()
-    product_data = class_ProductData.ProductData(title, price, currency, image)
-    return product_data
-
-
-def get_and_parse_quickmobile(soup):
-    title = find_title(soup, "div", "product-page-title page-product-title-wth")
-    price = find_price(soup, "div", "priceFormat total-price price-fav product-page-price")
-    price = re.sub("Lei", '', price)
-    price = float(price)
-    currency = cur.ron
-    image = soup.find("img", attrs={"class": "img-responsive image-gallery"})['src'].strip()
     product_data = class_ProductData.ProductData(title, price, currency, image)
     return product_data
 

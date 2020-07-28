@@ -144,7 +144,7 @@ def update_prices():
 
 # ############################################ - MAIN - ####################################################
 
-update_users_new_products()
+# update_users_new_products()
 # update_prices()
 
 # schedule.every(5).minutes.do(update_users_new_products)
@@ -158,11 +158,11 @@ update_users_new_products()
 
 bad_url1 = "https://www.flanco.ro/apple-watch-series-5-gps-44mm-space-grey-aluminium-case-black-sport-band.html"
 bad_url2 = "https://altex.ro/boxe-audio-5-0-jamo-s-628-hcs-negru/cpd/BOXS628HCSBA/"
-# try:
-#     test = get_url_info(bad_url1)
-#     print(test)
-# except None:
-#     print("exception")
+url = "https://www.quickmobile.ro/entertainment/boxe-portabile/harman-kardon-boxa-portabila-onyx-studio-6-albastru-206775"
+
+test = get_url_info(url)
+print(test)
+
 # ############################################ - TEST BENCH - ####################################################
 # test = get_url_info(bad_url2)
 # if test:

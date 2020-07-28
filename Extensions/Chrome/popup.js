@@ -42,8 +42,12 @@ async function get_products_url(){
    let urls = [];
    await chrome.storage.sync.get('products', function (result){
       let products = result.products;
-      for(let id of Object.keys(result.products)){
-         urls.push(String(products[id].url))
+      if(products != undefined){
+         for(let id of Object.keys(result.products)){
+            urls.push(String(products[id].url))
+         }
+      }else{
+         return "empty"
       }
    });
    return urls;
@@ -65,23 +69,24 @@ function show_URL_track(){
             // console.log(urls.includes(url))
             // console.log(jQuery.inArray( url, urls))
             // urls.forEach(valami => console.log(valami))
-
-            if(urls.includes(url)){
-               // console.log(urls, url)
-               let p = document.createElement("p");
-               p.setAttribute("class", "text-center");
-               let text = document.createTextNode("Product Already Tracked");
-               p.appendChild(text);
-               header.appendChild(p);
-            }else{
-               let track_button = document.createElement("button");
-               track_button.setAttribute("id", "track_buton");
-               track_button.setAttribute("type", "button");
-               track_button.setAttribute("class", "btn btn-primary mr-1");
-               track_button.textContent = "Track product on this page";
-               header.appendChild(track_button);
-      
-               track_button.onclick  = function(){push_to_new(url);}
+            if(urls != "empty"){
+               if(urls.includes(url)){
+                  // console.log(urls, url)
+                  let p = document.createElement("p");
+                  p.setAttribute("class", "text-center");
+                  let text = document.createTextNode("Product Already Tracked");
+                  p.appendChild(text);
+                  header.appendChild(p);
+               }else{
+                  let track_button = document.createElement("button");
+                  track_button.setAttribute("id", "track_buton");
+                  track_button.setAttribute("type", "button");
+                  track_button.setAttribute("class", "btn btn-primary mr-1");
+                  track_button.textContent = "Track product on this page";
+                  header.appendChild(track_button);
+         
+                  track_button.onclick  = function(){push_to_new(url);}
+               }
             }
 
          }
@@ -276,7 +281,7 @@ function fill_category(){
 function init(){
    chrome.storage.sync.get(["firebase_uid"], function (res) {
       var uid = res.firebase_uid;
-      console.log("user: ", uid);
+      // console.log("user: ", uid);
    
       if(uid != null){
          fill_category();
