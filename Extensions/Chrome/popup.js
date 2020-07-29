@@ -216,7 +216,7 @@ function fill_category(){
                      icon.setAttribute("class", "fa fa-arrow-up");
    
                   }
-                  if(items[id].check[last].price == items[id].check[second_last].price){
+                  if( (items[id].check[last].price == items[id].check[second_last].price) || ((items[id].check[last].price != "error") && items[id].check[second_last].price == "error" )){
                      chart_button.setAttribute("class", "btn btn-primary btn-block w-30");
                      div.appendChild(chart_button);
                      
