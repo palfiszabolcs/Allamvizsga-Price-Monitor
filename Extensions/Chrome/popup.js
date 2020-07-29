@@ -110,9 +110,9 @@ function upload_URL(user = "TEST-user", url = "test-url", category = "test categ
 }
 
 function push_to_new(url = "test-url") {
-   // chrome.storage.sync.get('firebase_uid', function (result) {
-      // let user = result.firebase_uid;
-      let postsRef = database.ref("/NEW").child(auth.currentUser.uid);
+   chrome.storage.sync.get('firebase_uid', function (result) {
+      let user = result.firebase_uid;
+      let postsRef = database.ref("/NEW").child(user);
       postsRef.push().set({
          url : url
       }).then(function(){
@@ -125,17 +125,14 @@ function push_to_new(url = "test-url") {
                timer: 2500
             })
          });
-//   });
+  });
 }
 
 function fill_category(){
-   // let data = JSON.parse(localStorage.getItem("products"));
    let prod = localStorage.getItem("products");
    let data = JSON.parse(prod);
    data = Array(data);
-   // console.log("data: " + Object.keys(data[0]))
    data.forEach(items => {
-      // console.log(element)
       if(items === null){
          let empty_text = document.createElement("p");
          empty_text.setAttribute("class", "card-text text-center");
