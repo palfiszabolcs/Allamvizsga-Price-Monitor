@@ -71,7 +71,7 @@ function show_URL_track(){
             // console.log(urls.includes(url))
             // console.log(jQuery.inArray( url, urls))
             // urls.forEach(valami => console.log(valami))
-            console.log(urls, url)
+            // console.log(urls, url)
             if(urls != "empty"){
                if(urls.includes(url)){
                   let p = document.createElement("p");
@@ -89,6 +89,15 @@ function show_URL_track(){
          
                   track_button.onclick  = function(){push_to_new(url);}
                }
+            }else{
+               let track_button = document.createElement("button");
+                  track_button.setAttribute("id", "track_buton");
+                  track_button.setAttribute("type", "button");
+                  track_button.setAttribute("class", "btn btn-primary mr-1");
+                  track_button.textContent = "Track product on this page";
+                  header.appendChild(track_button);
+         
+                  track_button.onclick  = function(){push_to_new(url);}
             }
 
          }
