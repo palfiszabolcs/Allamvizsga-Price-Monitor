@@ -21,7 +21,7 @@ var test_config = {
 firebase.initializeApp(config);
 const auth = firebase.auth();
 const database = firebase.database();
-const addresses = ['emag.ro', "flanco.ro", "altex.ro", "qucikmobile.ro"];
+const addresses = ["emag.ro", "flanco.ro", "altex.ro", "quickmobile.ro"];
 $(function(){ $(document).scrollreminder(); });
 // $(function(){ $.positionTrack(); });
 // $.positionTrack()
@@ -40,16 +40,18 @@ function get_site_address(url) {
 
 async function get_products_url(){
    let urls = [];
-   await chrome.storage.sync.get('products', function (result){
-      let products = result.products;
-      if(products != undefined){
-         for(let id of Object.keys(result.products)){
-            urls.push(String(products[id].url))
-         }
-      }else{
-         return "empty"
+   let res = localStorage.getItem('products')
+   let products = JSON.parse(res)
+   
+   if(products != undefined){
+      for(let id of Object.keys(products)){
+         urls.push(String(products[id].url))
       }
-   });
+   }else{
+      return "empty"
+   }
+   
+   // console.log(urls)
    return urls;
 }
 
@@ -57,7 +59,7 @@ function show_URL_track(){
    var urls = []
    get_products_url().then(function(res){
       urls = res
-      // console.log(urls)
+      console.log(urls)
 
       // console.log(urls)
       chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
@@ -69,9 +71,9 @@ function show_URL_track(){
             // console.log(urls.includes(url))
             // console.log(jQuery.inArray( url, urls))
             // urls.forEach(valami => console.log(valami))
+            console.log(urls, url)
             if(urls != "empty"){
                if(urls.includes(url)){
-                  // console.log(urls, url)
                   let p = document.createElement("p");
                   p.setAttribute("class", "text-center");
                   let text = document.createTextNode("Product Already Tracked");
@@ -156,8 +158,7 @@ function fill_category(){
             container.appendChild(row);
    
             let flex_div = document.createElement("div");
-            flex_div.setAttribute("class", "d-flex");
-            flex_div.setAttribute("style", "padding-left: 15px");
+            flex_div.setAttribute("class", "col-md-4 d-flex");
             row.appendChild(flex_div);
    
             let img = document.createElement("img");
