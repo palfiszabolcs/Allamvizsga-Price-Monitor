@@ -5,8 +5,6 @@
 
 
 body {
-    background: red
-    /* background: linear-gradient(to right, #0062E6, #33AEFF); */
     margin: 0;
     min-height: 200px;
     width: 400px;
@@ -14,7 +12,7 @@ body {
 
 .card-signin {
 border: 0;
-border-radius: 1rem;
+/* border-radius: 1rem; */
 box-shadow: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.1);
 overflow: hidden;
 }

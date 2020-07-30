@@ -103,6 +103,7 @@ h1{
 .text-center{
     word-wrap: break-word;
 }
+
 .card {
     font-size: 1em;
     overflow: hidden;
@@ -118,7 +119,11 @@ h1{
     margin: 0;
     padding: 1em;
     border: none;
-    box-shadow: none;      
+    box-shadow: none;
+}
+
+.card-signin{
+    border-radius: 0 !important;
 }
 
 .no_padding{

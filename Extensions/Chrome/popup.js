@@ -156,7 +156,8 @@ function fill_category(){
             container.appendChild(row);
    
             let flex_div = document.createElement("div");
-            flex_div.setAttribute("class", "col-md-4 d-flex");
+            flex_div.setAttribute("class", "d-flex");
+            flex_div.setAttribute("style", "padding-left: 15px");
             row.appendChild(flex_div);
    
             let img = document.createElement("img");

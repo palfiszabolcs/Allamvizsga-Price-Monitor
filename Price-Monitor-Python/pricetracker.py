@@ -145,7 +145,7 @@ def update_prices():
 # ############################################ - MAIN - ####################################################
 
 # update_users_new_products()
-# update_prices()
+update_prices()
 
 # schedule.every(5).minutes.do(update_users_new_products)
 # schedule.every().day.at('6:00').do(update_prices)
