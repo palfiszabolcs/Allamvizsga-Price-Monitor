@@ -40,7 +40,7 @@ function get_site_address(url) {
 
 async function get_products_url(){
    let urls = [];
-   let res = localStorage.getItem('products')
+   let res = localStorage.getItem("products")
    let products = JSON.parse(res)
    
    if(products != undefined){
@@ -55,52 +55,71 @@ async function get_products_url(){
    return urls;
 }
 
+async function get_pending_products_url(){
+   let urls = [];
+   let res = localStorage.getItem("pending_products")
+   let pending = JSON.parse(res)
+   if(pending != undefined){
+      for(let id of Object.keys(pending)){
+         urls.push(String(pending[id].url))
+      }
+   }else{
+      return "empty"
+   }
+   
+   // console.log(urls)
+   return urls;
+}
+
 function show_URL_track(){
    var urls = []
+   var pending_urls = []
    get_products_url().then(function(res){
       urls = res
-      console.log(urls)
-
-      // console.log(urls)
-      chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-         let url = tabs[0].url;
-         let short_address = get_site_address(url);
-         if (addresses.includes(short_address)){
-            // console.log("url: " + url)
-            // console.log(urls)
-            // console.log(urls.includes(url))
-            // console.log(jQuery.inArray( url, urls))
-            // urls.forEach(valami => console.log(valami))
-            // console.log(urls, url)
-            if(urls != "empty"){
-               if(urls.includes(url)){
+      get_pending_products_url().then(function (result){
+         pending_urls = result
+         
+         chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+            let url = tabs[0].url;
+            let short_address = get_site_address(url);
+            if (addresses.includes(short_address)){
+               if(pending_urls.includes(url)){
                   let p = document.createElement("p");
                   p.setAttribute("class", "text-center");
-                  let text = document.createTextNode("Product Already Tracked");
+                  let text = document.createTextNode("Product Will Be Added Soon");
                   p.appendChild(text);
                   header.appendChild(p);
                }else{
-                  let track_button = document.createElement("button");
-                  track_button.setAttribute("id", "track_buton");
-                  track_button.setAttribute("type", "button");
-                  track_button.setAttribute("class", "btn btn-primary mr-1");
-                  track_button.textContent = "Track product on this page";
-                  header.appendChild(track_button);
-         
-                  track_button.onclick  = function(){push_to_new(url);}
+                  if(urls != "empty"){
+                     if(urls.includes(url)){
+                        let p = document.createElement("p");
+                        p.setAttribute("class", "text-center");
+                        let text = document.createTextNode("Product Already Tracked");
+                        p.appendChild(text);
+                        header.appendChild(p);
+                     }else{
+                        let track_button = document.createElement("button");
+                        track_button.setAttribute("id", "track_buton");
+                        track_button.setAttribute("type", "button");
+                        track_button.setAttribute("class", "btn btn-primary mr-1");
+                        track_button.textContent = "Track product on this page";
+                        header.appendChild(track_button);
+               
+                        track_button.onclick  = function(){push_to_new(url);}
+                     }
+                  }else{
+                     let track_button = document.createElement("button");
+                        track_button.setAttribute("id", "track_buton");
+                        track_button.setAttribute("type", "button");
+                        track_button.setAttribute("class", "btn btn-primary mr-1");
+                        track_button.textContent = "Track product on this page";
+                        header.appendChild(track_button);
+               
+                        track_button.onclick  = function(){push_to_new(url);}
+                  }
                }
-            }else{
-               let track_button = document.createElement("button");
-                  track_button.setAttribute("id", "track_buton");
-                  track_button.setAttribute("type", "button");
-                  track_button.setAttribute("class", "btn btn-primary mr-1");
-                  track_button.textContent = "Track product on this page";
-                  header.appendChild(track_button);
-         
-                  track_button.onclick  = function(){push_to_new(url);}
             }
-
-         }
+         })
       })
 
 

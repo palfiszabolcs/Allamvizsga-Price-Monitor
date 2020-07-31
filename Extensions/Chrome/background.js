@@ -99,6 +99,15 @@ function load_data(){
         },function (errorObject) {
            console.log("The read failed: " + errorObject.code);
         });
+        database.ref('/NEW/' + uid).on("value", function(item){
+            let items = item.val();
+         //    chrome.storage.sync.set({"products": items});
+             // console.log(items)
+             localStorage.setItem("pending_products", JSON.stringify(items));
+             // console.log(JSON.stringify(items))
+         },function (errorObject) {
+            console.log("The read failed: " + errorObject.code);
+         });
     });
 }
 
