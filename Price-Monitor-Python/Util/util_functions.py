@@ -153,7 +153,8 @@ def get_and_parse_emag(soup):
     if title is None:
         return None
     try:
-        price = soup.find("p", attrs={"class": "product-new-price"}).text.strip()
+        form = soup.find("form", attrs={"class": "main-product-form"})
+        price = form.find("p", attrs={"class": "product-new-price"}).text.strip()
     except AttributeError:
         return None
 
@@ -169,7 +170,7 @@ def get_and_parse_emag(soup):
         return None
 
     currency = cur.ron
-    image = soup.find("div", attrs={"class": "ph-body"}).img['data-src'].strip()
+    image = soup.find("div", attrs={"id": "product-gallery"}).img["src"]
     product_data = class_ProductData.ProductData(title, price, currency, image)
     return product_data
 
@@ -179,8 +180,9 @@ def get_and_parse_flanco(soup):
         title = soup.find("h2", attrs={"id": "product-title"}).text.strip()
     except AttributeError:
         return None
+    stockless = soup.find("div", attrs={"class": "stockless"})
     price = find_price(soup, "div", "produs-price")
-    if price is None:
+    if (price is None) or (stockless is not None):
         return None
     price = re.sub("\.", '', price)
     price = re.sub(",", ".", price)
