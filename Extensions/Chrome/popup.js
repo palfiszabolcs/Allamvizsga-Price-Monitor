@@ -352,8 +352,8 @@ document.getElementById("info").onclick = function(){
       showConfirmButton: false,
       scrollbarPadding: false,
       icon: "info",
-      html: `You can use this extension to follow your desired products price changes overtime.<br>
-      Once you are on one of the supported web shops, just press the “Track product on this page” button and your product will we added shortly to your list.<br>
+      html: `You can use this extension to follow your desired product's price changes over time.<br>
+      Once you are on one of the supported webshops, just press the “Track product on this page” button and your product will be added shortly to your list.<br>
       The arrow and color coding on each product’s price makes it easier to quickly see changes, compared to yesterday’s data.
       Clicking the button will show you a chart of price changes.
       \ <br> <b>Supported stores:</b> <br> <a href='https://www.emag.ro' target='_blank'>emag.ro</a> <br>
