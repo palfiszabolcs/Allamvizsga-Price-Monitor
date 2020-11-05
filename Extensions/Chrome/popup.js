@@ -358,7 +358,6 @@ document.getElementById("info").onclick = function(){
       Clicking the button will show you a chart of price changes.
       \ <br> <b>Supported stores:</b> <br> <a href='https://www.emag.ro' target='_blank'>emag.ro</a> <br>
       <a href='https://www.flanco.ro' target='_blank'>flanco.ro</a> <br>
-      <a href='https://www.altex.ro' target='_blank'>altex.ro</a> <br>
       <a href='https://www.quickmobile.ro' target='_blank'>quickmobile.ro</a> <br>
       `
    });

@@ -150,7 +150,8 @@ def upload_check_data(user, product_id, price, cur_date):
 
 def get_and_parse_emag(soup):
     title = find_title(soup, "h1", "page-title")
-    if title is None:
+    out_of_stock = soup.find("span", attrs={"class": "label-out_of_stock"})
+    if (title is None) or (out_of_stock is not None):
         return None
     try:
         form = soup.find("form", attrs={"class": "main-product-form"})
@@ -192,7 +193,7 @@ def get_and_parse_flanco(soup):
     except ValueError:
         return None
     currency = cur.ron
-    image = soup.find("img", attrs={"class": "product-main-image-img desktop"})['data-lazy']
+    image = soup.find("div", attrs={"class": "product_image_zoom_container"}).img["src"]
     product_data = class_ProductData.ProductData(title, price, currency, image)
     return product_data
 
