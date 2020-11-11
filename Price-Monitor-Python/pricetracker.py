@@ -148,6 +148,10 @@ def update_prices():
                 # print("----------------")
             # print(user + ":" + item.product_data.name + ": (" + str(price) + "," + str(cur_date) + ")")
             res = util.upload_check_data(user, item.product_id, price, date.today())
+
+            # TODO: sleep is here
+            # time.sleep(60)
+
         now = datetime.now()
         current_time = now.strftime("%H:%M:%S")
         print("Updated " + user + "'s products prices - " + current_time)
