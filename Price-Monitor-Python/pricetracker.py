@@ -150,7 +150,7 @@ def update_prices():
             res = util.upload_check_data(user, item.product_id, price, date.today())
 
             # TODO: sleep is here
-            # time.sleep(60)
+            # time.sleep(30)
 
         now = datetime.now()
         current_time = now.strftime("%H:%M:%S")

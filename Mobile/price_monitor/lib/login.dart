@@ -4,6 +4,8 @@ import 'package:price_monitor/main.dart';
 import 'home.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:sweetalert/sweetalert.dart';
+
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -20,6 +22,22 @@ class LoginScreen extends StatelessWidget {
       var result = await _auth.signInWithEmailAndPassword(email: username, password: password);
       var uid = result.user.uid;
 
+      print("UID = $uid");
+    }catch(e){
+      print("ERROR AUTH" + e.toString());
+      return null;
+    }
+  }
+
+  Future<String> _registerUser(LoginData data) async {
+    // var username = data.name;
+    // var password = data.password;
+    var username = "szabirey@gmail.com";
+    var password = "terminator";
+    try{
+      var result = await _auth.createUserWithEmailAndPassword(email: username, password: password);
+      var uid = result.user.uid;
+      var sendEmail = await _auth.currentUser.sendEmailVerification();
       print("UID = $uid");
     }catch(e){
       print("ERROR AUTH" + e.toString());
@@ -52,7 +70,7 @@ class LoginScreen extends StatelessWidget {
       ),
       // logo: 'assets/images/ecorp-lightblue.png',
       onLogin: _authUser,
-      onSignup: _authUser, // TODO: register
+      onSignup: _registerUser, // TODO: register
       onRecoverPassword: _recoverPassword,
       onSubmitAnimationCompleted: () {
         Navigator.of(context).pushReplacement(MaterialPageRoute(
