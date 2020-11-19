@@ -370,37 +370,36 @@ document.getElementById("user").onclick = function(){
       icon: "info",
       showConfirmButton: false,
       showCloseButton : true,
-      html: `<button id="reset" type="button" class="btn btn-warning btn-block">Reset Password</button>
-      <button id="delete_account" type="button" class="btn btn-secondary btn-block">Delete Account</button>
+      html: `<button id="delete_account" type="button" class="btn btn-secondary btn-block">Delete Account</button>
       <button id="logout" type="button" class="btn btn-danger btn-block">Sign Out</button>`,
       onOpen: (doc) => {
-         document.getElementById("reset").onclick = function(){
-            Swal.fire({ 
-               title: "Reset",
-               text: "Reset email will be sent to this address: " + auth.currentUser.email,
-               customClass: "swall_wide",
-               icon: "warning",
-               showCloseButton: true,
-               showCancelButton: true,
-               confirmButtonText: 'Send',
-               cancelButtonText: 'Cancel'
-            }).then((result) => {
-                  if (result.value) {
-                     auth.sendPasswordResetEmail(auth.currentUser.email).then(function(){
-                        Swal.fire({
-                           title: "Done!",
-                           text: "Password reset email sent!",
-                           customClass: "swall_wide",
-                           icon: "success"
-                       }).then(function(){
-                           logout();
-                       })
-                     })
-                  } else if (result.dismiss === Swal.DismissReason.cancel) {
+         // document.getElementById("reset").onclick = function(){
+         //    Swal.fire({ 
+         //       title: "Reset",
+         //       text: "Reset email will be sent to this address: " + auth.currentUser.email,
+         //       customClass: "swall_wide",
+         //       icon: "warning",
+         //       showCloseButton: true,
+         //       showCancelButton: true,
+         //       confirmButtonText: 'Send',
+         //       cancelButtonText: 'Cancel'
+         //    }).then((result) => {
+         //          if (result.value) {
+         //             auth.sendPasswordResetEmail(auth.currentUser.email).then(function(){
+         //                Swal.fire({
+         //                   title: "Done!",
+         //                   text: "Password reset email sent!",
+         //                   customClass: "swall_wide",
+         //                   icon: "success"
+         //               }).then(function(){
+         //                   logout();
+         //               })
+         //             })
+         //          } else if (result.dismiss === Swal.DismissReason.cancel) {
                      
-                  }
-            })
-         }
+         //          }
+         //    })
+         // }
          document.getElementById("delete_account").onclick = function(){
             Swal.fire({
                title: 'Delete Account',

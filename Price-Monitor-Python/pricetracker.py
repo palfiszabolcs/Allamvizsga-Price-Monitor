@@ -164,7 +164,7 @@ def update_prices():
 
 
 schedule.every(4).minutes.do(update_users_new_products)
-schedule.every().day.at('10:50').do(update_prices)
+schedule.every().day.at('10:00').do(update_prices)
 
 while True:
     schedule.run_pending()
