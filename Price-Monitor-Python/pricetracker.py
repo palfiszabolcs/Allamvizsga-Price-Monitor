@@ -12,21 +12,30 @@ from Util import test_urls as test_url, database, constants as constant, util_fu
 
 
 def get_url_info(url):
-    now = datetime.now()
-    current_time = now.strftime("%H:%M:%S")
-    print("Getting information from URL... - " + current_time)
-    html_content = requests.get(url).text
-    soup = BeautifulSoup(html_content, "html.parser")
-    address = util.get_site_address(url)
+    try:
+        html_content = requests.get(url).text
+        soup = BeautifulSoup(html_content, "html.parser")
+        is_captcha_on_page = soup.find("input", id="recaptcha-token") is not None
+        if is_captcha_on_page:
+            print("!!! CAPTCHA !!!")
+            raise SystemExit
 
-    if address == "emag.ro":
-        return util.get_and_parse_emag(soup)
+        address = util.get_site_address(url)
+
+        if address == "emag.ro":
+            return util.get_and_parse_emag(soup)
+
+        if address == "flanco.ro":
+            return util.get_and_parse_flanco(soup)
+
+        if address == "quickmobile.ro":
+            return util.get_and_parse_quickmobile(soup)
+    except requests.RequestException:
+        print("!!! HTML request error !!!")
+        raise SystemExit
 
     # if address == "mediagalaxy.ro":
     #     return util.get_and_parse_mediagalaxy(soup)
-
-    if address == "flanco.ro":
-        return util.get_and_parse_flanco(soup)
 
     # if address == "cel.ro":
     #     return util.get_and_parse_cel(soup)
@@ -42,9 +51,6 @@ def get_url_info(url):
 
     # if address == "evomag.ro":
     #     return util.get_and_parse_evomag(soup)
-
-    if address == "quickmobile.ro":
-        return util.get_and_parse_quickmobile(soup)
 
     # if address == "gymbeam.ro":
     #     return util.get_and_parse_gymbeam(soup)
@@ -112,12 +118,9 @@ def update_users_new_products():
     if users_list == "none":
         now = datetime.now()
         current_time = now.strftime("%H:%M:%S")
-        print("----------------")
-        print("No new product added! - " + current_time)
-        print("----------------")
+        util.print_log("no prod")
         return 0
-    print("Updating users...")
-    print("----------------")
+    util.print_log("update users")
 
     for user in users_list:
         users_product_list = util.make_new_product_list(user)
@@ -131,10 +134,7 @@ def update_users_new_products():
 
 def update_prices():
     users_list = util.get_existing_users()
-    now = datetime.now()
-    current_time = now.strftime("%H:%M:%S")
-    print("Updating prices... - " + current_time)
-    print("----------------")
+    util.print_log("update prices")
     for user in users_list:
         users_product_list = util.make_product_list(user)
         for item in users_product_list:
@@ -149,8 +149,11 @@ def update_prices():
             # print(user + ":" + item.product_data.name + ": (" + str(price) + "," + str(cur_date) + ")")
             res = util.upload_check_data(user, item.product_id, price, date.today())
 
-            # TODO: sleep is here
-            # time.sleep(30)
+            # in the afternoon we risk to get time-out, so we wait between requests
+            # now = datetime.now().hour
+            # if now > 17:
+            #     time.sleep(15)
+            time.sleep(10)
 
         now = datetime.now()
         current_time = now.strftime("%H:%M:%S")
@@ -165,10 +168,15 @@ def update_prices():
 
 schedule.every(4).minutes.do(update_users_new_products)
 schedule.every().day.at('10:00').do(update_prices)
+schedule.every().day.at('18:00').do(update_prices)
 
 while True:
     schedule.run_pending()
     time.sleep(60)
+
+
+
+
 
 # ############################################ - TEST BENCH - ####################################################
 
@@ -185,11 +193,12 @@ while True:
 # url6 = "https://altex.ro/televizor-led-smart-samsung-43tu7172-ultra-hd-4k-hdr-108-cm/cpd/UHDUE43TU7172UX/"
 # url7 = "https://mediagalaxy.ro/laptop-gaming-lenovo-legion-5-17imh05-intel-core-i5-10300h-pana-la-4-5ghz-17-3-full-hd-8gb-ssd-512gb-nvidia-geforce-gtx-1650-4gb-free-dos-negru/cpd/LAP82B3002SRM/"
 # url8 = "https://www.emag.ro/boxa-portabila-jbl-charge-3-6000-mah-rosu-charge3red/pd/DCQG32BBM/#used-products"
+# url9 = "https://www.emag.ro/laptop-hp-15-15s-fq1010nq-cu-procesor-intelr-coretm-i3-1005g1-pana-la-3-40-ghz-15-6-full-hd-8gb-256gb-ssd-intel-uhd-graphics-free-dos-gray-9qf69ea/pd/DH33MMMBM/?X-Search-Id=3a0b52475c2c4e7d900d&X-Product-Id=66367719&X-Search-Page=1&X-Search-Position=3&X-Section=search&X-MB=0&X-Search-Action=view"
 
-# test = get_url_info(url8)
+# test = get_url_info(url6)
 # print(test)
 
-# html_content = requests.get(url8).text
+# html_content = requests.get(url6)
 # print(html_content)
 # soup = BeautifulSoup(html_content, "html.parser")
 # print(soup)

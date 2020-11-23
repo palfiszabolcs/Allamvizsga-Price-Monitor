@@ -1,3 +1,4 @@
+from datetime import datetime
 import re
 from dacite import from_dict
 import json
@@ -82,7 +83,7 @@ def get_new_users():
 
     result = firebase.get("NEW", None)
 
-    if result == None:
+    if result is None:
         return "none"
     else:
         users_list = []
@@ -148,27 +149,48 @@ def upload_check_data(user, product_id, price, cur_date):
     return response
 
 
+def print_log(mode):
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    if mode == "get":
+        print("Getting information from URL... - " + current_time)
+    if mode == "no prod":
+        print("----------------")
+        print("No new product added! - " + current_time)
+        print("----------------")
+    if mode == "update users":
+        print("Updating users...")
+        print("----------------")
+    if mode == "update prices":
+        print("Updating prices... - " + current_time)
+        print("----------------")
+
+
 def get_and_parse_emag(soup):
+    print_log("get")
     title = find_title(soup, "h1", "page-title")
     out_of_stock = soup.find("span", attrs={"class": "label-out_of_stock"})
-    if (title is None) or (out_of_stock is not None):
-        return None
-    try:
-        form = soup.find("form", attrs={"class": "main-product-form"})
-        price = form.find("p", attrs={"class": "product-new-price"}).text.strip()
-    except AttributeError:
+    if title is None:
         return None
 
-    s = list(price)
-    s.insert(-6, ",")
-    price = "".join(s)
-    price = re.sub("Lei", '', price)
-    price = re.sub("\.", "", price)
-    price = re.sub(",", ".", price)
-    try:
-        price = float(price.strip())
-    except ValueError:
-        return None
+    if out_of_stock:
+        price = "error"
+    else:
+        try:
+            form = soup.find("form", attrs={"class": "main-product-form"})
+            price = form.find("p", attrs={"class": "product-new-price"}).text.strip()
+        except AttributeError:
+            return None
+        s = list(price)
+        s.insert(-6, ",")
+        price = "".join(s)
+        price = re.sub("Lei", '', price)
+        price = re.sub(".", "", price)
+        price = re.sub(",", ".", price)
+        try:
+            price = float(price.strip())
+        except ValueError:
+            return None
 
     currency = cur.ron
     image = soup.find("div", attrs={"id": "product-gallery"}).img["src"]
@@ -177,21 +199,25 @@ def get_and_parse_emag(soup):
 
 
 def get_and_parse_flanco(soup):
+    print_log("get")
     try:
         title = soup.find("h2", attrs={"id": "product-title"}).text.strip()
     except AttributeError:
         return None
     stockless = soup.find("div", attrs={"class": "stockless"})
     price = find_price(soup, "div", "produs-price")
-    if (price is None) or (stockless is not None):
-        return None
-    price = re.sub("\.", '', price)
-    price = re.sub(",", ".", price)
-    price = re.sub("lei", '', price)
-    try:
-        price = float(price)
-    except ValueError:
-        return None
+    if stockless:
+        price = "error"
+    else:
+        if price is None:
+            return None
+        price = re.sub(".", '', price)
+        price = re.sub(",", ".", price)
+        price = re.sub("lei", '', price)
+        try:
+            price = float(price)
+        except ValueError:
+            return None
     currency = cur.ron
     image = soup.find("div", attrs={"class": "product_image_zoom_container"}).img["src"]
     product_data = class_ProductData.ProductData(title, price, currency, image)
@@ -203,7 +229,7 @@ def get_and_parse_altex(soup):
     price = find_price(soup, "div", "Price-current")
     if (title is None) or (price is None):
         return None
-    price = re.sub("\.", '', price)
+    price = re.sub(".", '', price)
     price = re.sub(",", ".", price)
     price = re.sub("lei", '', price)
     try:
@@ -220,7 +246,7 @@ def get_and_parse_quickmobile(soup):
     title = find_title(soup, "div", "product-page-title page-product-title-wth")
     price = find_price(soup, "div", "priceFormat total-price price-fav product-page-price")
     if (title is None) or (price is None):
-         return None
+        return None
     price = re.sub("Lei", '', price)
     try:
         price = float(price)
@@ -232,14 +258,14 @@ def get_and_parse_quickmobile(soup):
     return product_data
 
 
-#--------------------------------------------
+# --------------------------------------------
 def get_and_parse_mediagalaxy(soup):
     title = find_title(soup, "h1", "font-bold leading-none text-black m-0"
                                    " text-center text-base lg:text-3xl bg-gray-lighter "
                                    "lg:bg-transparent -mx-15px lg:mx-auto px-3"
                                    " pt-4 pb-3 lg:p-0 border-b lg:border-b-0")
     price = find_price(soup, "div", "Price-current")
-    price = re.sub("\.", '', price)
+    price = re.sub(".", '', price)
     price = re.sub(",", ".", price)
     price = re.sub("lei", '', price)
     price = float(price)
@@ -247,7 +273,6 @@ def get_and_parse_mediagalaxy(soup):
     image = soup.find("div", attrs={"class": "slick-slide slick-active slick-current"}).img['src'].strip()
     product_data = class_ProductData.ProductData(title, price, currency, image)
     return product_data
-
 
 
 def get_and_parse_cel(soup):
@@ -285,7 +310,7 @@ def get_and_parse_autovit(soup):
 def get_and_parse_evomag(soup):
     title = find_title(soup, "h1", "product_name")
     price = find_price(soup, "div", "pret_rons")
-    price = re.sub("\.", '', price)
+    price = re.sub(".", '', price)
     price = re.sub(",", ".", price)
     price = re.sub("Lei", '', price)
     price = float(price)
@@ -375,7 +400,7 @@ def get_and_parse_ebay(soup):
     title = soup.find("title").text.strip()
     price = soup.find("span", attrs={"id": "prcIsum"}).text.strip()
     price = re.sub("US", '', price)
-    price = re.sub("\$", '', price)
+    price = re.sub("$", '', price)
     price = float(price)
     currency = cur.dollar
     image = soup.find("img", attrs={"id": "icImg"})['src'].strip()
