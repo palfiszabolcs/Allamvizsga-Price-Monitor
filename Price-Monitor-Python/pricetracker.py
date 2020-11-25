@@ -195,7 +195,8 @@ while True:
 # url8 = "https://www.emag.ro/boxa-portabila-jbl-charge-3-6000-mah-rosu-charge3red/pd/DCQG32BBM/#used-products"
 # url9 = "https://www.emag.ro/laptop-hp-15-15s-fq1010nq-cu-procesor-intelr-coretm-i3-1005g1-pana-la-3-40-ghz-15-6-full-hd-8gb-256gb-ssd-intel-uhd-graphics-free-dos-gray-9qf69ea/pd/DH33MMMBM/?X-Search-Id=3a0b52475c2c4e7d900d&X-Product-Id=66367719&X-Search-Page=1&X-Search-Position=3&X-Section=search&X-MB=0&X-Search-Action=view"
 
-# test = get_url_info(url6)
+# url = "https://www.emag.ro/telefon-mobil-samsung-galaxy-a20e-dual-sim-32gb-4g-blue-sm-a202fzbdrom/pd/D4WMHQBBM/?ref=graph_profiled_similar_a_1_4&provider=rec&recid=rec_49_16_c2732421_93_A_abf22371c7da6b38789077ed715b15f41a6dcdf024ef601701a96e1359be610a_1603731413&scenario_ID=49"
+# test = get_url_info(url)
 # print(test)
 
 # html_content = requests.get(url6)

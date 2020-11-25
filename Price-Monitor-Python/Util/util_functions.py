@@ -185,7 +185,7 @@ def get_and_parse_emag(soup):
         s.insert(-6, ",")
         price = "".join(s)
         price = re.sub("Lei", '', price)
-        price = re.sub(".", "", price)
+        price = re.sub("\.", "", price)
         price = re.sub(",", ".", price)
         try:
             price = float(price.strip())
@@ -211,7 +211,7 @@ def get_and_parse_flanco(soup):
     else:
         if price is None:
             return None
-        price = re.sub(".", '', price)
+        price = re.sub("\.", '', price)
         price = re.sub(",", ".", price)
         price = re.sub("lei", '', price)
         try:
