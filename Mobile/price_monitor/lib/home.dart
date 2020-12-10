@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
@@ -22,10 +24,9 @@ class HomeScreen extends StatefulWidget{
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>{
 
     bool verified = _auth.currentUser.emailVerified;
-
     void verificationCheck(){
       _timer = Timer.periodic(Duration(seconds: 2), (timer) async {
         _auth.currentUser.reload();
@@ -37,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       });
     }
+
 
     @override
   void initState() {
@@ -52,8 +54,35 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
   Widget productList(){
-      return Center(child: confirmedText);
+      return Card(
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.30,
+                  child: Image(
+                    image: NetworkImage("https://flutter.github.io/assets-for-api-docs/assets/widgets/owl.jpg"),
+                  ),
+                ),
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.67,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text("TITLE"),
+                      Text("PRICE")
+                    ],
+                  ),
+                )
+              ],
+            )
+          ],
+        ),
+      );
   }
+
     // void readData(){
     //   _db.once().then((DataSnapshot snapshot) {
     //     print('Data : ${snapshot.value}');
@@ -63,7 +92,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     @override
   Widget build(BuildContext context) {
-
+      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+          statusBarColor: color_primary_blue
+      ));
       return MaterialApp(
           theme: ThemeData(primaryColor: color_primary_blue),
           home: Scaffold(

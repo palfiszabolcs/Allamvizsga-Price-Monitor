@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:price_monitor/main.dart';
@@ -16,15 +17,22 @@ class LoginScreen extends StatelessWidget {
   Duration get loginTime => Duration(milliseconds: 2250);
 
   Future<String> _authUser(LoginData data) async {
-    var username = data.name;
-    var password = data.password;
+    // var username = data.name;
+    // var password = data.password;
     try{
-      var result = await _auth.signInWithEmailAndPassword(email: username, password: password);
+      var result = await _auth.signInWithEmailAndPassword(email: data.name, password: data.password);
       var uid = result.user.uid;
-
-      print("UID = $uid");
+      if(!_auth.currentUser.emailVerified){
+        return "You need to confirm your email address first!";
+      }
+      // print("UID = $uid");
     }catch(e){
-      print("ERROR AUTH" + e.toString());
+      if(e.hashCode.toString() == "505284406"){
+        return "User not found";
+      }
+      if(e.hashCode.toString() == "185768934"){
+        return "Wrong password";
+      }
       return null;
     }
   }
@@ -36,20 +44,25 @@ class LoginScreen extends StatelessWidget {
     var password = "terminator";
     try{
       var result = await _auth.createUserWithEmailAndPassword(email: username, password: password);
+      print("res " + result.toString());
       var uid = result.user.uid;
       var sendEmail = await _auth.currentUser.sendEmailVerification();
-      print("UID = $uid");
+      // print("UID = $uid");
     }catch(e){
-      print("ERROR AUTH" + e.toString());
+      if(e.hashCode.toString() == "34618382"){
+        return "Already Registered with this email address";
+      }
       return null;
-    }
+     }
   }
 
   Future<String> _recoverPassword(String email) async {
     try{
       var result = await _auth.sendPasswordResetEmail(email: email);
     }catch(e){
-      print("ERROR AUTH" + e.toString());
+      if(e.hashCode.toString() == "505284406"){
+        return "User not found";
+      }
       return null;
     }
   }

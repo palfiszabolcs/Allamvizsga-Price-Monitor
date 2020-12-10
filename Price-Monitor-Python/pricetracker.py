@@ -15,10 +15,11 @@ def get_url_info(url):
     try:
         html_content = requests.get(url).text
         soup = BeautifulSoup(html_content, "html.parser")
-        is_captcha_on_page = soup.find("input", id="recaptcha-token") is not None
+        is_captcha_on_page = soup.find("div", attrs={"class": "g-recaptcha"}) is not None
         if is_captcha_on_page:
             print("!!! CAPTCHA !!!")
-            raise SystemExit
+            input("Press Enter to exit...")
+            raise SystemExit(1)
 
         address = util.get_site_address(url)
 
@@ -139,20 +140,26 @@ def update_prices():
         users_product_list = util.make_product_list(user)
         for item in users_product_list:
             product_data = get_url_info(item.product_data.url)
+
+            # this if is required for quickmobile.ro
             if product_data:
                 price = product_data.price
             else:
-                price = "error"
+                price = constant.priceError
+                # price = "noStock"
                 util.upload_error(user, item.product_id, date.today(), item.product_data.url)
-                print("!!! ERROR FOUND !!!")
+                print(constant.noStock)
+            if product_data.price == constant.priceError:
+                util.upload_error(user, item.product_id, date.today(), item.product_data.url)
+                print(constant.noStock)
                 # print("----------------")
             # print(user + ":" + item.product_data.name + ": (" + str(price) + "," + str(cur_date) + ")")
             res = util.upload_check_data(user, item.product_id, price, date.today())
 
             # in the afternoon we risk to get time-out, so we wait between requests
-            # now = datetime.now().hour
-            # if now > 17:
-            #     time.sleep(15)
+            now = datetime.now().hour
+            if now > 17:
+                time.sleep(20)
             time.sleep(10)
 
         now = datetime.now()
@@ -196,13 +203,18 @@ while True:
 # url9 = "https://www.emag.ro/laptop-hp-15-15s-fq1010nq-cu-procesor-intelr-coretm-i3-1005g1-pana-la-3-40-ghz-15-6-full-hd-8gb-256gb-ssd-intel-uhd-graphics-free-dos-gray-9qf69ea/pd/DH33MMMBM/?X-Search-Id=3a0b52475c2c4e7d900d&X-Product-Id=66367719&X-Search-Page=1&X-Search-Position=3&X-Section=search&X-MB=0&X-Search-Action=view"
 
 # url = "https://www.emag.ro/telefon-mobil-samsung-galaxy-a20e-dual-sim-32gb-4g-blue-sm-a202fzbdrom/pd/D4WMHQBBM/?ref=graph_profiled_similar_a_1_4&provider=rec&recid=rec_49_16_c2732421_93_A_abf22371c7da6b38789077ed715b15f41a6dcdf024ef601701a96e1359be610a_1603731413&scenario_ID=49"
-# test = get_url_info(url)
+# test = get_url_info("https://www.emag.ro/mouse-logitech-m330-silent-plus-wireless-black-910-004909/pd/D78WX2BBM/?X-Search-Id=d6b9dde0aa1e8f8e754c&X-Product-Id=41063530&X-Search-Page=1&X-Search-Position=7&X-Section=search&X-MB=0&X-Search-Action=view")
 # print(test)
 
-# html_content = requests.get(url6)
-# print(html_content)
+# html_content = requests.get("https://patrickhlauke.github.io/recaptcha/").text
+# # print(html_content)
 # soup = BeautifulSoup(html_content, "html.parser")
-# print(soup)
+# # print(soup)
+# isCaptcha = soup.find("div", attrs={"class": "g-recaptcha"})
+# if isCaptcha is not None:
+#     print("cap found")
+#     input("press enter to exit")
+#     raise SystemExit(1)
 
 
 # price = soup.find("span", attrs={"class": "label-out_of_stock"})

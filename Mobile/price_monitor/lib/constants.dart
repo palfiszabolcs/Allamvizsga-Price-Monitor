@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 
-const color_primary_blue = Color(0xff007bff);
+const color_primary_blue =  Color(0xff007bff);
 const color_reset_pw_button = Color(0xffd39e00);
 const color_delete_account_button = Color(0xff545b62);
 const color_signout_button = Color(0xffbd2130);

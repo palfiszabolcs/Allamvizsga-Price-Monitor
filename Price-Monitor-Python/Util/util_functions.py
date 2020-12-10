@@ -5,6 +5,7 @@ import json
 
 from Classes import class_NewData, class_Product, class_ProductData, class_UtilNewData, class_UtilProduct
 from Util import database, currency as cur
+from Util import constants
 
 
 def find_price(soup, tag, class_name):
@@ -174,24 +175,23 @@ def get_and_parse_emag(soup):
         return None
 
     if out_of_stock:
-        price = "error"
+        price = constants.priceError
     else:
         try:
             form = soup.find("form", attrs={"class": "main-product-form"})
             price = form.find("p", attrs={"class": "product-new-price"}).text.strip()
+            s = list(price)
+            s.insert(-6, ",")
+            price = "".join(s)
+            price = re.sub("Lei", '', price)
+            price = re.sub("\.", "", price)
+            price = re.sub(",", ".", price)
+            try:
+                price = float(price.strip())
+            except ValueError:
+                return None
         except AttributeError:
-            return None
-        s = list(price)
-        s.insert(-6, ",")
-        price = "".join(s)
-        price = re.sub("Lei", '', price)
-        price = re.sub("\.", "", price)
-        price = re.sub(",", ".", price)
-        try:
-            price = float(price.strip())
-        except ValueError:
-            return None
-
+            price = constants.priceError
     currency = cur.ron
     image = soup.find("div", attrs={"id": "product-gallery"}).img["src"]
     product_data = class_ProductData.ProductData(title, price, currency, image)
@@ -207,7 +207,7 @@ def get_and_parse_flanco(soup):
     stockless = soup.find("div", attrs={"class": "stockless"})
     price = find_price(soup, "div", "produs-price")
     if stockless:
-        price = "error"
+        price = constants.priceError
     else:
         if price is None:
             return None
@@ -220,6 +220,23 @@ def get_and_parse_flanco(soup):
             return None
     currency = cur.ron
     image = soup.find("div", attrs={"class": "product_image_zoom_container"}).img["src"]
+    product_data = class_ProductData.ProductData(title, price, currency, image)
+    return product_data
+
+
+def get_and_parse_quickmobile(soup):
+    title = find_title(soup, "div", "product-page-title page-product-title-wth")
+    price = find_price(soup, "div", "priceFormat total-price price-fav product-page-price")
+    if (title is None) or (price is None):
+        price = constants.priceError
+    else:
+        price = re.sub("Lei", '', price)
+        try:
+            price = float(price)
+        except ValueError:
+            return None
+    currency = cur.ron
+    image = soup.find("img", attrs={"class": "img-responsive image-gallery"})['src'].strip()
     product_data = class_ProductData.ProductData(title, price, currency, image)
     return product_data
 
@@ -238,22 +255,6 @@ def get_and_parse_altex(soup):
         return None
     currency = cur.ron
     image = soup.find("div", attrs={"class": "slick-slide slick-active slick-current"}).img['src'].strip()
-    product_data = class_ProductData.ProductData(title, price, currency, image)
-    return product_data
-
-
-def get_and_parse_quickmobile(soup):
-    title = find_title(soup, "div", "product-page-title page-product-title-wth")
-    price = find_price(soup, "div", "priceFormat total-price price-fav product-page-price")
-    if (title is None) or (price is None):
-        return None
-    price = re.sub("Lei", '', price)
-    try:
-        price = float(price)
-    except ValueError:
-        return None
-    currency = cur.ron
-    image = soup.find("img", attrs={"class": "img-responsive image-gallery"})['src'].strip()
     product_data = class_ProductData.ProductData(title, price, currency, image)
     return product_data
 
