@@ -18,8 +18,10 @@ def get_url_info(url):
         is_captcha_on_page = soup.find("div", attrs={"class": "g-recaptcha"}) is not None
         if is_captcha_on_page:
             print("!!! CAPTCHA !!!")
-            input("Press Enter to exit...")
-            raise SystemExit(1)
+            message = input("\nValidate CAPTCHA then type k to continue... ")
+            if message == "k":
+                html_content = requests.get(url).text
+                soup = BeautifulSoup(html_content, "html.parser")
 
         address = util.get_site_address(url)
 
@@ -33,6 +35,7 @@ def get_url_info(url):
             return util.get_and_parse_quickmobile(soup)
     except requests.RequestException:
         print("!!! HTML request error !!!")
+        input()
         raise SystemExit
 
     # if address == "mediagalaxy.ro":
@@ -180,8 +183,6 @@ schedule.every().day.at('18:00').do(update_prices)
 while True:
     schedule.run_pending()
     time.sleep(60)
-
-
 
 
 

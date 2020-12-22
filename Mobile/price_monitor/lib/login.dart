@@ -1,15 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
-import 'package:price_monitor/main.dart';
 import 'home.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:sweetalert/sweetalert.dart';
-
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
-
 const _color_primary_blue = Color(0xff007bff);
 
 class LoginScreen extends StatelessWidget {
@@ -17,8 +12,6 @@ class LoginScreen extends StatelessWidget {
   Duration get loginTime => Duration(milliseconds: 2250);
 
   Future<String> _authUser(LoginData data) async {
-    // var username = data.name;
-    // var password = data.password;
     try{
       var result = await _auth.signInWithEmailAndPassword(email: data.name, password: data.password);
       var uid = result.user.uid;

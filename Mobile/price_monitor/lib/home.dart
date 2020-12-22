@@ -6,18 +6,20 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sweetalert/sweetalert.dart';
+import 'dataModels/Check.dart';
+import 'dataModels/Product.dart';
 import 'login.dart';
 import 'constants.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 Timer _timer;
 final FirebaseAuth _auth = FirebaseAuth.instance;
-final _db = FirebaseDatabase.instance.reference();
-final uid = _auth.currentUser.uid;
-final _email = _auth.currentUser.email;
+final _db = FirebaseDatabase.instance.reference().child("USERS");
+Map<dynamic, dynamic> products;
+List<Product>prod = List();
 
 class HomeScreen extends StatefulWidget{
   @override
@@ -39,56 +41,94 @@ class _HomeScreenState extends State<HomeScreen>{
       });
     }
 
-
     @override
   void initState() {
     super.initState();
     verificationCheck();
   }
   @override
-
   void dispose() {
     super.dispose();
   }
 
-
-
-  Widget productList(){
-      return Card(
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: MediaQuery.of(context).size.width * 0.30,
-                  child: Image(
-                    image: NetworkImage("https://flutter.github.io/assets-for-api-docs/assets/widgets/owl.jpg"),
-                  ),
-                ),
-                Container(
-                  width: MediaQuery.of(context).size.width * 0.67,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text("TITLE"),
-                      Text("PRICE")
-                    ],
-                  ),
-                )
-              ],
-            )
-          ],
-        ),
-      );
+  void readData(){
+    _db.once().then((DataSnapshot snapshot) {
+      products = snapshot.value;
+      // print(products);
+    });
   }
 
-    // void readData(){
-    //   _db.once().then((DataSnapshot snapshot) {
-    //     print('Data : ${snapshot.value}');
-    //   });
-    // }
-    // readData();
+  Widget productList(){
+    return ListView.builder(
+        itemCount: products.length,
+        itemBuilder: (context, index) {
+          String key = products.keys.elementAt(index);
+          var imageURL = products[key]["image"];
+          var prodURL = products[key]["url"];
+
+          List<dynamic>tempChecks = products[key]["check"].values.toList();
+          List<Check>checks = List();
+          var name = Text(products[key]["name"].toString());
+
+          tempChecks.forEach((element) {
+            checks.add(Check.foromSnapshot(element));
+          });
+          checks.sort((a,b) => a.date.compareTo(b.date));
+
+          var price;
+          var tmpPrice = checks.last.price.toString();
+          if(tmpPrice == "null"){
+              price = Text("UNAVAILABLE!");
+          }else{
+              price = Text("${checks.last.price.toString()} ${products[key]["currency"]}");
+          }
+
+          return GestureDetector(
+            onTap: () {
+              Fluttertoast.showToast(
+                  msg: prodURL,
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.SNACKBAR,
+                  timeInSecForIosWeb: 1,
+                  backgroundColor: Colors.white,
+                  textColor: Colors.black,
+                  fontSize: 16.0
+              );
+            },
+            child: Card(
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.30,
+                        child: CachedNetworkImage(
+                          imageUrl: imageURL,
+                          progressIndicatorBuilder: (context, url, downloadProgress) =>
+                              Center(child: CircularProgressIndicator(value: downloadProgress.progress, valueColor: AlwaysStoppedAnimation(color_primary_blue),)),
+                          errorWidget: (context, url, error) => Center(child: Icon(Icons.error, color: color_primary_blue,)),
+                        ),
+                      ),
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.67,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            name,
+                            price
+                          ],
+                        ),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
 
     @override
   Widget build(BuildContext context) {
@@ -124,7 +164,22 @@ class _HomeScreenState extends State<HomeScreen>{
                   ),
                 ],
               ),
-              body: verified ? productList() : Center(child: notConfirmedText)
+              body: verified ? FutureBuilder(
+                future: _db.child(_auth.currentUser.uid).once(),
+                builder: (context, snapshot) {
+                  if(snapshot.hasData){
+                    if(snapshot.data != null){
+                        products = snapshot.data.value;
+                        return productList();
+                    }
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  else{
+                    return Center(child: CircularProgressIndicator());
+
+                  }
+                }
+              ) : Center(child: notConfirmedText)
         ),
       );
   }
@@ -215,7 +270,7 @@ class _HomeScreenState extends State<HomeScreen>{
       showDialog(context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-                title: Center(child: Text(_email)),
+                title: Center(child: Text(_auth.currentUser.email)),
                 scrollable: true,
                 content: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -262,8 +317,10 @@ class _HomeScreenState extends State<HomeScreen>{
                                     showCancelButton: true,
                                     onPress: (bool isConfirm) {
                                       if (isConfirm) {
-                                        _auth.signOut();
-                                        Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) => LoginScreen()),);
+                                        _auth.signOut().then((value) =>
+                                           Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) => LoginScreen()))
+
+                                        );
                                         return false;
                                       }
                                       return true;
