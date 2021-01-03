@@ -18,8 +18,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 Timer _timer;
 final FirebaseAuth _auth = FirebaseAuth.instance;
 final _db = FirebaseDatabase.instance.reference().child("USERS");
-Map<dynamic, dynamic> products;
-List<Product>prod = List();
+// Map<dynamic, dynamic> tempProducts;
+List<Product>productsList = List();
 
 class HomeScreen extends StatefulWidget{
   @override
@@ -51,86 +51,124 @@ class _HomeScreenState extends State<HomeScreen>{
     super.dispose();
   }
 
-  void readData(){
-    _db.once().then((DataSnapshot snapshot) {
-      products = snapshot.value;
-      // print(products);
-    });
+  Future<void> _refreshListView() async {
+    setState(() {});
+    return null;
   }
 
-  Widget productList(){
-    return ListView.builder(
-        itemCount: products.length,
-        itemBuilder: (context, index) {
-          String key = products.keys.elementAt(index);
-          var imageURL = products[key]["image"];
-          var prodURL = products[key]["url"];
+  Widget productListWidget(){
+    return RefreshIndicator(
+      onRefresh: _refreshListView,
+      child: ListView.builder(
+          itemCount: productsList.length,
+          itemBuilder: (context, index) {
+            var imageURL = productsList.elementAt(index).image;
+            var prodURL = productsList.elementAt(index).url;
+            var name = Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Text(productsList.elementAt(index).name, style: TextStyle(fontSize: 15, color: Colors.black87), overflow: TextOverflow.fade,)
+            );
 
-          List<dynamic>tempChecks = products[key]["check"].values.toList();
-          List<Check>checks = List();
-          var name = Text(products[key]["name"].toString());
+            var currency = productsList.elementAt(index).currency;
+            var price,priceColor, icon;
+            var lastPrice = productsList.elementAt(index).checks.last.price;
+            var secondLastIndex = (productsList.elementAt(index).checks.length) - 2;
+            var secondLastPrice = productsList.elementAt(index).checks.elementAt(secondLastIndex).price;
 
-          tempChecks.forEach((element) {
-            checks.add(Check.foromSnapshot(element));
-          });
-          checks.sort((a,b) => a.date.compareTo(b.date));
-
-          var price;
-          var tmpPrice = checks.last.price.toString();
-          if(tmpPrice == "null"){
-              price = Text("UNAVAILABLE!");
-          }else{
-              price = Text("${checks.last.price.toString()} ${products[key]["currency"]}");
-          }
-
-          return GestureDetector(
-            onTap: () {
-              Fluttertoast.showToast(
-                  msg: prodURL,
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.SNACKBAR,
-                  timeInSecForIosWeb: 1,
-                  backgroundColor: Colors.white,
-                  textColor: Colors.black,
-                  fontSize: 16.0
-              );
-            },
-            child: Card(
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.30,
-                        child: CachedNetworkImage(
-                          imageUrl: imageURL,
-                          progressIndicatorBuilder: (context, url, downloadProgress) =>
-                              Center(child: CircularProgressIndicator(value: downloadProgress.progress, valueColor: AlwaysStoppedAnimation(color_primary_blue),)),
-                          errorWidget: (context, url, error) => Center(child: Icon(Icons.error, color: color_primary_blue,)),
+            if(lastPrice.toString() == "null"){
+              price = Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text("UNAVAILABLE !", style: TextStyle(fontSize: 16, color: Colors.black54), overflow: TextOverflow.fade,),
+                );
+            }else{
+              if(lastPrice == secondLastPrice){
+                icon = priceArrowForward;
+                priceColor = Colors.black87;
+              }
+              if(lastPrice > secondLastPrice){
+                icon = priceArrowUp;
+                priceColor = arrowUpColor;
+              }
+              if(lastPrice < secondLastPrice){
+                icon = priceArrowDown;
+                priceColor = arrowDownColor;
+              }
+              price = Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: RichText(
+                    overflow: TextOverflow.fade,
+                    text: TextSpan(
+                      children: [
+                        TextSpan(text: "$lastPrice $currency", style: TextStyle(fontSize: 16, color: priceColor)),
+                        WidgetSpan(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                            child: icon,
+                          ),
                         ),
-                      ),
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.67,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            name,
-                            price
-                          ],
-                        ),
-                      )
-                    ],
+                      ],
+                    ),
                   )
-                ],
+                );
+            }
+
+            return GestureDetector(
+              onTap: () {
+                Fluttertoast.showToast(
+                    msg: prodURL,
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.SNACKBAR,
+                    timeInSecForIosWeb: 1,
+                    backgroundColor: Colors.grey,
+                    textColor: Colors.black,
+                    fontSize: 16.0
+                );
+              },
+              child: Card(
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.28,
+                            child: CachedNetworkImage(
+                              imageUrl: imageURL,
+                              progressIndicatorBuilder: (context, url, downloadProgress) =>
+                                  Center(child:
+                                        CircularProgressIndicator(
+                                          value: downloadProgress.progress,
+                                          valueColor: AlwaysStoppedAnimation(color_primary_blue),
+                                        )
+                                      ),
+                              errorWidget: (context, url, error) => Center(child: Icon(Icons.error, color: color_primary_blue,)),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          // width: MediaQuery.of(context).size.width * 0.66,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              name,
+                              price
+                            ],
+                          ),
+                        )
+                      ],
+                    )
+                  ],
+                ),
               ),
-            ),
-          );
-        });
+            );
+          }),
+    );
   }
 
 
-    @override
+  @override
   Widget build(BuildContext context) {
       SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
           statusBarColor: color_primary_blue
@@ -169,8 +207,13 @@ class _HomeScreenState extends State<HomeScreen>{
                 builder: (context, snapshot) {
                   if(snapshot.hasData){
                     if(snapshot.data != null){
-                        products = snapshot.data.value;
-                        return productList();
+                      productsList.clear();
+                      List<dynamic>tempProd = snapshot.data.value.values.toList();
+                        tempProd.forEach((element) {
+                            productsList.add(Product.fromSnapshot(element));
+                        });
+                        productsList.sort((a,b) => a.checks.first.date.compareTo(b.checks.first.date));
+                        return productListWidget();
                     }
                     return Center(child: CircularProgressIndicator());
                   }

@@ -100,7 +100,7 @@ def push_new_data_to_db(user, url):
 
     check_data = {
         'price': data.price,
-        'date': date.today()
+        'date': datetime.today()
     }
     response_check = firebase.post("USERS/" + user + "/" + prod_id + "/check", check_data)
 
@@ -150,14 +150,14 @@ def update_prices():
             else:
                 price = constant.priceError
                 # price = "noStock"
-                util.upload_error(user, item.product_id, date.today(), item.product_data.url)
+                util.upload_error(user, item.product_id, datetime.today(), item.product_data.url)
                 print(constant.noStock)
             if product_data.price == constant.priceError:
-                util.upload_error(user, item.product_id, date.today(), item.product_data.url)
+                util.upload_error(user, item.product_id, datetime.today(), item.product_data.url)
                 print(constant.noStock)
                 # print("----------------")
             # print(user + ":" + item.product_data.name + ": (" + str(price) + "," + str(cur_date) + ")")
-            res = util.upload_check_data(user, item.product_id, price, date.today())
+            res = util.upload_check_data(user, item.product_id, price, datetime.today())
 
             # in the afternoon we risk to get time-out, so we wait between requests
             now = datetime.now().hour
@@ -170,19 +170,23 @@ def update_prices():
         print("Updated " + user + "'s products prices - " + current_time)
         print("----------------")
 
+
+def run():
+    schedule.every(4).minutes.do(update_users_new_products)
+    schedule.every().day.at('11:00').do(update_prices)
+    schedule.every().day.at('18:00').do(update_prices)
+
+    while True:
+        schedule.run_pending()
+        time.sleep(60)
 # ############################################ - MAIN - ####################################################
 
 # update_users_new_products()
+
+
 # update_prices()
+run()
 
-
-schedule.every(4).minutes.do(update_users_new_products)
-schedule.every().day.at('10:00').do(update_prices)
-schedule.every().day.at('18:00').do(update_prices)
-
-while True:
-    schedule.run_pending()
-    time.sleep(60)
 
 
 

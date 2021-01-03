@@ -171,10 +171,8 @@ def get_and_parse_emag(soup):
     print_log("get")
     title = find_title(soup, "h1", "page-title")
     out_of_stock = soup.find("span", attrs={"class": "label-out_of_stock"})
-    if title is None:
-        return None
 
-    if out_of_stock:
+    if out_of_stock or title is None:
         price = constants.priceError
     else:
         try:
@@ -189,7 +187,7 @@ def get_and_parse_emag(soup):
             try:
                 price = float(price.strip())
             except ValueError:
-                return None
+                price = constants.priceError
         except AttributeError:
             price = constants.priceError
     currency = cur.ron
@@ -200,11 +198,12 @@ def get_and_parse_emag(soup):
 
 def get_and_parse_flanco(soup):
     print_log("get")
-    try:
-        title = soup.find("h2", attrs={"id": "product-title"}).text.strip()
-    except AttributeError:
-        return None
     stockless = soup.find("div", attrs={"class": "stockless"})
+    try:
+        title = soup.find("h1", attrs={"id": "product-title"}).text.strip()
+    except AttributeError:
+        price = constants.priceError
+
     price = find_price(soup, "div", "produs-price")
     if stockless:
         price = constants.priceError
@@ -217,7 +216,7 @@ def get_and_parse_flanco(soup):
         try:
             price = float(price)
         except ValueError:
-            return None
+            price = constants.priceError
     currency = cur.ron
     image = soup.find("div", attrs={"class": "product_image_zoom_container"}).img["src"]
     product_data = class_ProductData.ProductData(title, price, currency, image)
@@ -234,7 +233,7 @@ def get_and_parse_quickmobile(soup):
         try:
             price = float(price)
         except ValueError:
-            return None
+            price = constants.priceError
     currency = cur.ron
     image = soup.find("img", attrs={"class": "img-responsive image-gallery"})['src'].strip()
     product_data = class_ProductData.ProductData(title, price, currency, image)
