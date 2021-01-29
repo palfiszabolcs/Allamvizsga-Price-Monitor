@@ -8,10 +8,11 @@ import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:sweetalert/sweetalert.dart';
-import 'dataModels/Check.dart';
-import 'dataModels/Product.dart';
+import '../dataModels/Check.dart';
+import '../dataModels/Product.dart';
+import 'detail.dart';
 import 'login.dart';
-import 'constants.dart';
+import '../constants.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -62,6 +63,7 @@ class _HomeScreenState extends State<HomeScreen>{
       child: ListView.builder(
           itemCount: productsList.length,
           itemBuilder: (context, index) {
+            var currentProduct = productsList.elementAt(index);
             var imageURL = productsList.elementAt(index).image;
             var prodURL = productsList.elementAt(index).url;
             var name = Padding(
@@ -75,23 +77,38 @@ class _HomeScreenState extends State<HomeScreen>{
             var secondLastIndex = (productsList.elementAt(index).checks.length) - 2;
             var secondLastPrice = productsList.elementAt(index).checks.elementAt(secondLastIndex).price;
 
+            // if price is null, we show UNAVAILABLE instead of the price
             if(lastPrice.toString() == "null"){
               price = Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Text("UNAVAILABLE !", style: TextStyle(fontSize: 16, color: Colors.black54), overflow: TextOverflow.fade,),
                 );
             }else{
-              if(lastPrice == secondLastPrice){
-                icon = priceArrowForward;
-                priceColor = Colors.black87;
-              }
-              if(lastPrice > secondLastPrice){
-                icon = priceArrowUp;
-                priceColor = arrowUpColor;
-              }
-              if(lastPrice < secondLastPrice){
-                icon = priceArrowDown;
-                priceColor = arrowDownColor;
+              // if second last price is null,
+              // fails to compare it to current price by value
+              // so we check for it too
+              if(secondLastPrice.toString() == "null"){
+                  icon = priceArrowForward;
+                  priceColor = Colors.black87;
+              }else{
+                // if last price and/or second last price are not null
+                // we compare them to determine the price change
+
+                // no change in price
+                if(lastPrice == secondLastPrice){
+                  icon = priceArrowForward;
+                  priceColor = Colors.black87;
+                }
+                // price went up
+                if(lastPrice > secondLastPrice){
+                  icon = priceArrowUp;
+                  priceColor = arrowUpColor;
+                }
+                // price went down
+                if(lastPrice < secondLastPrice){
+                  icon = priceArrowDown;
+                  priceColor = arrowDownColor;
+                }
               }
               price = Padding(
                   padding: const EdgeInsets.all(10.0),
@@ -114,15 +131,18 @@ class _HomeScreenState extends State<HomeScreen>{
 
             return GestureDetector(
               onTap: () {
-                Fluttertoast.showToast(
-                    msg: prodURL,
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.SNACKBAR,
-                    timeInSecForIosWeb: 1,
-                    backgroundColor: Colors.grey,
-                    textColor: Colors.black,
-                    fontSize: 16.0
-                );
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => DetailScreen(currentProduct)
+                  ));
+                // Fluttertoast.showToast(
+                //     msg: prodURL,
+                //     toastLength: Toast.LENGTH_SHORT,
+                //     gravity: ToastGravity.SNACKBAR,
+                //     timeInSecForIosWeb: 1,
+                //     backgroundColor: Colors.grey,
+                //     textColor: Colors.black,
+                //     fontSize: 16.0
+                // );
               },
               child: Card(
                 child: Column(

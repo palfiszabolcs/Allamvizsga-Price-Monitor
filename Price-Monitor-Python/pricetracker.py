@@ -33,10 +33,16 @@ def get_url_info(url):
 
         if address == "quickmobile.ro":
             return util.get_and_parse_quickmobile(soup)
-    except requests.RequestException:
-        print("!!! HTML request error !!!")
-        input()
-        raise SystemExit
+    except requests.RequestException or requests.TooManyRedirects as error:
+        print(url)
+        print("^^^ !!! HTML request error !!! - " + error)
+        # for i in range(5):
+        #     print("Retrying in..." + str(i))
+        resp = input("\n Type r to retry... ")
+        if resp == "r":
+            return get_url_info(url)
+        else:
+            return None
 
     # if address == "mediagalaxy.ro":
     #     return util.get_and_parse_mediagalaxy(soup)
@@ -207,19 +213,15 @@ run()
 # url8 = "https://www.emag.ro/boxa-portabila-jbl-charge-3-6000-mah-rosu-charge3red/pd/DCQG32BBM/#used-products"
 # url9 = "https://www.emag.ro/laptop-hp-15-15s-fq1010nq-cu-procesor-intelr-coretm-i3-1005g1-pana-la-3-40-ghz-15-6-full-hd-8gb-256gb-ssd-intel-uhd-graphics-free-dos-gray-9qf69ea/pd/DH33MMMBM/?X-Search-Id=3a0b52475c2c4e7d900d&X-Product-Id=66367719&X-Search-Page=1&X-Search-Position=3&X-Section=search&X-MB=0&X-Search-Action=view"
 
-# url = "https://www.emag.ro/telefon-mobil-samsung-galaxy-a20e-dual-sim-32gb-4g-blue-sm-a202fzbdrom/pd/D4WMHQBBM/?ref=graph_profiled_similar_a_1_4&provider=rec&recid=rec_49_16_c2732421_93_A_abf22371c7da6b38789077ed715b15f41a6dcdf024ef601701a96e1359be610a_1603731413&scenario_ID=49"
-# test = get_url_info("https://www.emag.ro/mouse-logitech-m330-silent-plus-wireless-black-910-004909/pd/D78WX2BBM/?X-Search-Id=d6b9dde0aa1e8f8e754c&X-Product-Id=41063530&X-Search-Page=1&X-Search-Position=7&X-Section=search&X-MB=0&X-Search-Action=view")
+# url = "https://www.emag.ro/mouse-logitech-m720-triathlon-wireless-910-004791/pd/DTGWX2BBM/"
+# test = get_url_info(url)
 # print(test)
 
 # html_content = requests.get("https://patrickhlauke.github.io/recaptcha/").text
 # # print(html_content)
 # soup = BeautifulSoup(html_content, "html.parser")
 # # print(soup)
-# isCaptcha = soup.find("div", attrs={"class": "g-recaptcha"})
-# if isCaptcha is not None:
-#     print("cap found")
-#     input("press enter to exit")
-#     raise SystemExit(1)
+
 
 
 # price = soup.find("span", attrs={"class": "label-out_of_stock"})

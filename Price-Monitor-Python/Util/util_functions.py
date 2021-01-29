@@ -191,7 +191,10 @@ def get_and_parse_emag(soup):
         except AttributeError:
             price = constants.priceError
     currency = cur.ron
-    image = soup.find("div", attrs={"id": "product-gallery"}).img["src"]
+    try:
+        image = soup.find("div", attrs={"id": "product-gallery"}).img["src"]
+    except AttributeError:
+        image = "error"
     product_data = class_ProductData.ProductData(title, price, currency, image)
     return product_data
 
@@ -203,6 +206,7 @@ def get_and_parse_flanco(soup):
         title = soup.find("h1", attrs={"id": "product-title"}).text.strip()
     except AttributeError:
         price = constants.priceError
+        title = "error"
 
     price = find_price(soup, "div", "produs-price")
     if stockless:
@@ -218,7 +222,10 @@ def get_and_parse_flanco(soup):
         except ValueError:
             price = constants.priceError
     currency = cur.ron
-    image = soup.find("div", attrs={"class": "product_image_zoom_container"}).img["src"]
+    try:
+        image = soup.find("div", attrs={"class": "product_image_zoom_container"}).img["src"]
+    except AttributeError:
+        image = "error"
     product_data = class_ProductData.ProductData(title, price, currency, image)
     return product_data
 
@@ -235,7 +242,10 @@ def get_and_parse_quickmobile(soup):
         except ValueError:
             price = constants.priceError
     currency = cur.ron
-    image = soup.find("img", attrs={"class": "img-responsive image-gallery"})['src'].strip()
+    try:
+        image = soup.find("img", attrs={"class": "img-responsive image-gallery"})['src'].strip()
+    except AttributeError:
+        image = "error"
     product_data = class_ProductData.ProductData(title, price, currency, image)
     return product_data
 

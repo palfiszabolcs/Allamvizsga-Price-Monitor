@@ -1,16 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:sweetalert/sweetalert.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-// import './auth.dart';
-import 'login.dart';
-import 'home.dart';
+import 'Screens/login.dart';
+import 'Screens/home.dart';
 
 // import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 // import 'package:share_options/share_options.dart';
