@@ -145,6 +145,11 @@ class _HomeScreenState extends State<HomeScreen>{
                 // );
               },
               child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(
+                      Radius.circular(15)
+                  ),
+                ),
                 child: Column(
                   children: [
                     Row(
@@ -159,10 +164,10 @@ class _HomeScreenState extends State<HomeScreen>{
                                   Center(child:
                                         CircularProgressIndicator(
                                           value: downloadProgress.progress,
-                                          valueColor: AlwaysStoppedAnimation(color_primary_blue),
+                                          valueColor: AlwaysStoppedAnimation(colorPrimaryBlue),
                                         )
                                       ),
-                              errorWidget: (context, url, error) => Center(child: Icon(Icons.error, color: color_primary_blue,)),
+                              errorWidget: (context, url, error) => Center(child: Icon(Icons.error, color: colorPrimaryBlue,)),
                             ),
                           ),
                         ),
@@ -191,15 +196,20 @@ class _HomeScreenState extends State<HomeScreen>{
   @override
   Widget build(BuildContext context) {
       SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-          statusBarColor: color_primary_blue
+          statusBarColor: colorPrimaryBlue
       ));
       return MaterialApp(
-          theme: ThemeData(primaryColor: color_primary_blue),
+          theme: ThemeData(primaryColor: colorPrimaryBlue),
           home: Scaffold(
               appBar: AppBar(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.elliptical(MediaQuery.of(context).size.width, 25),
+                  ),
+                ),
                 title: Row(
                   children: [
-                    primary_icon,
+                    primaryIcon,
                     title
                   ],
                 ),
@@ -239,10 +249,10 @@ class _HomeScreenState extends State<HomeScreen>{
                   }
                   else{
                     return Center(child: CircularProgressIndicator());
-
                   }
                 }
-              ) : Center(child: notConfirmedText)
+              ) : Center(child: notConfirmedText),
+            backgroundColor: colorBackGroundGrey,
         ),
       );
   }
@@ -320,7 +330,7 @@ class _HomeScreenState extends State<HomeScreen>{
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                description_text,
+                descriptionText,
                 supportedStores
               ],
             ),
@@ -344,7 +354,7 @@ class _HomeScreenState extends State<HomeScreen>{
                           child: RaisedButton(
                               child: Text("Delete Account",
                                 style: TextStyle(color: Colors.white),),
-                              color: color_delete_account_button,
+                              color: colorDeleteAccountButton,
                               onPressed: (){
                                 SweetAlert.show(context,
                                     title: "Delete Account",
@@ -370,7 +380,7 @@ class _HomeScreenState extends State<HomeScreen>{
                           child: RaisedButton(
                               child: Text("SignOut",
                                 style: TextStyle(color: Colors.white),),
-                              color: color_signout_button,
+                              color: colorSignOutButton,
                               onPressed: (){
                                 SweetAlert.show(context,
                                     title: "Log Out",

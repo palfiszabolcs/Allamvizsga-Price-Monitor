@@ -67,7 +67,7 @@ class LoginScreen extends StatelessWidget {
     return FlutterLogin(
       title: 'Price-Monitor',
       theme: LoginTheme(
-        primaryColor: color_primary_blue,
+        primaryColor: colorPrimaryBlue,
       ),
       messages: LoginMessages(
         loginButton: "SIGN IN",

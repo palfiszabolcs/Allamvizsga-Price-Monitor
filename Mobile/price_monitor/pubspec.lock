@@ -429,6 +429,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.5"
+  radio_grouped_buttons:
+    dependency: "direct main"
+    description:
+      name: radio_grouped_buttons
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0+2"
   rxdart:
     dependency: transitive
     description:
