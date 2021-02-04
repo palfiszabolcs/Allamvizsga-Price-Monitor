@@ -122,3 +122,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+/Price-Monitor-Python/price-monitor-44858-firebase-adminsdk-rtint-c32b862345.json
