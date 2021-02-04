@@ -2,24 +2,25 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:sweetalert/sweetalert.dart';
-import '../dataModels/Check.dart';
 import '../dataModels/Product.dart';
 import 'detail.dart';
 import 'login.dart';
 import '../constants.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
+
 
 Timer _timer;
 final FirebaseAuth _auth = FirebaseAuth.instance;
-final _db = FirebaseDatabase.instance.reference().child("USERS");
-// Map<dynamic, dynamic> tempProducts;
+final _db = FirebaseDatabase.instance.reference();
 List<Product>productsList = List();
 
 class HomeScreen extends StatefulWidget{
@@ -29,24 +30,143 @@ class HomeScreen extends StatefulWidget{
 
 class _HomeScreenState extends State<HomeScreen>{
 
+    RegExp linkRegExp = RegExp(r"[a-zA-z]+\.ro+|[a-zA-z]+\.com+|[a-zA-z]+\.eu+");
     bool verified = _auth.currentUser.emailVerified;
-    void verificationCheck(){
+
+    void _verificationCheck(){
       _timer = Timer.periodic(Duration(seconds: 2), (timer) async {
         _auth.currentUser.reload();
-        setState(() {
-            if(verified){
-                _timer.cancel();
-            }
-            verified =  _auth.currentUser.emailVerified;
-        });
+          if(verified){
+              _timer.cancel();
+              setState(() {});
+          }
+          verified = _auth.currentUser.emailVerified;
       });
     }
 
-    @override
+  void _startChangeListener(){
+    _db.child("USERS").child(_auth.currentUser.uid).onChildChanged.listen((event) async {
+        print("there was a change - child changed");
+        await Future.delayed(Duration(seconds: 1));
+        _refreshListView();
+    });
+    _db.child("USERS").child(_auth.currentUser.uid).onChildRemoved.listen((event) async {
+        print("there was a change - child removed");
+        // await Future.delayed(Duration(seconds: 1));
+        _refreshListView();
+    });
+  }
+
+  void _newProductHandler(String url) async {
+      var domain = linkRegExp.stringMatch(url).toString();
+      bool alreadyFollowed = false;
+      print("url = " + url);
+
+      await Future.delayed(Duration(seconds: 3));
+
+      productsList.forEach((element) {
+        if(element.url == url){
+          alreadyFollowed = true;
+        }
+      });
+
+      if(alreadyFollowed){
+        Fluttertoast.showToast(msg: "Product already followed!", toastLength: Toast.LENGTH_LONG);
+      }else{
+        if((supportedDomains.contains(domain))){
+          showDialog(context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                    title: Center(
+                        child: Text("Add product on this link?")),
+                    scrollable: true,
+                    content: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children : <Widget>[
+                          Text(url.toString()),
+                          Row(
+                            children: [
+                              Expanded(
+                                  flex: 5,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: RaisedButton(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(10)
+                                            )
+                                        ),
+                                        child: Text("Cancel",
+                                          style: TextStyle(color: Colors.white),),
+                                        color: colorSignOutButton,
+                                        onPressed: (){
+                                          Navigator.pop(context);
+                                        }
+                                    ),
+                                  )
+                              ),
+                              Expanded(
+                                  flex: 5,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: RaisedButton(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(10)
+                                            )
+                                        ),
+                                        child: Text("Add",
+                                          style: TextStyle(color: Colors.white),),
+                                        color: colorPrimaryBlue,
+                                        onPressed: (){
+                                          _db.child("NEW").child(_auth.currentUser.uid).push().set({'url': url.toString()});
+                                          Navigator.pop(context);
+                                        }
+                                    ),
+                                  )
+                              ),
+                            ],
+                          ),
+                        ]
+                    )
+                );
+              });
+        }else{
+          if(url != "null"){
+            Fluttertoast.showToast(msg: "Store not supported", toastLength: Toast.LENGTH_LONG);
+          }
+        }
+      }
+  }
+
+  void _urlShareListener(){
+    ReceiveSharingIntent.getInitialTextAsUri().then((url) =>
+      _newProductHandler(url.toString())
+    );
+    ReceiveSharingIntent.getTextStream().listen((String url)  {
+      _newProductHandler(url);
+    }, onError: (err) {
+      print("getLinkStream error: $err");
+    });
+  }
+
+  @override
   void initState() {
     super.initState();
-    verificationCheck();
+    _verificationCheck();
+    _startChangeListener();
+    _urlShareListener();
+
+    print("initState");
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   print("WidgetsBinding");
+    // });
+    // SchedulerBinding.instance.addPostFrameCallback((_) {
+    //   print("SchedulerBinding");
+    // });
   }
+
   @override
   void dispose() {
     super.dispose();
@@ -54,11 +174,12 @@ class _HomeScreenState extends State<HomeScreen>{
 
   Future<void> _refreshListView() async {
     setState(() {});
-    return null;
+    return true;
   }
 
   Widget productListWidget(){
-    return RefreshIndicator(
+    // print("productListWidget");
+      return RefreshIndicator(
       onRefresh: _refreshListView,
       child: ListView.builder(
           itemCount: productsList.length,
@@ -74,41 +195,46 @@ class _HomeScreenState extends State<HomeScreen>{
             var currency = productsList.elementAt(index).currency;
             var price,priceColor, icon;
             var lastPrice = productsList.elementAt(index).checks.last.price;
-            var secondLastIndex = (productsList.elementAt(index).checks.length) - 2;
-            var secondLastPrice = productsList.elementAt(index).checks.elementAt(secondLastIndex).price;
-
             // if price is null, we show UNAVAILABLE instead of the price
             if(lastPrice.toString() == "null"){
               price = Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Text("UNAVAILABLE !", style: TextStyle(fontSize: 16, color: Colors.black54), overflow: TextOverflow.fade,),
-                );
+                padding: const EdgeInsets.all(10.0),
+                child: Text("UNAVAILABLE !", style: TextStyle(fontSize: 16, color: Colors.black54), overflow: TextOverflow.fade,),
+              );
             }else{
-              // if second last price is null,
-              // fails to compare it to current price by value
-              // so we check for it too
-              if(secondLastPrice.toString() == "null"){
-                  icon = priceArrowForward;
-                  priceColor = Colors.black87;
-              }else{
-                // if last price and/or second last price are not null
-                // we compare them to determine the price change
+              if(productsList.elementAt(index).checks.length > 1){
+                var secondLastIndex = (productsList.elementAt(index).checks.length) - 2;
+                var secondLastPrice = productsList.elementAt(index).checks.elementAt(secondLastIndex).price;
 
-                // no change in price
-                if(lastPrice == secondLastPrice){
-                  icon = priceArrowForward;
-                  priceColor = Colors.black87;
+                // if second last price is null,
+                // fails to compare it to current price by value
+                // so we check for it too
+                if(secondLastPrice.toString() == "null"){
+                    icon = priceArrowForward;
+                    priceColor = Colors.black87;
+                }else{
+                  // if last price and/or second last price are not null
+                  // we compare them to determine the price change
+
+                  // no change in price
+                  if(lastPrice == secondLastPrice){
+                    icon = priceArrowForward;
+                    priceColor = Colors.black87;
+                  }
+                  // price went up
+                  if(lastPrice > secondLastPrice){
+                    icon = priceArrowUp;
+                    priceColor = arrowUpColor;
+                  }
+                  // price went down
+                  if(lastPrice < secondLastPrice){
+                    icon = priceArrowDown;
+                    priceColor = arrowDownColor;
+                  }
                 }
-                // price went up
-                if(lastPrice > secondLastPrice){
-                  icon = priceArrowUp;
-                  priceColor = arrowUpColor;
-                }
-                // price went down
-                if(lastPrice < secondLastPrice){
-                  icon = priceArrowDown;
-                  priceColor = arrowDownColor;
-                }
+              }else{
+                icon = priceArrowForward;
+                priceColor = Colors.black87;
               }
               price = Padding(
                   padding: const EdgeInsets.all(10.0),
@@ -126,7 +252,7 @@ class _HomeScreenState extends State<HomeScreen>{
                       ],
                     ),
                   )
-                );
+              );
             }
 
             return GestureDetector(
@@ -134,15 +260,6 @@ class _HomeScreenState extends State<HomeScreen>{
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => DetailScreen(currentProduct)
                   ));
-                // Fluttertoast.showToast(
-                //     msg: prodURL,
-                //     toastLength: Toast.LENGTH_SHORT,
-                //     gravity: ToastGravity.SNACKBAR,
-                //     timeInSecForIosWeb: 1,
-                //     backgroundColor: Colors.grey,
-                //     textColor: Colors.black,
-                //     fontSize: 16.0
-                // );
               },
               child: Card(
                 shape: RoundedRectangleBorder(
@@ -192,9 +309,9 @@ class _HomeScreenState extends State<HomeScreen>{
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
+      // print("build");
       SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
           statusBarColor: colorPrimaryBlue
       ));
@@ -233,17 +350,12 @@ class _HomeScreenState extends State<HomeScreen>{
                 ],
               ),
               body: verified ? FutureBuilder(
-                future: _db.child(_auth.currentUser.uid).once(),
+                future: _db.child("USERS").child(_auth.currentUser.uid).once(),
                 builder: (context, snapshot) {
                   if(snapshot.hasData){
                     if(snapshot.data != null){
-                      productsList.clear();
-                      List<dynamic>tempProd = snapshot.data.value.values.toList();
-                        tempProd.forEach((element) {
-                            productsList.add(Product.fromSnapshot(element));
-                        });
-                        productsList.sort((a,b) => a.checks.first.date.compareTo(b.checks.first.date));
-                        return productListWidget();
+                      _makeProductList(snapshot);
+                      return productListWidget();
                     }
                     return Center(child: CircularProgressIndicator());
                   }
@@ -255,6 +367,16 @@ class _HomeScreenState extends State<HomeScreen>{
             backgroundColor: colorBackGroundGrey,
         ),
       );
+  }
+
+  void _makeProductList(AsyncSnapshot snapshot){
+    // print("_makeProductList");
+    productsList.clear();
+    Map<dynamic,dynamic>tempProd = snapshot.data.value;
+    tempProd.forEach((key, value) {
+      productsList.add(Product.fromSnapshot(key, value));
+    });
+    productsList.sort((a,b) => a.checks.first.date.compareTo(b.checks.first.date));
   }
 
   var supportedStores = Column(
@@ -343,7 +465,10 @@ class _HomeScreenState extends State<HomeScreen>{
       showDialog(context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-                title: Center(child: Text(_auth.currentUser.email)),
+                title: Center(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Text(_auth.currentUser.email))),
                 scrollable: true,
                 content: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -362,11 +487,13 @@ class _HomeScreenState extends State<HomeScreen>{
                                     style: SweetAlertStyle.confirm,
                                     confirmButtonText: "Delete",
                                     showCancelButton: true,
+                                    // cancelButtonColor: Colors.red,
+                                    // confirmButtonColor: colorPrimaryBlue,
                                     onPress: (bool isConfirm) {
                                       if (isConfirm) {
                                         //TODO: delete products too if delete pressed
                                         _auth.currentUser.delete();
-                                        Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) => LoginScreen()),);
+                                        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => LoginScreen()), (r) => false);
                                         return false;
                                       }
                                       return true;
@@ -388,12 +515,13 @@ class _HomeScreenState extends State<HomeScreen>{
                                     style: SweetAlertStyle.confirm,
                                     confirmButtonText: "Log Out",
                                     showCancelButton: true,
+                                    // cancelButtonColor: Colors.red,
+                                    // confirmButtonColor: colorPrimaryBlue,
                                     onPress: (bool isConfirm) {
                                       if (isConfirm) {
                                         _auth.signOut().then((value) =>
-                                           Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) => LoginScreen()))
-
-                                        );
+                                            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => LoginScreen()), (r) => false)
+                                      );
                                         return false;
                                       }
                                       return true;

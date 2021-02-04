@@ -14,7 +14,7 @@ class LoginScreen extends StatelessWidget {
   Future<String> _authUser(LoginData data) async {
     try{
       var result = await _auth.signInWithEmailAndPassword(email: data.name, password: data.password);
-      var uid = result.user.uid;
+      // var uid = result.user.uid;
       if(!_auth.currentUser.emailVerified){
         return "You need to confirm your email address first!";
       }else{
@@ -64,8 +64,15 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var title = "";
+    if(MediaQuery.of(context).size.width > MediaQuery.of(context).size.height){
+      // print("Landscape");
+    }else{
+      title = "Price-Monitor";
+      // print("Portrait");
+    }
     return FlutterLogin(
-      title: 'Price-Monitor',
+      title: title,
       theme: LoginTheme(
         primaryColor: colorPrimaryBlue,
       ),
@@ -81,9 +88,7 @@ class LoginScreen extends StatelessWidget {
       onSignup: _registerUser,
       onRecoverPassword: _recoverPassword,
       onSubmitAnimationCompleted: () {
-        Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => HomeScreen(),
-        ));
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => HomeScreen()), (r) => false);
       },
     );
   }

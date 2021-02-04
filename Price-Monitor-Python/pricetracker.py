@@ -1,7 +1,11 @@
+import firebase_admin
 import requests
 from bs4 import BeautifulSoup
 from dacite import from_dict
 from firebase import firebase as fb
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import db as admin_db
 from datetime import date
 from datetime import datetime
 import schedule
@@ -9,7 +13,8 @@ import time
 
 import Classes.class_FirebaseResponse
 from Util import test_urls as test_url, database, constants as constant, util_functions as util, category as cat
-
+cred = credentials.Certificate("E:/1.UniFuckinVersity/Allamvizsga/Price-Monitor-Python/price-monitor-44858-firebase-adminsdk-rtint-c32b862345.json")
+admin = firebase_admin.initialize_app(cred)
 
 def get_url_info(url):
     try:
@@ -177,22 +182,39 @@ def update_prices():
         print("----------------")
 
 
-def run():
-    schedule.every(4).minutes.do(update_users_new_products)
+def listener(event):
+    if event.data:
+        update_users_new_products()
+    else:
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
+        print("----------------")
+        print("Event fired - no data - " + current_time)
+        print("----------------")
+        # print("event type: " + str(event.event_type))  # can be 'put' or 'patch'
+        # print("event path: " + str(event.path))  # relative to the reference, it seems
+        # print("event data: " + str(event.data))  # new data at /reference/event.path. None if deleted
+
+
+def run_new_products_listener():
+    admin_db.reference("/NEW", None, database.firebase_link).listen(listener)
+
+
+def run_scheduled_checks():
+    # schedule.every(4).minutes.do(update_users_new_products)
     schedule.every().day.at('11:00').do(update_prices)
     schedule.every().day.at('18:00').do(update_prices)
-
     while True:
         schedule.run_pending()
         time.sleep(60)
-# ############################################ - MAIN - ####################################################
 
-# update_users_new_products()
+# ############################################ - MAIN - ####################################################
 
 
 # update_prices()
-run()
 
+run_new_products_listener()
+run_scheduled_checks()
 
 
 
@@ -213,7 +235,7 @@ run()
 # url8 = "https://www.emag.ro/boxa-portabila-jbl-charge-3-6000-mah-rosu-charge3red/pd/DCQG32BBM/#used-products"
 # url9 = "https://www.emag.ro/laptop-hp-15-15s-fq1010nq-cu-procesor-intelr-coretm-i3-1005g1-pana-la-3-40-ghz-15-6-full-hd-8gb-256gb-ssd-intel-uhd-graphics-free-dos-gray-9qf69ea/pd/DH33MMMBM/?X-Search-Id=3a0b52475c2c4e7d900d&X-Product-Id=66367719&X-Search-Page=1&X-Search-Position=3&X-Section=search&X-MB=0&X-Search-Action=view"
 
-# url = "https://www.emag.ro/mouse-logitech-m720-triathlon-wireless-910-004791/pd/DTGWX2BBM/"
+# url = "https://www.flanco.ro/televizor-smart-led-lg-55un71003lb-138-cm-ultra-hd-4k.html"
 # test = get_url_info(url)
 # print(test)
 

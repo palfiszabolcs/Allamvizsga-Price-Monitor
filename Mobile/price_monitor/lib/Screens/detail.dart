@@ -1,15 +1,19 @@
-import 'dart:math';
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:price_monitor/dataModels/ChartData.dart';
-import 'package:price_monitor/dataModels/Check.dart';
 import 'package:price_monitor/dataModels/Product.dart';
 import 'package:price_monitor/constants.dart';
 import 'package:charts_flutter/flutter.dart';
-// import 'package:fl_chart/fl_chart.dart';
 import 'package:radio_grouped_buttons/radio_grouped_buttons.dart';
+import 'package:sweetalert/sweetalert.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+final FirebaseAuth _auth = FirebaseAuth.instance;
+final _db = FirebaseDatabase.instance.reference().child("USERS");
 
 class DetailScreen extends StatefulWidget{
   Product product;
@@ -45,6 +49,40 @@ class _DetailScreenState extends State<DetailScreen>{
       );
   }
 
+  _goToProductPage(String url) async{
+    if (await canLaunch(url)){
+      await launch(url);
+    }
+    else{
+      return Fluttertoast.showToast(
+          msg: "Error opening link",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.SNACKBAR,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.grey,
+          textColor: Colors.black,
+          fontSize: 16.0
+      );
+    }
+  }
+
+  _deleteProduct(){
+    try{
+      _db.child(_auth.currentUser.uid).child(widget.product.dbKey).remove();
+    }catch (error){
+      print("error deleting product");
+      return Fluttertoast.showToast(
+          msg: error.toString(),
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.SNACKBAR,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.grey,
+          textColor: Colors.black,
+          fontSize: 16.0
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -68,67 +106,152 @@ class _DetailScreenState extends State<DetailScreen>{
                 bottom: Radius.elliptical(MediaQuery.of(context).size.width, 25),
               ),
             ),
+            actions:<Widget> [
+              IconButton(
+                icon: Icon(Icons.delete_rounded),
+                onPressed: () => {
+                  SweetAlert.show(context,
+                  title: "Are you sure?",
+                  subtitle: "Your product will be permanently deleted!",
+                  style: SweetAlertStyle.confirm,
+                  confirmButtonText: "Delete",
+                  showCancelButton: true,
+                  onPress: (bool isConfirm) {
+                      if (isConfirm) {
+                        _deleteProduct();
+                        Navigator.of(context).pop();
+                        return true;
+                      }
+                      return true;
+                    }
+                  )
+                },
+              )
+            ],
           ),
+
           body: Padding(
-            padding: const EdgeInsets.all(7.0),
-            child: Column(
-              children: [
-                Container(
-                  height: MediaQuery.of(context).size.height * 0.35,
-                  child: TimeSeriesChart(
-                        seriesList,
-                        animate: true,
-                        dateTimeFactory: const LocalDateTimeFactory(),
-                        primaryMeasureAxis: NumericAxisSpec(
-                            tickProviderSpec: BasicNumericTickProviderSpec(zeroBound: false, desiredTickCount: 10),
-                        ),
-                        domainAxis: DateTimeAxisSpec(
-                          viewport: DateTimeExtents(start: chartStartDate, end: DateTime.now()),
-                          tickFormatterSpec: AutoDateTimeTickFormatterSpec(
-                            day: TimeFormatterSpec(
-                              format: 'dd MMM',
-                              transitionFormat: 'dd MMM',
+            padding: const EdgeInsets.all(0.0),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(15)
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(6.0),
+                      child: Column(
+                        children: [
+                          Container(
+                            height: MediaQuery.of(context).size.height * 0.5,
+                            child: TimeSeriesChart(
+                                  seriesList,
+                                  animate: true,
+                                  dateTimeFactory: const LocalDateTimeFactory(),
+                                  primaryMeasureAxis: NumericAxisSpec(
+                                      tickProviderSpec: BasicNumericTickProviderSpec(zeroBound: false, desiredTickCount: 10),
+                                  ),
+                                  domainAxis: DateTimeAxisSpec(
+                                    viewport: DateTimeExtents(start: chartStartDate, end: DateTime.now()),
+                                    tickFormatterSpec: AutoDateTimeTickFormatterSpec(
+                                      day: TimeFormatterSpec(
+                                        format: 'dd MMM',
+                                        transitionFormat: 'dd MMM',
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Center(
+                              child: CustomRadioButton(
+                                buttonLables: filterButtonListLabels,
+                                buttonValues: filterButtonListValues,
+                                initialSelection: 2,
+                                radioButtonValue: (value,index){
+                                  if(index == 0){
+                                    chartStartDate = widget.product.checks.first.date;
+                                  }
+                                  else{
+                                    if((DateTime.now().subtract(Duration(days:value)).isBefore(widget.product.checks.first.date))){
+                                      chartStartDate = widget.product.checks.first.date;
+                                    }else{
+                                      chartStartDate = DateTime.now().subtract(Duration(days:value));
+                                    }
+                                  }
+                                  setState(() {});
+                                },
+                                horizontal: true,
+                                enableShape: true,
+                                buttonSpace: 0,
+                                elevation: 0,
+                                buttonColor: colorBackGroundGrey,
+                                selectedColor: colorPrimaryBlue,
+                                buttonWidth: MediaQuery.of(context).size.width * 0.25,
+                                buttonHeight: 25,
+                                fontSize: 12,
+                              ),
                             ),
                           ),
-                        ),
-                      )
-                    ),
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: 50,
-                  child: Center(
-                    child: CustomRadioButton(
-                      buttonLables: filterButtonListLabels,
-                      buttonValues: filterButtonListValues,
-                      initialSelection: 2,
-                      radioButtonValue: (value,index){
-                        if(index == 0){
-                          chartStartDate = widget.product.checks.first.date;
-                        }
-                        else{
-                          if((DateTime.now().subtract(Duration(days:value)).isBefore(widget.product.checks.first.date))){
-                            chartStartDate = widget.product.checks.first.date;
-                          }else{
-                            chartStartDate = DateTime.now().subtract(Duration(days:value));
-                          }
-                        }
-                        setState(() {});
-                      },
-                      horizontal: true,
-                      enableShape: true,
-                      buttonSpace: 0,
-                      elevation: 0,
-                      buttonColor: colorBackGroundGrey,
-                      selectedColor: colorPrimaryBlue,
-                      buttonWidth: MediaQuery.of(context).size.width * 0.25,
-                      buttonHeight: 25,
-                      fontSize: 12,
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+
+                  // Card(
+                  //   shape: RoundedRectangleBorder(
+                  //     borderRadius: BorderRadius.all(
+                  //         Radius.circular(15)
+                  //     ),
+                  //   ),
+                  //   child: Container(
+                  //     child: Row(
+                  //       mainAxisAlignment: MainAxisAlignment.center,
+                  //       crossAxisAlignment: CrossAxisAlignment.center,
+                  //       children: [
+                  //         Expanded(
+                  //           flex: 10,
+                  //           child: Padding(
+                  //             padding: const EdgeInsets.all(8.0),
+                  //             child: RaisedButton(
+                  //               shape: RoundedRectangleBorder(
+                  //                 borderRadius: BorderRadius.all(
+                  //                     Radius.circular(15)
+                  //                 ),
+                  //               ),
+                  //               color: Colors.cyan,
+                  //               textColor: Colors.white,
+                  //               child: Row(
+                  //                 mainAxisAlignment: MainAxisAlignment.center,
+                  //                 crossAxisAlignment: CrossAxisAlignment.center,
+                  //                 children: [
+                  //                   primaryIcon,
+                  //                   Text("See product page")
+                  //                 ],
+                  //               ),
+                  //               onPressed: () => _goToProductPage(widget.product.url),
+                  //             ),
+                  //           ),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ),
+                  // )
+                ],
+              ),
             ),
-          )
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () => _goToProductPage(widget.product.url),
+            child: primaryIcon,
+            backgroundColor: colorSignOutButton,
+            // label: Text("Shop"),
+          ),
+          backgroundColor: colorBackGroundGrey,
         ),
 
 

@@ -12,7 +12,7 @@ def find_price(soup, tag, class_name):
     try:
         price = soup.find(tag, attrs={"class": class_name}).text.strip()
     except AttributeError:
-        return None
+        return constants.priceError
         # raise Exception("object has no attribute: text (title tag changed / url may not exist)")
     return price
 
@@ -212,15 +212,14 @@ def get_and_parse_flanco(soup):
     if stockless:
         price = constants.priceError
     else:
-        if price is None:
-            return None
-        price = re.sub("\.", '', price)
-        price = re.sub(",", ".", price)
-        price = re.sub("lei", '', price)
-        try:
-            price = float(price)
-        except ValueError:
-            price = constants.priceError
+        if price != constants.priceError:
+            price = re.sub("\.", '', price)
+            price = re.sub(",", ".", price)
+            price = re.sub("lei", '', price)
+            try:
+                price = float(price)
+            except ValueError:
+                price = constants.priceError
     currency = cur.ron
     try:
         image = soup.find("div", attrs={"class": "product_image_zoom_container"}).img["src"]
@@ -233,7 +232,7 @@ def get_and_parse_flanco(soup):
 def get_and_parse_quickmobile(soup):
     title = find_title(soup, "div", "product-page-title page-product-title-wth")
     price = find_price(soup, "div", "priceFormat total-price price-fav product-page-price")
-    if (title is None) or (price is None):
+    if (title is None) or (price is constants.priceError):
         price = constants.priceError
     else:
         price = re.sub("Lei", '', price)

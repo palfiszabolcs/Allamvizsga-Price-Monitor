@@ -1,12 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 
-const colorPrimaryBlue =  Color(0xff007bff);
-final colorBackGroundGrey = Colors.grey.shade200;
-const colorResetPwButton = Color(0xffd39e00);
-const colorDeleteAccountButton = Color(0xff545b62);
-const colorSignOutButton = Color(0xffbd2130);
-const primaryIcon = Icon(Icons.shopping_cart_outlined);
+const primaryIcon = Icon(Icons.shopping_cart);
 const title = Expanded(child:Text(" Price-Monitor (v_0.5)", style: TextStyle(fontSize: 16,), overflow: TextOverflow.fade));
 const url_emag = "https://www.emag.ro/";
 const url_flanco = "https://www.flanco.ro/";
@@ -23,6 +18,13 @@ Taping on a list item will show you a chart of price changes.'''
 const notConfirmedText = Text("You need to confirm your email address before you use the app!", textAlign: TextAlign.center );
 const confirmedText = Text("Confirmed!", textAlign: TextAlign.center );
 
+// Colors
+const colorPrimaryBlue =  Color(0xff007bff);
+final colorBackGroundGrey = Colors.grey.shade200;
+const colorResetPwButton = Color(0xffd39e00);
+const colorDeleteAccountButton = Color(0xff545b62);
+const colorSignOutButton = Color(0xffbd2130);
+
 const priceArrowForward = Icon(Icons.arrow_forward_rounded);
 const arrowUpColor = Color(0xffdc3545);
 const arrowDownColor = Color(0xff28a745);
@@ -31,3 +33,5 @@ const priceArrowDown = Icon(Icons.arrow_downward_rounded, color: arrowDownColor)
 
 const filterButtonListLabels = ["All Time","Month","Week"];
 const filterButtonListValues = [60,30,7];
+
+const List supportedDomains = ["emag.ro", "flanco.ro", "quickmobile.ro"];
