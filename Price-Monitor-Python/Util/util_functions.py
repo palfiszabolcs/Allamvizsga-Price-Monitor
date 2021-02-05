@@ -2,7 +2,7 @@ from datetime import datetime
 import re
 from dacite import from_dict
 import json
-
+import logging
 from Classes import class_NewData, class_Product, class_ProductData, class_UtilNewData, class_UtilProduct
 from Util import database, currency as cur
 from Util import constants
@@ -12,7 +12,7 @@ def find_price(soup, tag, class_name):
     try:
         price = soup.find(tag, attrs={"class": class_name}).text.strip()
     except AttributeError:
-        return constants.priceError
+        return constants.error
         # raise Exception("object has no attribute: text (title tag changed / url may not exist)")
     return price
 
@@ -21,7 +21,7 @@ def find_title(soup, tag, class_name):
     try:
         title = soup.find(tag, attrs={"class": class_name}).text.strip()
     except AttributeError:
-        return None
+        return constants.error
         # raise Exception("object has no attribute: text (title tag changed / url may not exist)")
     return title
 
@@ -150,30 +150,12 @@ def upload_check_data(user, product_id, price, cur_date):
     return response
 
 
-def print_log(mode):
-    now = datetime.now()
-    current_time = now.strftime("%H:%M:%S")
-    if mode == "get":
-        print("Getting information from URL... - " + current_time)
-    if mode == "no prod":
-        print("----------------")
-        print("No new product added! - " + current_time)
-        print("----------------")
-    if mode == "update users":
-        print("Updating users...")
-        print("----------------")
-    if mode == "update prices":
-        print("Updating prices... - " + current_time)
-        print("----------------")
-
-
 def get_and_parse_emag(soup):
-    print_log("get")
     title = find_title(soup, "h1", "page-title")
     out_of_stock = soup.find("span", attrs={"class": "label-out_of_stock"})
 
-    if out_of_stock or title is None:
-        price = constants.priceError
+    if out_of_stock or (title is constants.error):
+        price = constants.error
     else:
         try:
             form = soup.find("form", attrs={"class": "main-product-form"})
@@ -187,9 +169,9 @@ def get_and_parse_emag(soup):
             try:
                 price = float(price.strip())
             except ValueError:
-                price = constants.priceError
+                price = constants.error
         except AttributeError:
-            price = constants.priceError
+            price = constants.error
     currency = cur.ron
     try:
         image = soup.find("div", attrs={"id": "product-gallery"}).img["src"]
@@ -200,26 +182,24 @@ def get_and_parse_emag(soup):
 
 
 def get_and_parse_flanco(soup):
-    print_log("get")
     stockless = soup.find("div", attrs={"class": "stockless"})
     try:
         title = soup.find("h1", attrs={"id": "product-title"}).text.strip()
     except AttributeError:
-        price = constants.priceError
         title = "error"
 
     price = find_price(soup, "div", "produs-price")
-    if stockless:
-        price = constants.priceError
+    if stockless or price is constants.error:
+        price = constants.error
     else:
-        if price != constants.priceError:
+        if price != constants.error:
             price = re.sub("\.", '', price)
             price = re.sub(",", ".", price)
             price = re.sub("lei", '', price)
             try:
                 price = float(price)
             except ValueError:
-                price = constants.priceError
+                price = constants.error
     currency = cur.ron
     try:
         image = soup.find("div", attrs={"class": "product_image_zoom_container"}).img["src"]
@@ -232,19 +212,20 @@ def get_and_parse_flanco(soup):
 def get_and_parse_quickmobile(soup):
     title = find_title(soup, "div", "product-page-title page-product-title-wth")
     price = find_price(soup, "div", "priceFormat total-price price-fav product-page-price")
-    if (title is None) or (price is constants.priceError):
-        price = constants.priceError
-    else:
+    image = constants.error
+    if title is not constants.error or price is not constants.error:
         price = re.sub("Lei", '', price)
         try:
             price = float(price)
         except ValueError:
-            price = constants.priceError
+            price = constants.error
+
+        try:
+            image = soup.find("img", attrs={"class": "img-responsive image-gallery"})['src'].strip()
+        except AttributeError:
+            image = constants.error
+
     currency = cur.ron
-    try:
-        image = soup.find("img", attrs={"class": "img-responsive image-gallery"})['src'].strip()
-    except AttributeError:
-        image = "error"
     product_data = class_ProductData.ProductData(title, price, currency, image)
     return product_data
 

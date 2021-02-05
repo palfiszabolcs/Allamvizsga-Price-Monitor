@@ -10,19 +10,25 @@ from datetime import date
 from datetime import datetime
 import schedule
 import time
+import logging
 
 import Classes.class_FirebaseResponse
-from Util import test_urls as test_url, database, constants as constant, util_functions as util, category as cat
-cred = credentials.Certificate("E:/1.UniFuckinVersity/Allamvizsga/Price-Monitor-Python/price-monitor-44858-firebase-adminsdk-rtint-c32b862345.json")
+from Util import test_urls as test_url, database, constants, util_functions as util, category as cat
+cred = credentials.Certificate("price-monitor-44858-firebase-adminsdk-rtint-ddf59f8323.json")
 admin = firebase_admin.initialize_app(cred)
+
+logging.basicConfig(level=logging.INFO, format=constants.LOG_FORMAT)
+logger = logging.getLogger()
+
 
 def get_url_info(url):
     try:
-        html_content = requests.get(url).text
+        html_content = requests.get(url, timeout=constants.timeout).text
         soup = BeautifulSoup(html_content, "html.parser")
         is_captcha_on_page = soup.find("div", attrs={"class": "g-recaptcha"}) is not None
         if is_captcha_on_page:
-            print("!!! CAPTCHA !!!")
+            logger.critical("!!! CAPTCHA !!!")
+            # print("!!! CAPTCHA !!!")
             message = input("\nValidate CAPTCHA then type k to continue... ")
             if message == "k":
                 html_content = requests.get(url).text
@@ -38,16 +44,20 @@ def get_url_info(url):
 
         if address == "quickmobile.ro":
             return util.get_and_parse_quickmobile(soup)
-    except requests.RequestException or requests.TooManyRedirects as error:
-        print(url)
-        print("^^^ !!! HTML request error !!! - " + error)
-        # for i in range(5):
-        #     print("Retrying in..." + str(i))
-        resp = input("\n Type r to retry... ")
-        if resp == "r":
-            return get_url_info(url)
-        else:
-            return None
+
+    except requests.RequestException as error:
+        logging.critical("^^^ !!! request error !!! - " + str(error) + " | full url - " + url)
+        for i in range(5, 0, -1):
+            logger.info("Retrying in... " + str(i) + " seconds")
+            time.sleep(1)
+
+        return get_url_info(url)
+
+        # resp = input("\n Type r to retry... ")
+        # if resp == "r":
+        #     return get_url_info(url)
+        # else:
+        #     return None
 
     # if address == "mediagalaxy.ro":
     #     return util.get_and_parse_mediagalaxy(soup)
@@ -93,11 +103,10 @@ def get_url_info(url):
 def push_new_data_to_db(user, url):
     print("Pushing to database...")
     data = get_url_info(url)
-    if data is None:
-        return
+    if (data.title and data.price and data.image) is constants.error:
+        return None
 
     firebase = fb.FirebaseApplication(database.firebase_link, None)
-    # firebase = fb.FirebaseApplication(database.bakcup_firebase_link, None)
 
     product_data = {
         'url': url,
@@ -115,8 +124,7 @@ def push_new_data_to_db(user, url):
     }
     response_check = firebase.post("USERS/" + user + "/" + prod_id + "/check", check_data)
 
-    print("Added " + user + "to database")
-    print("----------------")
+    logger.info("Added " + user + "to database")
 
     return prod_id
 
@@ -131,44 +139,38 @@ def delete_user(user):
 def update_users_new_products():
     users_list = util.get_new_users()
     if users_list == "none":
-        now = datetime.now()
-        current_time = now.strftime("%H:%M:%S")
-        util.print_log("no prod")
+        logger.info("No new product to add")
         return 0
-    util.print_log("update users")
+    logger.info("Adding new product")
 
     for user in users_list:
         users_product_list = util.make_new_product_list(user)
         for item in users_product_list:
             push_new_data_to_db(user, item.product.url)
-        print("Product added to " + user + "'s list...")
-        print("Deleting " + user + " from NEW section")
+        logger.info("Product added to " + user + "'s list...")
+        # print("Deleting " + user + " from NEW section")
         delete_result = delete_user(user)
-        print("----------------")
+        # print("----------------")
 
 
 def update_prices():
     users_list = util.get_existing_users()
-    util.print_log("update prices")
+    # util.print_log("update prices")
+    logger.info("Updating prices")
     for user in users_list:
         users_product_list = util.make_product_list(user)
         for item in users_product_list:
             product_data = get_url_info(item.product_data.url)
-
-            # this if is required for quickmobile.ro
-            if product_data:
-                price = product_data.price
+            if product_data.price is constants.error:
+                logger.info("No stock - Updated - " + item.product_data.url)
             else:
-                price = constant.priceError
-                # price = "noStock"
-                util.upload_error(user, item.product_id, datetime.today(), item.product_data.url)
-                print(constant.noStock)
-            if product_data.price == constant.priceError:
-                util.upload_error(user, item.product_id, datetime.today(), item.product_data.url)
-                print(constant.noStock)
-                # print("----------------")
-            # print(user + ":" + item.product_data.name + ": (" + str(price) + "," + str(cur_date) + ")")
-            res = util.upload_check_data(user, item.product_id, price, datetime.today())
+                logger.info("Updated - " + item.product_data.url)
+
+            if (product_data.title is constants.error) or (product_data.image is constants.error):
+                logger.warning("Found title or image error! - " + item.product_data.url)
+                util.upload_error(user, item.product_id, datetime.now(), item.product_data.url)
+
+            res = util.upload_check_data(user, item.product_id, product_data.price, datetime.now())
 
             # in the afternoon we risk to get time-out, so we wait between requests
             now = datetime.now().hour
@@ -176,21 +178,15 @@ def update_prices():
                 time.sleep(20)
             time.sleep(10)
 
-        now = datetime.now()
-        current_time = now.strftime("%H:%M:%S")
-        print("Updated " + user + "'s products prices - " + current_time)
-        print("----------------")
+        logger.info("Updated " + user + "'s products")
+    logger.info("Finished updating all products")
 
 
 def listener(event):
     if event.data:
         update_users_new_products()
     else:
-        now = datetime.now()
-        current_time = now.strftime("%H:%M:%S")
-        print("----------------")
-        print("Event fired - no data - " + current_time)
-        print("----------------")
+        logger.info("Listener event - no data")
         # print("event type: " + str(event.event_type))  # can be 'put' or 'patch'
         # print("event path: " + str(event.path))  # relative to the reference, it seems
         # print("event data: " + str(event.data))  # new data at /reference/event.path. None if deleted
@@ -210,13 +206,11 @@ def run_scheduled_checks():
 
 # ############################################ - MAIN - ####################################################
 
-
 # update_prices()
+
 
 run_new_products_listener()
 run_scheduled_checks()
-
-
 
 # ############################################ - TEST BENCH - ####################################################
 
@@ -235,9 +229,17 @@ run_scheduled_checks()
 # url8 = "https://www.emag.ro/boxa-portabila-jbl-charge-3-6000-mah-rosu-charge3red/pd/DCQG32BBM/#used-products"
 # url9 = "https://www.emag.ro/laptop-hp-15-15s-fq1010nq-cu-procesor-intelr-coretm-i3-1005g1-pana-la-3-40-ghz-15-6-full-hd-8gb-256gb-ssd-intel-uhd-graphics-free-dos-gray-9qf69ea/pd/DH33MMMBM/?X-Search-Id=3a0b52475c2c4e7d900d&X-Product-Id=66367719&X-Search-Page=1&X-Search-Position=3&X-Section=search&X-MB=0&X-Search-Action=view"
 
-# url = "https://www.flanco.ro/televizor-smart-led-lg-55un71003lb-138-cm-ultra-hd-4k.html"
-# test = get_url_info(url)
+
+# url1 = "https://www.emag.ro/"
+# url2 = "https://www.flanco.ro/"
+# url3 = "https://www.quickmobile.ro/"
+# url4= "https://www.quickmobile.ro/laptopuri/tastaturi/logitech-tastatura-wireless-k580-slim-multi-device-keyboard-47088"
+# test = get_url_info(url3)
+# test.title = "Valami"
+# if (test.title is constants.error) or (test.image is constants.error):
+#     logger.critical("none")
 # print(test)
+
 
 # html_content = requests.get("https://patrickhlauke.github.io/recaptcha/").text
 # # print(html_content)

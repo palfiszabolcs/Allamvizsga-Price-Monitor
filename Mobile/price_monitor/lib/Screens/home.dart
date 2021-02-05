@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -62,6 +61,7 @@ class _HomeScreenState extends State<HomeScreen>{
       bool alreadyFollowed = false;
       print("url = " + url);
 
+      // TODO:
       await Future.delayed(Duration(seconds: 3));
 
       productsList.forEach((element) {
@@ -186,7 +186,7 @@ class _HomeScreenState extends State<HomeScreen>{
           itemBuilder: (context, index) {
             var currentProduct = productsList.elementAt(index);
             var imageURL = productsList.elementAt(index).image;
-            var prodURL = productsList.elementAt(index).url;
+            // var prodURL = productsList.elementAt(index).url;
             var name = Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Text(productsList.elementAt(index).name, style: TextStyle(fontSize: 15, color: Colors.black87), overflow: TextOverflow.fade,)
@@ -389,7 +389,7 @@ class _HomeScreenState extends State<HomeScreen>{
               recognizer: new TapGestureRecognizer()..onTap = () async {if (await canLaunch(url_emag)) {
                 await launch(url_emag);
               } else {
-                throw 'Could not launch ${url_emag}';
+                throw 'Could not launch $url_emag';
               }
               }
 
@@ -402,7 +402,7 @@ class _HomeScreenState extends State<HomeScreen>{
               recognizer: new TapGestureRecognizer()..onTap = () async {if (await canLaunch(url_flanco)) {
                 await launch(url_flanco);
               } else {
-                throw 'Could not launch ${url_flanco}';
+                throw 'Could not launch $url_flanco';
               }
               }
 
@@ -428,7 +428,7 @@ class _HomeScreenState extends State<HomeScreen>{
               recognizer: new TapGestureRecognizer()..onTap = () async {if (await canLaunch(url_quickmobile)) {
                 await launch(url_quickmobile);
               } else {
-                throw 'Could not launch ${url_quickmobile}';
+                throw 'Could not launch $url_quickmobile';
               }
               }
 
