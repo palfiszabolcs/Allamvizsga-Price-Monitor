@@ -1,4 +1,4 @@
-from datetime import datetime
+import time
 import re
 from dacite import from_dict
 import json
@@ -6,7 +6,10 @@ import logging
 from Classes import class_NewData, class_Product, class_ProductData, class_UtilNewData, class_UtilProduct
 from Util import database, currency as cur
 from Util import constants
+import requests
 
+logging.basicConfig(level=logging.INFO, format=constants.LOG_FORMAT)
+logger = logging.getLogger()
 
 def find_price(soup, tag, class_name):
     try:
@@ -41,56 +44,97 @@ def print_product_info(title, price, currency, image):
 def get_product_data(user, product):
     from firebase import firebase
     firebase = firebase.FirebaseApplication(database.firebase_link, None)
-    dict_data = firebase.get("USERS/" + user + "/" + product, None)
-    return dict_data
+    try:
+        dict_data = firebase.get("USERS/" + user + "/" + product, None)
+        return dict_data
+    except requests.exceptions.ConnectionError as error:
+        logger.critical("get_product_data - " + str(error))
+        for i in range(5, 0, -1):
+            logger.info("Retrying in... " + str(i) + " seconds")
+            time.sleep(1)
+        return get_product_data(user, product)
 
 
 # returns a the data of a product from the NEW folder
 def get_new_product_data(user, product):
     from firebase import firebase
     firebase = firebase.FirebaseApplication(database.firebase_link, None)
-    dict_data = firebase.get("NEW/" + user + "/" + product, None)
-    return dict_data
+    try:
+        dict_data = firebase.get("NEW/" + user + "/" + product, None)
+        return dict_data
+    except requests.exceptions.ConnectionError as error:
+        logger.critical("get_new_product_data - " + str(error))
+        for i in range(5, 0, -1):
+            logger.info("Retrying in... " + str(i) + " seconds")
+            time.sleep(1)
+        return get_new_product_data(user, product)
 
 
 # returns a list of id-s
 def get_user_products(user):
     from firebase import firebase
     firebase = firebase.FirebaseApplication(database.firebase_link, None)
-    dict_data = firebase.get("USERS/" + user, None)
-    return dict_data
+    try:
+        dict_data = firebase.get("USERS/" + user, None)
+        return dict_data
+    except requests.exceptions.ConnectionError as error:
+        logger.critical("get_user_products - " + str(error))
+        for i in range(5, 0, -1):
+            logger.info("Retrying in... " + str(i) + " seconds")
+            time.sleep(1)
+        return get_user_products(user)
 
 
 def get_new_user_products(user):
     from firebase import firebase
     firebase = firebase.FirebaseApplication(database.firebase_link, None)
-    dict_data = firebase.get("NEW/" + user, None)
-    return dict_data
+    try:
+        dict_data = firebase.get("NEW/" + user, None)
+        return dict_data
+    except requests.exceptions.ConnectionError as error:
+        logger.critical("get_new_user_products - " + str(error))
+        for i in range(5, 0, -1):
+            logger.info("Retrying in... " + str(i) + " seconds")
+            time.sleep(1)
+        return get_new_user_products(user)
 
 
 def get_existing_users():
     from firebase import firebase
     firebase = firebase.FirebaseApplication(database.firebase_link, None)
-    result = firebase.get("USERS", None)
-    users_list = []
-    for user in result:
-        users_list.append(user)
-    return users_list
+    try:
+        result = firebase.get("USERS", None)
+        users_list = []
+        for user in result:
+            users_list.append(user)
+        return users_list
+    except requests.exceptions.ConnectionError as error:
+        logger.critical("get_existing_users - " + str(error))
+        for i in range(5, 0, -1):
+            logger.info("Retrying in... " + str(i) + " seconds")
+            time.sleep(1)
+        return get_existing_users()
 
 
 def get_new_users():
     from firebase import firebase
     firebase = firebase.FirebaseApplication(database.firebase_link, None)
 
-    result = firebase.get("NEW", None)
-
-    if result is None:
-        return "none"
-    else:
-        users_list = []
-        for user in result:
-            users_list.append(user)
-        return users_list
+    try:
+        result = firebase.get("NEW", None)
+        if result is None:
+            return "none"
+        else:
+            users_list = []
+            for user in result:
+                users_list.append(user)
+            return users_list
+    except requests.exceptions.ConnectionError as error:
+        logger.critical("get_new_users - " + str(error))
+        for i in range(5, 0, -1):
+            logger.info("Retrying in... " + str(i) + " seconds")
+            time.sleep(1)
+        return get_new_users()
 
 
 def make_product_list(user):
@@ -131,9 +175,15 @@ def upload_error(user, product_id, cur_date, url):
         'url': url,
         'date': cur_date
     }
-
-    response = firebase.post("ERROR/" + user, error_data)
-    return response
+    try:
+        response = firebase.post("ERROR/" + user, error_data)
+        return response
+    except requests.exceptions.ConnectionError as error:
+        logger.critical("upload_error - " + str(error))
+        for i in range(5, 0, -1):
+            logger.info("Retrying in... " + str(i) + " seconds")
+            time.sleep(1)
+        return upload_error(user, product_id, cur_date, url)
 
 
 def upload_check_data(user, product_id, price, cur_date):
@@ -146,8 +196,15 @@ def upload_check_data(user, product_id, price, cur_date):
         'date': cur_date
     }
 
-    response = firebase.post("USERS/" + user + "/" + product_id + "/check", check_data)
-    return response
+    try:
+        response = firebase.post("USERS/" + user + "/" + product_id + "/check", check_data)
+        return response
+    except requests.exceptions.ConnectionError as error:
+        logger.critical("upload_check_data - " + str(error))
+        for i in range(5, 0, -1):
+            logger.info("Retrying in... " + str(i) + " seconds")
+            time.sleep(1)
+        return upload_check_data(user, product_id, price, cur_date)
 
 
 def get_and_parse_emag(soup):

@@ -45,7 +45,7 @@ def get_url_info(url):
         if address == "quickmobile.ro":
             return util.get_and_parse_quickmobile(soup)
 
-    except requests.RequestException as error:
+    except (requests.RequestException, requests.ConnectionError, requests.Timeout) as error:
         logging.critical("^^^ !!! request error !!! - " + str(error) + " | full url - " + url)
         for i in range(5, 0, -1):
             logger.info("Retrying in... " + str(i) + " seconds")
@@ -162,7 +162,7 @@ def update_prices():
         for item in users_product_list:
             product_data = get_url_info(item.product_data.url)
             if product_data.price is constants.error:
-                logger.info("No stock - Updated - " + item.product_data.url)
+                logger.info("Updated - No stock - " + item.product_data.url)
             else:
                 logger.info("Updated - " + item.product_data.url)
 
@@ -206,11 +206,11 @@ def run_scheduled_checks():
 
 # ############################################ - MAIN - ####################################################
 
-# update_prices()
+update_prices()
 
 
-run_new_products_listener()
-run_scheduled_checks()
+# run_new_products_listener()
+# run_scheduled_checks()
 
 # ############################################ - TEST BENCH - ####################################################
 
