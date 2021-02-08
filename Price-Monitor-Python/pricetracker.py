@@ -11,19 +11,27 @@ from datetime import datetime
 import schedule
 import time
 import logging
+from configparser import ConfigParser, RawConfigParser, SafeConfigParser
 
 import Classes.class_FirebaseResponse
-from Util import test_urls as test_url, database, constants, util_functions as util, category as cat
-cred = credentials.Certificate("price-monitor-44858-firebase-adminsdk-rtint-ddf59f8323.json")
+from Util import test_urls as test_url, constants, util_functions as util, category as cat
+
+config_file = "config.ini"
+config = ConfigParser()
+config.read(config_file)
+
+cred = credentials.Certificate(config['firebase']['admin_credential_file'])
 admin = firebase_admin.initialize_app(cred)
 
 logging.basicConfig(level=logging.INFO, format=constants.LOG_FORMAT)
 logger = logging.getLogger()
 
+database = config["firebase"]["database"]
+
 
 def get_url_info(url):
     try:
-        html_content = requests.get(url, timeout=constants.timeout).text
+        html_content = requests.get(url, timeout=int(config["connection"]["timeout"])).text
         soup = BeautifulSoup(html_content, "html.parser")
         is_captcha_on_page = soup.find("div", attrs={"class": "g-recaptcha"}) is not None
         if is_captcha_on_page:
@@ -36,13 +44,13 @@ def get_url_info(url):
 
         address = util.get_site_address(url)
 
-        if address == "emag.ro":
+        if address == config["supported"]["emag"]:
             return util.get_and_parse_emag(soup)
 
-        if address == "flanco.ro":
+        if address == config["supported"]["flanco"]:
             return util.get_and_parse_flanco(soup)
 
-        if address == "quickmobile.ro":
+        if address == config["supported"]["quickmobile"]:
             return util.get_and_parse_quickmobile(soup)
 
     except (requests.RequestException, requests.ConnectionError, requests.Timeout) as error:
@@ -106,7 +114,7 @@ def push_new_data_to_db(user, url):
     if (data.title and data.price and data.image) is constants.error:
         return None
 
-    firebase = fb.FirebaseApplication(database.firebase_link, None)
+    firebase = fb.FirebaseApplication(database, None)
 
     product_data = {
         'url': url,
@@ -130,7 +138,7 @@ def push_new_data_to_db(user, url):
 
 
 def delete_user(user):
-    firebase = fb.FirebaseApplication(database.firebase_link, None)
+    firebase = fb.FirebaseApplication(database, None)
     delete_result = firebase.delete("/NEW", user)
     return delete_result
 
@@ -193,7 +201,7 @@ def listener(event):
 
 
 def run_new_products_listener():
-    admin_db.reference("/NEW", None, database.firebase_link).listen(listener)
+    admin_db.reference("/NEW", None, database).listen(listener)
 
 
 def run_scheduled_checks():
@@ -204,13 +212,31 @@ def run_scheduled_checks():
         schedule.run_pending()
         time.sleep(60)
 
+
+def run():
+    print("\nChose running mode:\n"
+          "     1 - Continuous (Will run scheduled tasks and start all listeners)\n"
+          "     2 - Update (Will update all products and stop)\n")
+    mode = int(input("Mode: "))
+
+    if (mode != 1) and (mode != 2):
+        print("Invalid option, please select again!")
+        return run()
+    else:
+        if mode == 1:
+            logger.info("Starting in CONTINUOUS mode...")
+            run_new_products_listener()
+            run_scheduled_checks()
+        if mode == 2:
+            logger.info("Starting in UPDATE mode...")
+            update_prices()
+
+
 # ############################################ - MAIN - ####################################################
 
-update_prices()
 
+run()
 
-# run_new_products_listener()
-# run_scheduled_checks()
 
 # ############################################ - TEST BENCH - ####################################################
 

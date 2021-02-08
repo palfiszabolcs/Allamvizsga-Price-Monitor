@@ -4,12 +4,20 @@ from dacite import from_dict
 import json
 import logging
 from Classes import class_NewData, class_Product, class_ProductData, class_UtilNewData, class_UtilProduct
-from Util import database, currency as cur
+from Util import currency
 from Util import constants
 import requests
+from configparser import ConfigParser
 
-logging.basicConfig(level=logging.INFO, format=constants.LOG_FORMAT)
-logger = logging.getLogger()
+config_file = "config.ini"
+config = ConfigParser()
+config.read(config_file)
+
+# logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["log_format"])
+# logger = logging.getLogger()
+
+database = config["firebase"]["database"]
+
 
 def find_price(soup, tag, class_name):
     try:
@@ -36,14 +44,14 @@ def get_site_address(url):
     return address
 
 
-def print_product_info(title, price, currency, image):
-    print("Product: " + title + "\nPrice(" + currency + "):", price, "\nImageURL: " + image)
+def print_product_info(title, price, prod_currency, image):
+    print("Product: " + title + "\nPrice(" + prod_currency + "):", price, "\nImageURL: " + image)
 
 
 # returns a the data of a product(id)
 def get_product_data(user, product):
     from firebase import firebase
-    firebase = firebase.FirebaseApplication(database.firebase_link, None)
+    firebase = firebase.FirebaseApplication(database, None)
     try:
         dict_data = firebase.get("USERS/" + user + "/" + product, None)
         return dict_data
@@ -58,7 +66,7 @@ def get_product_data(user, product):
 # returns a the data of a product from the NEW folder
 def get_new_product_data(user, product):
     from firebase import firebase
-    firebase = firebase.FirebaseApplication(database.firebase_link, None)
+    firebase = firebase.FirebaseApplication(database, None)
     try:
         dict_data = firebase.get("NEW/" + user + "/" + product, None)
         return dict_data
@@ -73,7 +81,7 @@ def get_new_product_data(user, product):
 # returns a list of id-s
 def get_user_products(user):
     from firebase import firebase
-    firebase = firebase.FirebaseApplication(database.firebase_link, None)
+    firebase = firebase.FirebaseApplication(database, None)
     try:
         dict_data = firebase.get("USERS/" + user, None)
         return dict_data
@@ -87,7 +95,7 @@ def get_user_products(user):
 
 def get_new_user_products(user):
     from firebase import firebase
-    firebase = firebase.FirebaseApplication(database.firebase_link, None)
+    firebase = firebase.FirebaseApplication(database, None)
     try:
         dict_data = firebase.get("NEW/" + user, None)
         return dict_data
@@ -101,7 +109,7 @@ def get_new_user_products(user):
 
 def get_existing_users():
     from firebase import firebase
-    firebase = firebase.FirebaseApplication(database.firebase_link, None)
+    firebase = firebase.FirebaseApplication(database, None)
     try:
         result = firebase.get("USERS", None)
         users_list = []
@@ -118,7 +126,7 @@ def get_existing_users():
 
 def get_new_users():
     from firebase import firebase
-    firebase = firebase.FirebaseApplication(database.firebase_link, None)
+    firebase = firebase.FirebaseApplication(database, None)
 
     try:
         result = firebase.get("NEW", None)
@@ -168,7 +176,7 @@ def pretty_print_dict(data):
 def upload_error(user, product_id, cur_date, url):
     from firebase import firebase
 
-    firebase = firebase.FirebaseApplication(database.firebase_link, None)
+    firebase = firebase.FirebaseApplication(database, None)
 
     error_data = {
         'prod_id:': product_id,
@@ -189,7 +197,7 @@ def upload_error(user, product_id, cur_date, url):
 def upload_check_data(user, product_id, price, cur_date):
     from firebase import firebase
 
-    firebase = firebase.FirebaseApplication(database.firebase_link, None)
+    firebase = firebase.FirebaseApplication(database, None)
 
     check_data = {
         'price': price,
@@ -229,12 +237,12 @@ def get_and_parse_emag(soup):
                 price = constants.error
         except AttributeError:
             price = constants.error
-    currency = cur.ron
+    prod_currency = currency.ron
     try:
         image = soup.find("div", attrs={"id": "product-gallery"}).img["src"]
     except AttributeError:
         image = "error"
-    product_data = class_ProductData.ProductData(title, price, currency, image)
+    product_data = class_ProductData.ProductData(title, price, prod_currency, image)
     return product_data
 
 
@@ -257,12 +265,12 @@ def get_and_parse_flanco(soup):
                 price = float(price)
             except ValueError:
                 price = constants.error
-    currency = cur.ron
+    prod_currency = currency.ron
     try:
         image = soup.find("div", attrs={"class": "product_image_zoom_container"}).img["src"]
     except AttributeError:
         image = "error"
-    product_data = class_ProductData.ProductData(title, price, currency, image)
+    product_data = class_ProductData.ProductData(title, price, prod_currency, image)
     return product_data
 
 
@@ -282,8 +290,8 @@ def get_and_parse_quickmobile(soup):
         except AttributeError:
             image = constants.error
 
-    currency = cur.ron
-    product_data = class_ProductData.ProductData(title, price, currency, image)
+    prod_currency = currency.ron
+    product_data = class_ProductData.ProductData(title, price, prod_currency, image)
     return product_data
 
 
@@ -299,9 +307,9 @@ def get_and_parse_altex(soup):
         price = float(price)
     except ValueError:
         return None
-    currency = cur.ron
+    prod_currency = currency.ron
     image = soup.find("div", attrs={"class": "slick-slide slick-active slick-current"}).img['src'].strip()
-    product_data = class_ProductData.ProductData(title, price, currency, image)
+    product_data = class_ProductData.ProductData(title, price, prod_currency, image)
     return product_data
 
 
@@ -316,9 +324,9 @@ def get_and_parse_mediagalaxy(soup):
     price = re.sub(",", ".", price)
     price = re.sub("lei", '', price)
     price = float(price)
-    currency = cur.ron
+    prod_currency = currency.ron
     image = soup.find("div", attrs={"class": "slick-slide slick-active slick-current"}).img['src'].strip()
-    product_data = class_ProductData.ProductData(title, price, currency, image)
+    product_data = class_ProductData.ProductData(title, price, prod_currency, image)
     return product_data
 
 
@@ -326,9 +334,9 @@ def get_and_parse_cel(soup):
     title = find_title(soup, "h1", "productName")
     price = find_price(soup, "span", "productPrice")
     price = float(price)
-    currency = cur.ron
+    prod_currency = currency.ron
     image = soup.find("img", attrs={"id": "main-product-image"})['src'].strip()
-    product_data = class_ProductData.ProductData(title, price, currency, image)
+    product_data = class_ProductData.ProductData(title, price, prod_currency, image)
     return product_data
 
 
@@ -336,9 +344,9 @@ def get_and_parse_dedeman(soup):
     title = find_title(soup, "h1", "no-margin-bottom product-title")
     price = soup.find("div", attrs={"class": "product-price large"}).span.text.strip()
     price = float(price)
-    currency = cur.ron
+    prod_currency = currency.ron
     image = soup.find("img", attrs={"class": "slider-product-image img-responsive"})['src'].strip()
-    product_data = class_ProductData.ProductData(title, price, currency, image)
+    product_data = class_ProductData.ProductData(title, price, prod_currency, image)
     return product_data
 
 
@@ -348,9 +356,9 @@ def get_and_parse_autovit(soup):
     price = re.sub("EUR", '', price)
     price = re.sub(" ", '', price)
     price = float(price)
-    currency = cur.euro
+    prod_currency = currency.euro
     image = soup.find("div", attrs={"class": "photo-item"}).img['data-lazy'].strip()
-    product_data = class_ProductData.ProductData(title, price, currency, image)
+    product_data = class_ProductData.ProductData(title, price, prod_currency, image)
     return product_data
 
 
@@ -361,9 +369,9 @@ def get_and_parse_evomag(soup):
     price = re.sub(",", ".", price)
     price = re.sub("Lei", '', price)
     price = float(price)
-    currency = cur.ron
+    prod_currency = currency.ron
     image = soup.find("a", attrs={"class": "fancybox fancybox.iframe"}).img['src'].strip()
-    product_data = class_ProductData.ProductData(title, price, currency, image)
+    product_data = class_ProductData.ProductData(title, price, prod_currency, image)
     return product_data
 
 
@@ -373,9 +381,9 @@ def get_and_parse_gymbeam(soup):
     price = re.sub(",", '.', price)
     price = re.sub("Lei", '', price)
     price = float(price)
-    currency = cur.ron
+    prod_currency = currency.ron
     image = soup.find("div", attrs={"class": "product media"}).img['data-src'].strip()
-    product_data = class_ProductData.ProductData(title, price, currency, image)
+    product_data = class_ProductData.ProductData(title, price, prod_currency, image)
     return product_data
 
 
@@ -385,9 +393,9 @@ def get_and_parse_megaproteine(soup):
     price = re.sub(",", '.', price)
     price = re.sub("lei", '', price)
     price = float(price)
-    currency = cur.ron
+    prod_currency = currency.ron
     image = soup.find("link", attrs={"rel": "image_src"})['href'].strip()
-    product_data = class_ProductData.ProductData(title, price, currency, image)
+    product_data = class_ProductData.ProductData(title, price, prod_currency, image)
     return product_data
 
 
@@ -400,9 +408,9 @@ def get_and_parse_sportisimo(soup):
     price = price.replace(u'\xa0', u'')
     price = re.findall(r'[0-9]*\.[0-9]*', price)
     price = float(price[0])
-    currency = cur.ron
+    prod_currency = currency.ron
     image = soup.find("div", attrs={"class": "gallery_image slide"}).img['src'].strip()
-    product_data = class_ProductData.ProductData(title, price, currency, image)
+    product_data = class_ProductData.ProductData(title, price, prod_currency, image)
     return product_data
 
 
@@ -412,10 +420,10 @@ def get_and_parse_footshop(soup):
     price = re.sub("cu TVA", '', price)
     price = re.sub("Lei", '', price)
     price = float(price)
-    currency = cur.ron
+    prod_currency = currency.ron
     image = "no image"
     # image = soup.find("img", attrs={"class": "ImageSlider_image_2Vl4h"}).text.strip()
-    product_data = class_ProductData.ProductData(title, price, currency, image)
+    product_data = class_ProductData.ProductData(title, price, prod_currency, image)
     return product_data
 
 
@@ -425,9 +433,9 @@ def get_and_parse_marso(soup):
     price = re.sub("LEI", '', price)
     price = re.sub(",", '.', price)
     price = float(price)
-    currency = cur.ron
+    prod_currency = currency.ron
     image = soup.find("img", attrs={"class": "product-image ui centered middle aligned image"})['src'].strip()
-    product_data = class_ProductData.ProductData(title, price, currency, image)
+    product_data = class_ProductData.ProductData(title, price, prod_currency, image)
     return product_data
 
 
@@ -437,9 +445,9 @@ def get_and_parse_intersport(soup):
     price = re.sub("LEI", '', price)
     price = re.sub(",", '.', price)
     price = float(price)
-    currency = cur.ron
+    prod_currency = currency.ron
     image = soup.find("div", attrs={"class": "image-container"}).img['src'].strip()
-    product_data = class_ProductData.ProductData(title, price, currency, image)
+    product_data = class_ProductData.ProductData(title, price, prod_currency, image)
     return product_data
 
 
@@ -449,7 +457,7 @@ def get_and_parse_ebay(soup):
     price = re.sub("US", '', price)
     price = re.sub("$", '', price)
     price = float(price)
-    currency = cur.dollar
+    prod_currency = currency.dollar
     image = soup.find("img", attrs={"id": "icImg"})['src'].strip()
-    product_data = class_ProductData.ProductData(title, price, currency, image)
+    product_data = class_ProductData.ProductData(title, price, prod_currency, image)
     return product_data
