@@ -11,22 +11,26 @@ from datetime import datetime
 import schedule
 import time
 import logging
-from configparser import ConfigParser, RawConfigParser, SafeConfigParser
+from configparser import ConfigParser
 
 import Classes.class_FirebaseResponse
-from Util import test_urls as test_url, constants, util_functions as util, category as cat
+from Util import constants, util_functions as util
 
 config_file = "config.ini"
 config = ConfigParser()
 config.read(config_file)
-
-cred = credentials.Certificate(config['firebase']['admin_credential_file'])
-admin = firebase_admin.initialize_app(cred)
+#
+# cred = credentials.Certificate(config['firebase']['admin_credential_file'])
+# admin = firebase_admin.initialize_app(cred)
+#
+#
+# database = config["firebase"]["database"]
+# USERS = config["database"]["users_section"]
+# NEW = config["database"]["new_product_section"]
+# CHECK = config["database"]["check_section"]
 
 logging.basicConfig(level=logging.INFO, format=constants.LOG_FORMAT)
 logger = logging.getLogger()
-
-database = config["firebase"]["database"]
 
 
 def get_url_info(url):
@@ -109,12 +113,12 @@ def get_url_info(url):
 
 
 def push_new_data_to_db(user, url):
-    print("Pushing to database...")
+    logger.info("Pushing to database")
     data = get_url_info(url)
     if (data.title and data.price and data.image) is constants.error:
         return None
 
-    firebase = fb.FirebaseApplication(database, None)
+    firebase = fb.FirebaseApplication(constants.database, None)
 
     product_data = {
         'url': url,
@@ -123,23 +127,23 @@ def push_new_data_to_db(user, url):
         'image': data.image,
     }
 
-    response = firebase.post("USERS/" + user, product_data)
+    response = firebase.post(constants.USERS + user, product_data)
     prod_id = from_dict(Classes.class_FirebaseResponse.FireBaseResponse, response).name
 
     check_data = {
         'price': data.price,
         'date': datetime.today()
     }
-    response_check = firebase.post("USERS/" + user + "/" + prod_id + "/check", check_data)
+    response_check = firebase.post(constants.USERS + user + "/" + prod_id + constants.CHECK, check_data)
 
-    logger.info("Added " + user + "to database")
+    # logger.info("Added " + user + " to database")
 
     return prod_id
 
 
 def delete_user(user):
-    firebase = fb.FirebaseApplication(database, None)
-    delete_result = firebase.delete("/NEW", user)
+    firebase = fb.FirebaseApplication(constants.database, None)
+    delete_result = firebase.delete(constants.NEW, user)
     return delete_result
 
 
@@ -155,7 +159,7 @@ def update_users_new_products():
         users_product_list = util.make_new_product_list(user)
         for item in users_product_list:
             push_new_data_to_db(user, item.product.url)
-        logger.info("Product added to " + user + "'s list...")
+        logger.info("Product added to " + user + "'s list")
         # print("Deleting " + user + " from NEW section")
         delete_result = delete_user(user)
         # print("----------------")
@@ -201,7 +205,7 @@ def listener(event):
 
 
 def run_new_products_listener():
-    admin_db.reference("/NEW", None, database).listen(listener)
+    admin_db.reference(constants.NEW, None, constants.database).listen(listener)
 
 
 def run_scheduled_checks():
@@ -224,11 +228,11 @@ def run():
         return run()
     else:
         if mode == 1:
-            logger.info("Starting in CONTINUOUS mode...")
+            logger.info("Starting in CONTINUOUS mode")
             run_new_products_listener()
             run_scheduled_checks()
         if mode == 2:
-            logger.info("Starting in UPDATE mode...")
+            logger.info("Starting in UPDATE mode")
             update_prices()
 
 

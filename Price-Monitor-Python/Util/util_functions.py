@@ -7,16 +7,9 @@ from Classes import class_NewData, class_Product, class_ProductData, class_UtilN
 from Util import currency
 from Util import constants
 import requests
-from configparser import ConfigParser
 
-config_file = "config.ini"
-config = ConfigParser()
-config.read(config_file)
-
-# logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["log_format"])
-# logger = logging.getLogger()
-
-database = config["firebase"]["database"]
+logging.basicConfig(level=logging.INFO, format=constants.LOG_FORMAT)
+logger = logging.getLogger()
 
 
 def find_price(soup, tag, class_name):
@@ -51,9 +44,9 @@ def print_product_info(title, price, prod_currency, image):
 # returns a the data of a product(id)
 def get_product_data(user, product):
     from firebase import firebase
-    firebase = firebase.FirebaseApplication(database, None)
+    firebase = firebase.FirebaseApplication(constants.database, None)
     try:
-        dict_data = firebase.get("USERS/" + user + "/" + product, None)
+        dict_data = firebase.get(constants.USERS + user + "/" + product, None)
         return dict_data
     except requests.exceptions.ConnectionError as error:
         logger.critical("get_product_data - " + str(error))
@@ -66,9 +59,9 @@ def get_product_data(user, product):
 # returns a the data of a product from the NEW folder
 def get_new_product_data(user, product):
     from firebase import firebase
-    firebase = firebase.FirebaseApplication(database, None)
+    firebase = firebase.FirebaseApplication(constants.database, None)
     try:
-        dict_data = firebase.get("NEW/" + user + "/" + product, None)
+        dict_data = firebase.get(constants.NEW + user + "/" + product, None)
         return dict_data
     except requests.exceptions.ConnectionError as error:
         logger.critical("get_new_product_data - " + str(error))
@@ -81,9 +74,9 @@ def get_new_product_data(user, product):
 # returns a list of id-s
 def get_user_products(user):
     from firebase import firebase
-    firebase = firebase.FirebaseApplication(database, None)
+    firebase = firebase.FirebaseApplication(constants.database, None)
     try:
-        dict_data = firebase.get("USERS/" + user, None)
+        dict_data = firebase.get(constants.USERS + user, None)
         return dict_data
     except requests.exceptions.ConnectionError as error:
         logger.critical("get_user_products - " + str(error))
@@ -95,9 +88,9 @@ def get_user_products(user):
 
 def get_new_user_products(user):
     from firebase import firebase
-    firebase = firebase.FirebaseApplication(database, None)
+    firebase = firebase.FirebaseApplication(constants.database, None)
     try:
-        dict_data = firebase.get("NEW/" + user, None)
+        dict_data = firebase.get(constants.NEW + user, None)
         return dict_data
     except requests.exceptions.ConnectionError as error:
         logger.critical("get_new_user_products - " + str(error))
@@ -109,9 +102,9 @@ def get_new_user_products(user):
 
 def get_existing_users():
     from firebase import firebase
-    firebase = firebase.FirebaseApplication(database, None)
+    firebase = firebase.FirebaseApplication(constants.database, None)
     try:
-        result = firebase.get("USERS", None)
+        result = firebase.get(constants.USERS, None)
         users_list = []
         for user in result:
             users_list.append(user)
@@ -126,10 +119,10 @@ def get_existing_users():
 
 def get_new_users():
     from firebase import firebase
-    firebase = firebase.FirebaseApplication(database, None)
+    firebase = firebase.FirebaseApplication(constants.database, None)
 
     try:
-        result = firebase.get("NEW", None)
+        result = firebase.get(constants.NEW, None)
         if result is None:
             return "none"
         else:
@@ -176,7 +169,7 @@ def pretty_print_dict(data):
 def upload_error(user, product_id, cur_date, url):
     from firebase import firebase
 
-    firebase = firebase.FirebaseApplication(database, None)
+    firebase = firebase.FirebaseApplication(constants.database, None)
 
     error_data = {
         'prod_id:': product_id,
@@ -184,7 +177,7 @@ def upload_error(user, product_id, cur_date, url):
         'date': cur_date
     }
     try:
-        response = firebase.post("ERROR/" + user, error_data)
+        response = firebase.post(constants.ERROR + user, error_data)
         return response
     except requests.exceptions.ConnectionError as error:
         logger.critical("upload_error - " + str(error))
@@ -197,7 +190,7 @@ def upload_error(user, product_id, cur_date, url):
 def upload_check_data(user, product_id, price, cur_date):
     from firebase import firebase
 
-    firebase = firebase.FirebaseApplication(database, None)
+    firebase = firebase.FirebaseApplication(constants.database, None)
 
     check_data = {
         'price': price,
@@ -205,7 +198,7 @@ def upload_check_data(user, product_id, price, cur_date):
     }
 
     try:
-        response = firebase.post("USERS/" + user + "/" + product_id + "/check", check_data)
+        response = firebase.post(constants.USERS + user + "/" + product_id + constants.CHECK, check_data)
         return response
     except requests.exceptions.ConnectionError as error:
         logger.critical("upload_check_data - " + str(error))

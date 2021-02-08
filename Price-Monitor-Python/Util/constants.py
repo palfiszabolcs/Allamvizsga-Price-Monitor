@@ -1,8 +1,23 @@
+from configparser import ConfigParser
+import firebase_admin
+from firebase_admin import credentials
+
+config_file = "config.ini"
+config = ConfigParser()
+config.read(config_file)
+
+cred = credentials.Certificate(config['firebase']['admin_credential_file'])
+admin = firebase_admin.initialize_app(cred)
+
+database = config["firebase"]["database"]
+USERS = config["database"]["users_section"]
+NEW = config["database"]["new_product_section"]
+CHECK = config["database"]["check_section"]
+ERROR = config["database"]["ERROR_section"]
+
 error = "error"
-# noStock = "^^^ NoStock ^^^"
-# timeout = 5
 LOG_FORMAT = "%(levelname)s | %(filename)s | %(asctime)s | %(message)s |"
-# fb_admin_credential_file = "price-monitor-44858-firebase-adminsdk-rtint-ddf59f8323.json"
-emag = "emag.ro"
-flanco = "flanco.ro"
-quickmobile = "quickmobile"
+
+emag = config["supported"]["emag"]
+flanco = config["supported"]["flanco"]
+quickmobile = config["supported"]["quickmobile"]
