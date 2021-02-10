@@ -280,3 +280,37 @@ background-color: #aa66cc; }
 .scrollbar-secondary {
 scrollbar-color: #aa66cc #F5F5F5;
 }
+
+/* $bg: #332f35;
+$fg: lighten($bg,20%);
+$borderWidth: 3px; */
+
+
+input[type=radio] {
+    position: absolute;
+    visibility: hidden;
+    /* display: none; */
+}
+  
+label {
+    color: lightgrey;
+    display: inline-block;
+    cursor: pointer;
+    font-weight: bold;
+    padding-left: 10px ;
+    padding-right: 10px ;
+    margin-bottom: 0;
+}
+
+input[type=radio]:checked + label{
+    color: white;
+    background: lightgrey;
+}
+
+.radio-group {
+    border: solid 3px lightgrey;
+    display: inline-block;
+    margin-left: 20px;
+    margin-right: 20px;
+    border-radius: 10px;
+}

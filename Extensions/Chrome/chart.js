@@ -3,6 +3,11 @@ var card = document.getElementById('card');
 var dates = [];
 var prices = [];
 
+var currentDate = new Date()
+var week = currentDate.setDate(currentDate.getDate() - 7)
+var month = currentDate.setDate(currentDate.getDate() - 30)
+var chartScale = formatDate(week)
+
 // chrome.storage.sync.get(["chart", "chart_prod_id"], function (result) {
     let prod_id = localStorage.getItem("chart_prod_id")
     // console.log(prod_id)
@@ -14,22 +19,19 @@ var prices = [];
     // console.log(url)
     check = Array(check);
 
-
+    
     check.forEach(element => {
-        // console.log(element.check)
-        var checks = Object.values(element.check);
-        // console.log(checks)
-        
-        for(let id of Object.keys(checks)){
-            dates.push(checks[id].date);
-            prices.push(checks[id].price);
-    
-        }
-    
         var gradient = ctx.createLinearGradient(0, 0, 0, 135);
         gradient.addColorStop(0, 'rgba(170, 170, 170, 0.75)');
         gradient.addColorStop(0.5, 'rgba(175, 175, 175, 0.65)');
         gradient.addColorStop(1, 'rgba(180, 180, 180, 0.55)');
+ 
+        var checks = Object.values(element.check);
+
+        for(let id of Object.keys(checks)){
+            dates.push(formatDate(checks[id].date));
+            prices.push(checks[id].price);
+        }
     
         var data  = {
             labels: dates,
@@ -55,13 +57,16 @@ var prices = [];
                     gridLines: {
                         color: 'rgba(200, 200, 200, 0.05)',
                         lineWidth: 1
+                    },
+                    ticks:{
+                        min: chartScale
                     }
                 }],
                 yAxes: [{
                     gridLines: {
                         color: 'rgba(200, 200, 200, 0.08)',
                         lineWidth: 1
-                    }
+                    },
                 }]
             },
             elements: {
@@ -80,18 +85,31 @@ var prices = [];
                 backgroundColor: 'rgba(0,0,0,0.3)',
                 titleFontColor: 'red',
                 caretSize: 5,
-                cornerRadius: 2,
+                cornerRadius: 10,
                 xPadding: 10,
                 yPadding: 10
             }
         };
-        
-        var chart = new Chart(ctx, {
+
+        let chart = new Chart(ctx, {
             type: 'line',
             data: data,
             options: options
         });
-    
+
+        var scaleForm = document.scaleForm.scale_selector;
+        var scale = null;
+        for(var button of scaleForm){
+            button.addEventListener('change', function() {
+                if (this !== scale) {
+                    scale = this;
+                    if(scale.value == "week") chart.options.scales.xAxes[0].ticks.min = formatDate(week)
+                    if(scale.value == "month") chart.options.scales.xAxes[0].ticks.min = formatDate(month);
+                    if(scale.value == "alltime") chart.options.scales.xAxes[0].ticks.min = 0;
+                }
+                chart.update();
+            });
+        }
     
     
         let link_div = document.createElement("div");
@@ -114,7 +132,7 @@ var prices = [];
     
         let button_text = document.createTextNode(" Delete");
         delete_button.appendChild(button_text);
-    
+
 
         // let a_url = document.createElement("a");
         // a_url.setAttribute("href", url);
@@ -134,8 +152,7 @@ var prices = [];
         let url_button_text = document.createTextNode(" See product page");
         url_button.appendChild(url_button_text);
         // a_url.appendChild(url_button);
-        link_div.appendChild(url_button);
-    
+        link_div.appendChild(url_button); 
         
         document.getElementById("delete_button").onclick = function(){
             const swalWithBootstrapButtons = Swal.mixin({
@@ -192,4 +209,18 @@ document.getElementById("back_button").onclick = function(){
     history.back();
 }
 
+function formatDate(date) {
+    var d = new Date(date);
+    var month = '' + (d.getMonth() + 1);
+    var day = '' + d.getDate();
+    var year = d.getFullYear();
 
+    if (month.length < 2) {
+        month = '0' + month;
+    }
+    if (day.length < 2) {
+        day = '0' + day;
+    }
+
+    return [year, month, day].join('-');
+}

@@ -32,6 +32,18 @@
                 <div id="card" class="card">
                     <div class="card-body">
                         <canvas id="chart" width="400" height="400"></canvas>
+                        <form name="scaleForm", style="text-align: center;">
+                            <div class="radio-group">
+                                <input type="radio" id="alltime" value="alltime" name="scale_selector" >
+                                <label for="alltime" style="margin-bottom: 0em;">All Time</label>
+                                
+                                <input type="radio" id="month" value="month" name="scale_selector">
+                                <label for="month" style="margin-bottom: 0em;">Month</label>
+                                
+                                <input type="radio" id="week" value="week" name="scale_selector" checked>
+                                <label for="week" style="margin-bottom: 0em;">Week</label>
+                             </div>
+                        </form>
                     </div>
                 </div>
             <!-- </div> -->
