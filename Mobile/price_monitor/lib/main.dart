@@ -5,9 +5,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'Screens/login.dart';
 import 'Screens/home.dart';
 
-
-// import 'package:share_options/share_options.dart';
-
 FirebaseAuth _auth = FirebaseAuth.instance;
 void main() async {
     WidgetsFlutterBinding.ensureInitialized();
@@ -15,19 +12,28 @@ void main() async {
 
     if (_auth.currentUser != null){
         runApp(MaterialApp(
-            theme: ThemeData(),
+            // theme: ThemeData(
+            //     brightness: Brightness.light
+            // ),
+            // darkTheme: ThemeData(
+            //     brightness: Brightness.dark,
+            //     backgroundColor: Colors.black
+            // ),
+            // themeMode: ThemeMode.system,
             // home: new LoginScreen()
             home: new HomeScreen()
         )
         );
     }else{
         runApp(MaterialApp(
-            theme: ThemeData(),
+            // theme: ThemeData(),
             home: new LoginScreen()
             // home: new HomeScreen()
           )
         );
     }
 }
+
+
 
 

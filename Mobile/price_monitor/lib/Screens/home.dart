@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
@@ -15,6 +17,7 @@ import '../constants.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
+import 'package:adaptive_theme/adaptive_theme.dart';
 
 
 Timer _timer;
@@ -31,6 +34,21 @@ class _HomeScreenState extends State<HomeScreen>{
 
     RegExp linkRegExp = RegExp(r"[a-zA-z]+\.ro+|[a-zA-z]+\.com+|[a-zA-z]+\.eu+");
     bool verified = _auth.currentUser.emailVerified;
+
+    @override
+    void initState() {
+      super.initState();
+      _verificationCheck();
+      _startChangeListener();
+      _urlShareListener();
+
+      // print("initState");
+    }
+
+    @override
+    void dispose() {
+      super.dispose();
+    }
 
     void _verificationCheck(){
       _timer = Timer.periodic(Duration(seconds: 2), (timer) async {
@@ -57,6 +75,9 @@ class _HomeScreenState extends State<HomeScreen>{
   }
 
   void _newProductHandler(String url) async {
+      var brightness = MediaQuery.of(context).platformBrightness;
+      bool darkModeOn = brightness == Brightness.dark;
+
       var domain = linkRegExp.stringMatch(url).toString();
       bool alreadyFollowed = false;
       print("url = " + url);
@@ -77,14 +98,15 @@ class _HomeScreenState extends State<HomeScreen>{
           showDialog(context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
+                  backgroundColor: darkModeOn ? Colors.black : Colors.white,
                     title: Center(
-                        child: Text("Add product on this link?")),
+                        child: Text("Add product on this link?", style: TextStyle(color: darkModeOn ? Colors.white : Colors.black),)),
                     scrollable: true,
                     content: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children : <Widget>[
-                          Text(url.toString()),
+                          Text(url.toString(), style: TextStyle(color: darkModeOn ? Colors.white : Colors.black),),
                           Row(
                             children: [
                               Expanded(
@@ -151,34 +173,15 @@ class _HomeScreenState extends State<HomeScreen>{
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _verificationCheck();
-    _startChangeListener();
-    _urlShareListener();
-
-    print("initState");
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   print("WidgetsBinding");
-    // });
-    // SchedulerBinding.instance.addPostFrameCallback((_) {
-    //   print("SchedulerBinding");
-    // });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   Future<void> _refreshListView() async {
     setState(() {});
     return true;
   }
 
   Widget productListWidget(){
-    // print("productListWidget");
+    var brightness = MediaQuery.of(context).platformBrightness;
+    bool darkModeOn = brightness == Brightness.dark;
+
       return RefreshIndicator(
       onRefresh: _refreshListView,
       child: ListView.builder(
@@ -189,7 +192,7 @@ class _HomeScreenState extends State<HomeScreen>{
             // var prodURL = productsList.elementAt(index).url;
             var name = Padding(
                 padding: const EdgeInsets.all(10.0),
-                child: Text(productsList.elementAt(index).name, style: TextStyle(fontSize: 15, color: Colors.black87), overflow: TextOverflow.fade,)
+                child: Text(productsList.elementAt(index).name, style: TextStyle(fontSize: 15), overflow: TextOverflow.fade,)
             );
 
             var currency = productsList.elementAt(index).currency;
@@ -199,7 +202,7 @@ class _HomeScreenState extends State<HomeScreen>{
             if(lastPrice.toString() == "null"){
               price = Padding(
                 padding: const EdgeInsets.all(10.0),
-                child: Text("UNAVAILABLE !", style: TextStyle(fontSize: 16, color: Colors.black54), overflow: TextOverflow.fade,),
+                child: Text("UNAVAILABLE !", style: TextStyle(fontSize: 16), overflow: TextOverflow.fade,),
               );
             }else{
               if(productsList.elementAt(index).checks.length > 1){
@@ -211,7 +214,7 @@ class _HomeScreenState extends State<HomeScreen>{
                 // so we check for it too
                 if(secondLastPrice.toString() == "null"){
                     icon = priceArrowForward;
-                    priceColor = Colors.black87;
+                    priceColor = darkModeOn ? Colors.white : Colors.black;
                 }else{
                   // if last price and/or second last price are not null
                   // we compare them to determine the price change
@@ -219,7 +222,7 @@ class _HomeScreenState extends State<HomeScreen>{
                   // no change in price
                   if(lastPrice == secondLastPrice){
                     icon = priceArrowForward;
-                    priceColor = Colors.black87;
+                    priceColor = darkModeOn ? Colors.white : Colors.black;
                   }
                   // price went up
                   if(lastPrice > secondLastPrice){
@@ -234,7 +237,7 @@ class _HomeScreenState extends State<HomeScreen>{
                 }
               }else{
                 icon = priceArrowForward;
-                priceColor = Colors.black87;
+                priceColor = darkModeOn ? Colors.white : Colors.black;
               }
               price = Padding(
                   padding: const EdgeInsets.all(10.0),
@@ -242,6 +245,7 @@ class _HomeScreenState extends State<HomeScreen>{
                     overflow: TextOverflow.fade,
                     text: TextSpan(
                       children: [
+
                         TextSpan(text: "$lastPrice $currency", style: TextStyle(fontSize: 16, color: priceColor)),
                         WidgetSpan(
                           child: Padding(
@@ -277,14 +281,22 @@ class _HomeScreenState extends State<HomeScreen>{
                             width: MediaQuery.of(context).size.width * 0.28,
                             child: CachedNetworkImage(
                               imageUrl: imageURL,
+                              // imageBuilder: (context, imageProvider) => Container(
+                              //   decoration: BoxDecoration(
+                              //     borderRadius: BorderRadius.circular(15),
+                              //     image: DecorationImage(
+                              //         image: imageProvider,
+                              //       ),
+                              //   ),
+                              // ),
                               progressIndicatorBuilder: (context, url, downloadProgress) =>
                                   Center(child:
                                         CircularProgressIndicator(
                                           value: downloadProgress.progress,
-                                          valueColor: AlwaysStoppedAnimation(colorPrimaryBlue),
+                                          valueColor: AlwaysStoppedAnimation(Theme.of(context).primaryColor),
                                         )
-                                      ),
-                              errorWidget: (context, url, error) => Center(child: Icon(Icons.error, color: colorPrimaryBlue,)),
+                                  ),
+                              errorWidget: (context, url, error) => Center(child: Icon(Icons.error, color: Theme.of(context).primaryColor,)),
                             ),
                           ),
                         ),
@@ -311,60 +323,64 @@ class _HomeScreenState extends State<HomeScreen>{
 
   @override
   Widget build(BuildContext context) {
-      // print("build");
-      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-          statusBarColor: colorPrimaryBlue
-      ));
-      return MaterialApp(
-          theme: ThemeData(primaryColor: colorPrimaryBlue),
-          home: Scaffold(
-              appBar: AppBar(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(
-                    bottom: Radius.elliptical(MediaQuery.of(context).size.width, 25),
+    var brightness = MediaQuery.of(context).platformBrightness;
+    bool darkModeOn = brightness == Brightness.dark;
+
+      return AdaptiveTheme(
+        light: lightThemeData,
+        dark: darkThemeData,
+        initial: AdaptiveThemeMode.system,
+        builder: (theme, darkTheme) => MaterialApp(
+            theme: theme,
+            darkTheme: darkTheme,
+            home: Scaffold(
+                appBar: AppBar(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(
+                      bottom: Radius.elliptical(MediaQuery.of(context).size.width, 25),
+                    ),
                   ),
-                ),
-                title: Row(
-                  children: [
-                    primaryIcon,
-                    title
-                  ],
-                ),
-                actions:<Widget> [
-                  Row(
+                  title: Row(
                     children: [
-                      Builder(builder: (context) =>
-                          Center(
-                            child: IconButton(icon: Icon(Icons.info, color: Colors.white,),
-                                onPressed: (){_showInfo(context);}),
-                          ),
-                      ),
-                      Builder(builder: (context) =>
-                          Center(
-                            child: IconButton(icon: Icon(Icons.supervised_user_circle, color: Colors.white,),
-                                onPressed:(){_showUser(context);} ),
-                          ),
-                      ),
+                      primaryIcon,
+                      title
                     ],
                   ),
-                ],
-              ),
-              body: verified ? FutureBuilder(
-                future: _db.child("USERS").child(_auth.currentUser.uid).once(),
-                builder: (context, snapshot) {
-                  if(snapshot.hasData){
-                    if(snapshot.data != null){
-                      _makeProductList(snapshot);
-                      return productListWidget();
+                  actions:<Widget> [
+                    Row(
+                      children: [
+                        Builder(builder: (context) =>
+                            Center(
+                              child: IconButton(icon: Icon(Icons.info, color: Colors.white,),
+                                  onPressed: (){_showInfo(context, darkModeOn);}),
+                            ),
+                        ),
+                        Builder(builder: (context) =>
+                            Center(
+                              child: IconButton(icon: Icon(Icons.supervised_user_circle, color: Colors.white,),
+                                  onPressed:(){_showUser(context, darkModeOn);} ),
+                            ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                body: verified ? FutureBuilder(
+                  future: _db.child("USERS").child(_auth.currentUser.uid).once(),
+                  builder: (context, snapshot) {
+                    if(snapshot.hasData){
+                      if(snapshot.data != null){
+                        _makeProductList(snapshot);
+                        return productListWidget();
+                      }
+                      return Center(child: CircularProgressIndicator());
                     }
-                    return Center(child: CircularProgressIndicator());
+                    else{
+                      return Center(child: CircularProgressIndicator());
+                    }
                   }
-                  else{
-                    return Center(child: CircularProgressIndicator());
-                  }
-                }
-              ) : Center(child: notConfirmedText),
-            backgroundColor: colorBackGroundGrey,
+                ) : Center(child: notConfirmedText),
+          ),
         ),
       );
   }
@@ -379,9 +395,10 @@ class _HomeScreenState extends State<HomeScreen>{
     productsList.sort((a,b) => a.checks.first.date.compareTo(b.checks.first.date));
   }
 
-  var supportedStores = Column(
+  Widget supportedStores(darkModeOn){
+    return Column(
       children: [
-        Text("Supported stores:", style: TextStyle(fontWeight: FontWeight.bold, height: 1.5),),
+        Text("Supported stores:", style: TextStyle(fontWeight: FontWeight.bold, height: 1.5,color: darkModeOn ? Colors.grey : Colors.black ,)),
         RichText(
           text: TextSpan(
               text: "Emag",
@@ -439,21 +456,22 @@ class _HomeScreenState extends State<HomeScreen>{
 
       ],
     );
+  }
 
-  void _showInfo(context){
+  void _showInfo(context, darkModeOn){
     // SweetAlert.show(context, title: "Description");
     showDialog(context: context,
         builder: (BuildContext context){
           return AlertDialog(
-            title: Center(child: Text("Description"),
-            ),
+            backgroundColor: darkModeOn ? Colors.black : Colors.white ,
+            title: Center(child: Text("Description" ,style: TextStyle(color: darkModeOn ? Colors.grey : Colors.black),),),
             scrollable: true,
             content: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                descriptionText,
-                supportedStores
+                Text(descriptionText, textAlign: TextAlign.center, style: TextStyle(color: darkModeOn ? Colors.white : Colors.black),),
+                supportedStores(darkModeOn)
               ],
             ),
           );
@@ -461,14 +479,15 @@ class _HomeScreenState extends State<HomeScreen>{
     );
   }
 
-  void _showUser(context){
+  void _showUser(context, darkModeOn){
       showDialog(context: context,
           builder: (BuildContext context) {
             return AlertDialog(
+                backgroundColor: darkModeOn ? Colors.black : Colors.white ,
                 title: Center(
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
-                      child: Text(_auth.currentUser.email))),
+                      child: Text(_auth.currentUser.email, style: TextStyle(color: darkModeOn ? Colors.white : Colors.black),))),
                 scrollable: true,
                 content: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
