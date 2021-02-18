@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
@@ -263,7 +261,8 @@ class _HomeScreenState extends State<HomeScreen>{
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => DetailScreen(currentProduct)
-                  ));
+                  )
+                );
               },
               child: Card(
                 shape: RoundedRectangleBorder(
@@ -327,62 +326,62 @@ class _HomeScreenState extends State<HomeScreen>{
     bool darkModeOn = brightness == Brightness.dark;
 
       return AdaptiveTheme(
-        light: lightThemeData,
-        dark: darkThemeData,
-        initial: AdaptiveThemeMode.system,
-        builder: (theme, darkTheme) => MaterialApp(
-            theme: theme,
-            darkTheme: darkTheme,
-            home: Scaffold(
-                appBar: AppBar(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(
-                      bottom: Radius.elliptical(MediaQuery.of(context).size.width, 25),
+          light: lightThemeData,
+          dark: darkThemeData,
+          initial: AdaptiveThemeMode.system,
+          builder: (theme, darkTheme) => MaterialApp(
+              theme: theme,
+              darkTheme: darkTheme,
+              home: Scaffold(
+                  appBar: AppBar(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(
+                        bottom: Radius.elliptical(MediaQuery.of(context).size.width, 25),
+                      ),
                     ),
-                  ),
-                  title: Row(
-                    children: [
-                      primaryIcon,
-                      title
-                    ],
-                  ),
-                  actions:<Widget> [
-                    Row(
+                    title: Row(
                       children: [
-                        Builder(builder: (context) =>
-                            Center(
-                              child: IconButton(icon: Icon(Icons.info, color: Colors.white,),
-                                  onPressed: (){_showInfo(context, darkModeOn);}),
-                            ),
-                        ),
-                        Builder(builder: (context) =>
-                            Center(
-                              child: IconButton(icon: Icon(Icons.supervised_user_circle, color: Colors.white,),
-                                  onPressed:(){_showUser(context, darkModeOn);} ),
-                            ),
-                        ),
+                        appBarIcon,
+                        title
                       ],
                     ),
-                  ],
-                ),
-                body: verified ? FutureBuilder(
-                  future: _db.child("USERS").child(_auth.currentUser.uid).once(),
-                  builder: (context, snapshot) {
-                    if(snapshot.hasData){
-                      if(snapshot.data != null){
-                        _makeProductList(snapshot);
-                        return productListWidget();
+                    actions:<Widget> [
+                      Row(
+                        children: [
+                          Builder(builder: (context) =>
+                              Center(
+                                child: IconButton(icon: Icon(Icons.info, color: Colors.white,),
+                                    onPressed: (){_showInfo(context, darkModeOn);}),
+                              ),
+                          ),
+                          Builder(builder: (context) =>
+                              Center(
+                                child: IconButton(icon: Icon(Icons.supervised_user_circle, color: Colors.white,),
+                                    onPressed:(){_showUser(context, darkModeOn);} ),
+                              ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  body: verified ? FutureBuilder(
+                    future: _db.child("USERS").child(_auth.currentUser.uid).once(),
+                    builder: (context, snapshot) {
+                      if(snapshot.hasData){
+                        if(snapshot.data != null){
+                          _makeProductList(snapshot);
+                          return productListWidget();
+                        }
+                        return Center(child: CircularProgressIndicator());
                       }
-                      return Center(child: CircularProgressIndicator());
+                      else{
+                        return Center(child: CircularProgressIndicator());
+                      }
                     }
-                    else{
-                      return Center(child: CircularProgressIndicator());
-                    }
-                  }
-                ) : Center(child: notConfirmedText),
+                  ) : Center(child: notConfirmedText),
+            ),
           ),
-        ),
-      );
+        );
   }
 
   void _makeProductList(AsyncSnapshot snapshot){

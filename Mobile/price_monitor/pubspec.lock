@@ -140,7 +140,7 @@ packages:
       name: equatable
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.2.5"
+    version: "1.2.6"
   fake_async:
     dependency: transitive
     description:
@@ -224,7 +224,7 @@ packages:
       name: fl_chart
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.12.2"
+    version: "0.12.3"
   flushbar:
     dependency: transitive
     description:
@@ -243,7 +243,7 @@ packages:
       name: flutter_bloc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "6.1.1"
+    version: "6.1.2"
   flutter_blurhash:
     dependency: transitive
     description:
@@ -258,6 +258,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.0"
+  flutter_launcher_icons:
+    dependency: "direct dev"
+    description:
+      name: flutter_launcher_icons
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.8.1"
   flutter_login:
     dependency: "direct main"
     description:
@@ -265,6 +272,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.14"
+  flutter_native_splash:
+    dependency: "direct dev"
+    description:
+      name: flutter_native_splash
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.0"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -302,7 +316,7 @@ packages:
       name: fluttertoast
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "7.1.6"
+    version: "7.1.8"
   font_awesome_flutter:
     dependency: transitive
     description:
@@ -428,7 +442,7 @@ packages:
       name: ocg_app
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.47"
+    version: "0.0.48"
   ocg_share:
     dependency: "direct main"
     description:
@@ -812,6 +826,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.5.1"
+  yaml:
+    dependency: transitive
+    description:
+      name: yaml
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.2.1"
 sdks:
   dart: ">=2.10.0 <2.11.0"
   flutter: ">=1.22.0 <2.0.0"

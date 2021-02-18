@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'Screens/login.dart';
 import 'Screens/home.dart';
 
+
 FirebaseAuth _auth = FirebaseAuth.instance;
 void main() async {
     WidgetsFlutterBinding.ensureInitialized();
@@ -12,23 +13,29 @@ void main() async {
 
     if (_auth.currentUser != null){
         runApp(MaterialApp(
-            // theme: ThemeData(
-            //     brightness: Brightness.light
-            // ),
-            // darkTheme: ThemeData(
-            //     brightness: Brightness.dark,
-            //     backgroundColor: Colors.black
-            // ),
-            // themeMode: ThemeMode.system,
-            // home: new LoginScreen()
             home: new HomeScreen()
-        )
+            )
         );
+        // runApp(MaterialApp(
+        //     home: AnimatedSplashScreen(
+        //         // screenFunction: () async {
+        //         //     return HomeScreen();
+        //         // },
+        //         nextScreen: HomeScreen(),
+        //         duration: 1500,
+        //         animationDuration: Duration(milliseconds: 1500),
+        //         splash: "assets/ico/icon128.png",
+        //         backgroundColor: Colors.grey,
+        //         splashTransition: SplashTransition.slideTransition,
+        //         pageTransitionType: PageTransitionType.rightToLeft,
+        //         centered: true,
+        //         // curve: Curves.bounceOut,
+        //         )
+        //     )
+        // );
     }else{
         runApp(MaterialApp(
-            // theme: ThemeData(),
             home: new LoginScreen()
-            // home: new HomeScreen()
           )
         );
     }

@@ -174,9 +174,9 @@ def update_prices():
         for item in users_product_list:
             product_data = get_url_info(item.product_data.url)
             if product_data.price is constants.error:
-                logger.info("Updated - No stock - " + item.product_data.url)
+                logger.info("Updated - No stock | " + item.product_data.name)
             else:
-                logger.info("Updated - " + item.product_data.url)
+                logger.info("Updated | " + item.product_data.name)
 
             if (product_data.title is constants.error) or (product_data.image is constants.error):
                 logger.warning("Found title or image error! - " + item.product_data.url)

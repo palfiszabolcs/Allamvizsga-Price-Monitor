@@ -1,8 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 
-const primaryIcon = Icon(Icons.shopping_cart);
-const title = Expanded(child:Text(" Price-Monitor (v_0.5)", style: TextStyle(fontSize: 16,), overflow: TextOverflow.fade));
+final appBarIcon = Image.asset('assets/ico/icon-128-white.png',width: 24,height: 24);
+const title = Expanded(child:Text(" Price-Monitor (v_0.9)", style: TextStyle(fontSize: 20,), overflow: TextOverflow.fade));
 const url_emag = "https://www.emag.ro/";
 const url_flanco = "https://www.flanco.ro/";
 // const _url_altex = "https://www.altex.ro/";

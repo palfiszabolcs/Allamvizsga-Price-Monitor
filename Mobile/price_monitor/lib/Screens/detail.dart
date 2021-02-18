@@ -271,7 +271,7 @@ class _DetailScreenState extends State<DetailScreen>{
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: () => _goToProductPage(widget.product.url),
-              child: primaryIcon,
+              child: appBarIcon,
               backgroundColor: colorSignOutButton,
               // foregroundColor: ,
             ),
