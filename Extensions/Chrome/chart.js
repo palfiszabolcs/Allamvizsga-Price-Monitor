@@ -18,7 +18,6 @@ var chartScale = formatDate(week)
     let currency = check.currency;
     // console.log(url)
     check = Array(check);
-
     
     check.forEach(element => {
         var gradient = ctx.createLinearGradient(0, 0, 0, 135);
@@ -30,8 +29,18 @@ var chartScale = formatDate(week)
 
         for(let id of Object.keys(checks)){
             dates.push(formatDate(checks[id].date));
+            // dates.push(checks[id].date);
             prices.push(checks[id].price);
         }
+
+        // for(var i=1; i<=prices.length; ++i){
+        //     if( (prices[i] == prices[i-1])){
+        //         // console.log(prices[i])
+        //         // console.log(dates[i])
+        //         dates[i] = "";
+        //     }
+        //     // if()
+        // }
     
         var data  = {
             labels: dates,
@@ -59,8 +68,11 @@ var chartScale = formatDate(week)
                         lineWidth: 1
                     },
                     ticks:{
-                        min: chartScale
-                    }
+                        min: chartScale,
+                        // interval: 2,
+                        valueFormatString: "MMM-DD"
+                    },
+                    labelFormatter: function (e) {return CanvasJS.formatDate( e.value, "DD MMM");},
                 }],
                 yAxes: [{
                     gridLines: {
@@ -82,9 +94,9 @@ var chartScale = formatDate(week)
             },
             tooltips: {
                 titleFontFamily: 'Open Sans',
-                backgroundColor: 'rgba(0,0,0,0.3)',
-                titleFontColor: 'red',
-                caretSize: 5,
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                titleFontColor: 'white',
+                caretSize: 10,
                 cornerRadius: 10,
                 xPadding: 10,
                 yPadding: 10

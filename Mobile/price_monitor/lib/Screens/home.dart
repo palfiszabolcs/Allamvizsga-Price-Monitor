@@ -339,26 +339,38 @@ class _HomeScreenState extends State<HomeScreen>{
                         bottom: Radius.elliptical(MediaQuery.of(context).size.width, 25),
                       ),
                     ),
-                    title: Row(
-                      children: [
-                        appBarIcon,
-                        title
-                      ],
-                    ),
+                    // title: Row(
+                    //   children: [
+                    //     appBarIcon,
+                    //     title
+                    //   ],
+                    // ),
                     actions:<Widget> [
                       Row(
                         children: [
-                          Builder(builder: (context) =>
-                              Center(
-                                child: IconButton(icon: Icon(Icons.info, color: Colors.white,),
-                                    onPressed: (){_showInfo(context, darkModeOn);}),
+                          Container(
+                            width: MediaQuery.of(context).size.width * 0.1,
+                            child: Center(
+                              child: IconButton(
+                                  icon: Icon(Icons.info, color: Colors.white,),
+                                  onPressed: (){_showInfo(context, darkModeOn);}
                               ),
+                            ),
                           ),
-                          Builder(builder: (context) =>
-                              Center(
-                                child: IconButton(icon: Icon(Icons.supervised_user_circle, color: Colors.white,),
-                                    onPressed:(){_showUser(context, darkModeOn);} ),
+                          Container(
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            child: Center(
+                              child: title
+                            ),
+                          ),
+                          Container(
+                            width: MediaQuery.of(context).size.width * 0.1,
+                            child: Center(
+                              child: IconButton(
+                                  icon: Icon(Icons.supervised_user_circle, color: Colors.white,),
+                                  onPressed:(){_showUser(context, darkModeOn);}
                               ),
+                            ),
                           ),
                         ],
                       ),

@@ -11,6 +11,7 @@ from datetime import datetime
 import schedule
 import time
 import logging
+from logging.config import fileConfig
 from configparser import ConfigParser
 
 import Classes.class_FirebaseResponse
@@ -19,17 +20,8 @@ from Util import constants, util_functions as util
 config_file = "config.ini"
 config = ConfigParser()
 config.read(config_file)
-#
-# cred = credentials.Certificate(config['firebase']['admin_credential_file'])
-# admin = firebase_admin.initialize_app(cred)
-#
-#
-# database = config["firebase"]["database"]
-# USERS = config["database"]["users_section"]
-# NEW = config["database"]["new_product_section"]
-# CHECK = config["database"]["check_section"]
 
-logging.basicConfig(level=logging.INFO, format=constants.LOG_FORMAT)
+fileConfig('logging_config.ini')
 logger = logging.getLogger()
 
 
@@ -263,8 +255,8 @@ run()
 # url1 = "https://www.emag.ro/"
 # url2 = "https://www.flanco.ro/"
 # url3 = "https://www.quickmobile.ro/"
-# url4= "https://www.quickmobile.ro/laptopuri/tastaturi/logitech-tastatura-wireless-k580-slim-multi-device-keyboard-47088"
-# test = get_url_info(url3)
+# url4= "https://www.emag.ro/puma-pantofi-unisex-pentru-alergare-rs-x-bold/fd/1909695/?ref=graph_profiled_similar_1_2&provider=rec&recid=rec_49_2c05649a061f7f811d5ea78af1d990d939ddc08bd4edcc09285e47ff15884a39_1613986274&scenario_ID=49"
+# test = get_url_info(url4)
 # test.title = "Valami"
 # if (test.title is constants.error) or (test.image is constants.error):
 #     logger.critical("none")

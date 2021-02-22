@@ -122,8 +122,8 @@ class _DetailScreenState extends State<DetailScreen>{
                   icon: Icon(Icons.delete_rounded),
                   onPressed: () => {
                     SweetAlert.show(context,
-                    title: "Are you sure?",
-                    subtitle: "Your product will be permanently deleted!",
+                    title: "Delete product",
+                    subtitle: "Are you sure?",
                     style: SweetAlertStyle.confirm,
                     confirmButtonText: "Delete",
                     showCancelButton: true,
@@ -271,7 +271,7 @@ class _DetailScreenState extends State<DetailScreen>{
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: () => _goToProductPage(widget.product.url),
-              child: appBarIcon,
+              child: Icon(Icons.shopping_cart),
               backgroundColor: colorSignOutButton,
               // foregroundColor: ,
             ),

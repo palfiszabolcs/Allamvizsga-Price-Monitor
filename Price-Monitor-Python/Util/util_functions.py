@@ -1,5 +1,6 @@
 import time
 import re
+from logging.config import fileConfig
 from dacite import from_dict
 import json
 import logging
@@ -8,7 +9,7 @@ from Util import currency
 from Util import constants
 import requests
 
-logging.basicConfig(level=logging.INFO, format=constants.LOG_FORMAT)
+fileConfig('logging_config.ini')
 logger = logging.getLogger()
 
 
@@ -227,7 +228,11 @@ def get_and_parse_emag(soup):
             try:
                 price = float(price.strip())
             except ValueError:
-                price = constants.error
+                price = re.sub("de la", "", price)
+                try:
+                    price = float(price.strip())
+                except ValueError:
+                    price = constants.error
         except AttributeError:
             price = constants.error
     prod_currency = currency.ron

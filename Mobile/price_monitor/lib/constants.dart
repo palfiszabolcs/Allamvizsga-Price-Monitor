@@ -2,21 +2,20 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 final appBarIcon = Image.asset('assets/ico/icon-128-white.png',width: 24,height: 24);
-const title = Expanded(child:Text(" Price-Monitor (v_0.9)", style: TextStyle(fontSize: 20,), overflow: TextOverflow.fade));
+const title = Text(" Price-Monitor (v_0.9)", style: TextStyle(fontSize: 20,), overflow: TextOverflow.fade);
 const url_emag = "https://www.emag.ro/";
 const url_flanco = "https://www.flanco.ro/";
 // const _url_altex = "https://www.altex.ro/";
 const url_quickmobile = "https://www.quickmobile.ro/";
 const descriptionText = '''You can use this app to follow your desired product's price changes over time.
 
-Once you are on one of the supported webshops, just press the Share icon and tap on the "Price-Monitor" app, after that, your product will be added shortly to your list.
+Once you are on one of the supported shops website, just press the Share icon and tap on the "Price-Monitor" app, after that, your product will be added shortly to your list.
 
-The arrow and color coding on each product’s price makes it easier to quickly see changes, compared to previous data. 
+The arrow and color coding on each product’s price make it easier to quickly see changes, compared to previous data. 
 
-Taping on a list item will show you a chart of price changes.''';
+Tapping on a list item will show you a chart of price changes.''';
 const notConfirmedText = Text("You need to confirm your email address before you use the app!", textAlign: TextAlign.center );
 const confirmedText = Text("Confirmed!", textAlign: TextAlign.center );
-
 // Colors
 const colorPrimaryBlue =  Color(0xff007bff);
 const colorPrimaryDarkBlue =  Color(0xff0056b3);

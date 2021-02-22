@@ -16,7 +16,6 @@ CHECK = config["database"]["check_section"]
 ERROR = config["database"]["ERROR_section"]
 
 error = "error"
-LOG_FORMAT = "%(levelname)s | %(filename)s | %(asctime)s | %(message)s |"
 
 emag = config["supported"]["emag"]
 flanco = config["supported"]["flanco"]
