@@ -28,6 +28,14 @@ class HomeScreen extends StatefulWidget{
   _HomeScreenState createState() => _HomeScreenState();
 }
 
+class DomainParser{
+  static bool validateDomain(url){
+    RegExp linkRegExp = RegExp(r"[a-zA-z]+\.ro+|[a-zA-z]+\.com+|[a-zA-z]+\.eu+");
+    var domain = linkRegExp.stringMatch(url).toString();
+    return supportedDomains.contains(domain);
+  }
+}
+
 class _HomeScreenState extends State<HomeScreen>{
 
     RegExp linkRegExp = RegExp(r"[a-zA-z]+\.ro+|[a-zA-z]+\.com+|[a-zA-z]+\.eu+");
@@ -76,23 +84,22 @@ class _HomeScreenState extends State<HomeScreen>{
       var brightness = MediaQuery.of(context).platformBrightness;
       bool darkModeOn = brightness == Brightness.dark;
 
-      var domain = linkRegExp.stringMatch(url).toString();
-      bool alreadyFollowed = false;
       print("url = " + url);
 
       // TODO:
       await Future.delayed(Duration(seconds: 3));
 
-      productsList.forEach((element) {
-        if(element.url == url){
-          alreadyFollowed = true;
-        }
-      });
-
-      if(alreadyFollowed){
-        Fluttertoast.showToast(msg: "Product already followed!", toastLength: Toast.LENGTH_LONG);
-      }else{
-        if((supportedDomains.contains(domain))){
+      var validDomain = DomainParser.validateDomain(url);
+      if(validDomain){
+        bool alreadyFollowed = false;
+        productsList.forEach((element) {
+          if(element.url == url){
+            alreadyFollowed = true;
+          }
+        });
+        if(alreadyFollowed){
+          Fluttertoast.showToast(msg: "Product already followed!", toastLength: Toast.LENGTH_LONG);
+        }else{
           showDialog(context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
@@ -152,13 +159,13 @@ class _HomeScreenState extends State<HomeScreen>{
                     )
                 );
               });
-        }else{
-          if(url != "null"){
-            Fluttertoast.showToast(msg: "Store not supported", toastLength: Toast.LENGTH_LONG);
           }
+      }else{
+        if(url != "null"){
+          Fluttertoast.showToast(msg: "Store not supported", toastLength: Toast.LENGTH_LONG);
         }
       }
-  }
+    }
 
   void _urlShareListener(){
     ReceiveSharingIntent.getInitialTextAsUri().then((url) =>
@@ -397,7 +404,6 @@ class _HomeScreenState extends State<HomeScreen>{
   }
 
   void _makeProductList(AsyncSnapshot snapshot){
-    // print("_makeProductList");
     productsList.clear();
     Map<dynamic,dynamic>tempProd = snapshot.data.value;
     tempProd.forEach((key, value) {
@@ -560,8 +566,6 @@ class _HomeScreenState extends State<HomeScreen>{
                               }
                           )
                       ),
-
-
                     ]
                 )
             );

@@ -30,7 +30,6 @@ class _DetailScreenState extends State<DetailScreen>{
   List<Series<ChartData, DateTime>> seriesList = List();
   var chartStartDate = DateTime.now().subtract(Duration(days:7));
 
-
   _generateChartData(){
       widget.product.checks.forEach((element) {
           if(element.price is !double){
@@ -140,7 +139,6 @@ class _DetailScreenState extends State<DetailScreen>{
                 )
               ],
             ),
-
             body: Padding(
               padding: const EdgeInsets.all(0.0),
               child: SingleChildScrollView(

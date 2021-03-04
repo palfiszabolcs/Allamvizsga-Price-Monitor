@@ -170,16 +170,20 @@ def update_prices():
             else:
                 logger.info("Updated | " + item.product_data.name)
 
-            if (product_data.title is constants.error) or (product_data.image is constants.error):
-                logger.warning("Found title or image error! - " + item.product_data.url)
+            if product_data.title is constants.error:
+                logger.warning("Found title error! - " + item.product_data.url)
+                util.upload_error(user, item.product_id, datetime.now(), item.product_data.url)
+            if product_data.image is constants.error:
+                logger.warning("Found image error! - " + item.product_data.url)
                 util.upload_error(user, item.product_id, datetime.now(), item.product_data.url)
 
             res = util.upload_check_data(user, item.product_id, product_data.price, datetime.now())
 
             # in the afternoon we risk to get time-out, so we wait between requests
-            now = datetime.now().hour
-            if now > 17:
-                time.sleep(20)
+            # now = datetime.now().hour
+            # if now > 17:
+            #     time.sleep(20)
+
             time.sleep(10)
 
         logger.info("Updated " + user + "'s products")
@@ -202,7 +206,7 @@ def run_new_products_listener():
 
 def run_scheduled_checks():
     # schedule.every(4).minutes.do(update_users_new_products)
-    schedule.every().day.at('11:00').do(update_prices)
+    schedule.every().day.at('10:00').do(update_prices)
     schedule.every().day.at('18:00').do(update_prices)
     while True:
         schedule.run_pending()
@@ -212,7 +216,7 @@ def run_scheduled_checks():
 def run():
     print("\nChose running mode:\n"
           "     1 - Continuous (Will run scheduled tasks and start all listeners)\n"
-          "     2 - Update (Will update all products and stop)\n")
+          "     2 - Update (Will update all products then resume in Continuous mode)\n")
     mode = int(input("Mode: "))
 
     if (mode != 1) and (mode != 2):
@@ -226,6 +230,9 @@ def run():
         if mode == 2:
             logger.info("Starting in UPDATE mode")
             update_prices()
+            logger.info("All products updated, starting CONTINUOUS mode!")
+            run_new_products_listener()
+            run_scheduled_checks()
 
 
 # ############################################ - MAIN - ####################################################

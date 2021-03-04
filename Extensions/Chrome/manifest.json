@@ -16,5 +16,5 @@
     "page": "background.html"
   },
   "permissions": ["storage", "unlimitedStorage", "tabs", "activeTab", "<all_urls>"],
-  "content_security_policy": "script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://apis.google.com https://www.googleapis.com https://securetoken.googleapis.com; object-src 'self'; connect-src 'self' https://securetoken.googleapis.com https://apis.google.com https://www.googleapis.com wss://*.firebaseio.com"
+  "content_security_policy": "script-src 'self' https://cdn.jsdelivr.net/npm/apexcharts https://www.gstatic.com/ https://*.firebaseio.com https://apis.google.com https://www.googleapis.com https://securetoken.googleapis.com; object-src 'self'; connect-src 'self' https://securetoken.googleapis.com https://apis.google.com https://www.googleapis.com wss://*.firebaseio.com"
 }

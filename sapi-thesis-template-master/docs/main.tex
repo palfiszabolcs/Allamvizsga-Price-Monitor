@@ -1,0 +1,81 @@
+\documentclass[12pt, twosides]{report}
+
+\include{preamble}
+
+\title{
+	{Price-Monitor}\\
+	{\large Sapientia\\
+	Erdélyi Magyar Tudományegyetem, Marosvásárhely}
+}
+\author{
+	Palfi Szabolcs\\
+	\texttt{palfi.szabolcs@student.ms.sapientia.ro}
+	\and
+	Szántó, Zoltán\\
+	\texttt{zoltan.szanto@ms.sapientia.ro}	
+}
+\date{2021}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\includepdf[pages={1,2,3}]{pdfs/allamvizsga_borito.pdf}
+
+\section*{Extras}
+\input{chapters/abstractRo}
+\pagebreak
+
+\includepdf[pages={6}]{pdfs/allamvizsga_borito.pdf}
+
+\section*{Kivonat}
+\input{chapters/abstractHu}
+\pagebreak
+
+\section*{Abstract}
+\input{chapters/abstractEn}
+\pagebreak
+
+\pagenumbering{gobble}
+
+\tableofcontents
+
+\listoffigures
+
+\chapter{Bevezető}
+\pagenumbering{arabic}
+\input{chapters/introduction}
+
+\chapter{Célkitűzések}
+\input{chapters/objective}
+
+\chapter{Szakirodalom áttekintése ? Technologiai áttekintés}
+\input{chapters/literature}
+
+% \chapter{Elméleti áttekintés}
+% \input{chapters/theory.tex}
+
+\chapter{Rendszer specifikációi}
+\input{chapters/specifications}
+
+%Terv
+\chapter{Gyakorlati megvalósítás} \label{chpt:implementation}
+\input{chapters/implementation}
+
+\chapter{Eredmények}
+\input{chapters/results}
+
+%következtetés
+\chapter{Összefoglalás}
+\input{chapters/summary}
+
+\addcontentsline{toc}{chapter}{Irodalomjegyzék}
+\bibliographystyle{ieeetr}
+\bibliography{References}
+
+%appendix
+\appendix
+\chapter{Függelék}
+\input{chapters/appendix}
+
+
+\end{document}
