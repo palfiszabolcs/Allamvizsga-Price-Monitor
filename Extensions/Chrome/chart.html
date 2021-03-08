@@ -29,12 +29,12 @@
     <div class="container">
         <div class="row">
             <!-- <div class="col-12"> -->
-                <div id="card" class="card">
+                <div id="card">
                     <div class="card-body">
                         
                         <!-- <canvas id="timeline-chart" width="400" height="400"></canvas> -->
-                        <div id="timeline-chart" width="400" height="400"></div>
-                        <form name="scaleForm", style="text-align: center;">
+                        <div id="chartContainer" ></div>
+                        <!-- <form name="scaleForm", style="text-align: center;">
                             <div class="radio-group">
                                 <input type="radio" id="alltime" value="alltime" name="scale_selector" >
                                 <label for="alltime" style="margin-bottom: 0em;">All Time</label>
@@ -45,7 +45,7 @@
                                 <input type="radio" id="week" value="week" name="scale_selector" checked>
                                 <label for="week" style="margin-bottom: 0em;">Week</label>
                              </div>
-                        </form>
+                        </form> -->
                     </div>
                 </div>
             <!-- </div> -->
@@ -58,7 +58,12 @@
     <script src="/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
     <script src="node_modules/sweetalert2/dist/sweetalert2.all.min.js"></script>
     <script src="js/Chart.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script> -->
+    <!-- <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script> -->
+    <script src="https://cdn.amcharts.com/lib/4/core.js"></script>
+    <script src="https://cdn.amcharts.com/lib/4/charts.js"></script>
+    <script src="https://cdn.amcharts.com/lib/4/themes/dataviz.js"></script>
+    <script src="https://cdn.amcharts.com/lib/4/themes/animated.js"></script>
 
     <script type="module" src="chart.js"></script>
 </html> 

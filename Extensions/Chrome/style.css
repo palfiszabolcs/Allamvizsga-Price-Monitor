@@ -331,3 +331,17 @@ input[type=radio]:checked + label{
   opacity: 1;
   border: 0;
 }
+
+svg{
+    width: 400px !important;
+    height: 450px !important;
+}
+
+#chartContainer {
+    /* position: relative !important; */
+    width: 400 !important;
+}
+
+.card-body{
+    padding: 0rem !important; 
+}

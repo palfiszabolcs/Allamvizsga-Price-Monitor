@@ -59,7 +59,28 @@ Ugyancsak a főoldalról a felhasználónak lehetősége van az alkalmazás hasz
 
 A felhasználónak lehetősége van termékeket hozzáadni és kitörölni a listájából, valamint görgetni a lista tartalmában. A terméklistában egy elemet kiválasztva, részletes reprezentációt kap az adott elem tárolt adatairól.
 
+\textcolor{red}{a rendszer magatol kell erzekelje ha az adatbazisban valtozas tortent ?ez ide johet?}
+
 \subsection{Nem-Funkcionális követelmények}
 
+A rendszer backend része, mely a felhasználok által hozzáadott teremkék árainak ellenőrzését, frissítését, hozzáadását végzi, megszakítás nélkül kell működnie, napszaktól függetlenül. A rendszernek képesnek kell lennie Python 3-as kódot futtatnia, fel kell legyen telepítve a Python 3.8.0. Létfontosságú, hogy egy stabil internetkapcsolattal rendelkezzen, vagyis a kapcsolatban ne legyenek megszakítások, valamint a fel-letöltési sebesség ne csökkenjen 10 Mb/s alá, annak érdekében, hogy megfelelő sebességgel lehessen az adatfeldolgozást, valamint az adatok adatbázisba való fel-, letolteset elvégezni. Amennyiben a kapcsolat megszakad, a rendszer azonnal próbáljon újrakapcsolódni, mindaddig amig ez a művelet nem sikers.
+
 % TODO
-TODO...
+\textcolor{red}{TODO: chromium alapu bongeszokon kell fusson, internet kapcsolat} \newline
+\textcolor{red}{UPDATE: megirtam hogy elvaras hogy chrome alapon fusson es milyen verzio, ez eleg?}
+
+A rendszer vizuális felülete két alapvető platformon kell elérhető legyen. Az egyik egy böngésző kiegészítő, mely bármilyen Chromium alapú böngészőre telepíthető, asztali, valamint hordozható számítógépek eseteben is, legalább 58-as verziójú Chrome-ot tamogatva. Természetesen ebben az esetben is elengedhetetlen az internethez való csatlakozás.
+
+%TODO
+\textcolor{red}{TODO: android operacios rendszeren, min x.x verzio, internet kapcsolat} \newline
+\textcolor{red}{UPDATE: megirtam androidos reszre is hogy mi a kovetelmeny}
+
+A másik egy telefonos alkalmazás, mely Android operációs rendszerrel felszerelt készülékeken legyen elérhető. Az alkalmazásnak legalább 7.0 verziójú Androiddal felszerelt telefonokon kell működnie, mely rendelkezik stabil internetkapcsolattal.
+\textcolor{red}{Q: Ide jonnek azok az informaciok, hogy telefonon legyen dark mode pl, listaban jelenitsuk meg a tarmekeket stb? kinezettel kapcsolatos kovetelmenyek}
+
+
+A rendszer a Firebase által biztosított Realtime Database nevű adatbázist kell használnia az adatok tárolására. A felhasználó bejelentkezését és a fiókjához tartozó műveleteket szinten a Firebase által biztosított Authentication szolgáltatás végezze, mivel ez biztonságos módon tárolja a szükséges információkat, ugyanakkor, a jelszavakat titkosítva kezeli. Továbbá, ezen keresztül lehessen új jelszót beállítani, a felhasználót törölni, ugyanakkor a regisztrálás után szükséges email visszaigazolása is ezen a szolgáltatáson keresztül történjen, mivel ezekre egyszerűen használható, ugyanakkor hatékony és biztonságos megoldást nyújt.
+
+Az alkalmazás könnyen használható kell legyen, a felhasználónak minden funkciót három kattintáson belül el kell érnie. 
+
+Amikor a felhasználó egy új terméket szeretne hozzáadni a listájához, ne keljen több mint 5 másodpercet várnia ahhoz, hogy az új termék megjelenjen a listájában. 
