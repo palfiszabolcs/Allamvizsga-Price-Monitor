@@ -223,46 +223,6 @@ class _DetailScreenState extends State<DetailScreen>{
                         ),
                       ),
                     ),
-
-                    // Card(
-                    //   shape: RoundedRectangleBorder(
-                    //     borderRadius: BorderRadius.all(
-                    //         Radius.circular(15)
-                    //     ),
-                    //   ),
-                    //   child: Container(
-                    //     child: Row(
-                    //       mainAxisAlignment: MainAxisAlignment.center,
-                    //       crossAxisAlignment: CrossAxisAlignment.center,
-                    //       children: [
-                    //         Expanded(
-                    //           flex: 10,
-                    //           child: Padding(
-                    //             padding: const EdgeInsets.all(8.0),
-                    //             child: RaisedButton(
-                    //               shape: RoundedRectangleBorder(
-                    //                 borderRadius: BorderRadius.all(
-                    //                     Radius.circular(15)
-                    //                 ),
-                    //               ),
-                    //               color: Colors.cyan,
-                    //               textColor: Colors.white,
-                    //               child: Row(
-                    //                 mainAxisAlignment: MainAxisAlignment.center,
-                    //                 crossAxisAlignment: CrossAxisAlignment.center,
-                    //                 children: [
-                    //                   primaryIcon,
-                    //                   Text("See product page")
-                    //                 ],
-                    //               ),
-                    //               onPressed: () => _goToProductPage(widget.product.url),
-                    //             ),
-                    //           ),
-                    //         ),
-                    //       ],
-                    //     ),
-                    //   ),
-                    // )
                   ],
                 ),
               ),

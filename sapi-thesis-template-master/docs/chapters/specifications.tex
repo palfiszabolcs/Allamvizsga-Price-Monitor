@@ -1,48 +1,34 @@
+A jelen dolgozatban egy árakat figyelő alkalmazás készítéséről van szó, mellyel különböző termékek árát lehet követni, bizonyos webshopokon. Az alkalmazás több platformon is elérhető, hogy minél könnyebben eljusson a kívánt információ a felhasználóig. A következőkben tárgyalva lesznek a felhasználói, valamint rendszer követelmények is.
+
 \section{Felhasználói Követelmények}
 
-A felhasználónak mindenekelőtt be kell tudnia jelentkezni, ahhoz, hogy elérje a terméklistáját, ez azért fontos, mivel eszköz váltás esetén nem szeretnénk elveszíteni az addig követett termékeket. A bejelentkezéshez szükséges adatok a regisztrációkor megadott email cím, illetve jelszó. Mindezt az \ref{fig:login_activity_diag} ábra illusztrálja. A felhasználó jelszava base64 hash általi titkosítással van eltárolva, ezáltal az nem elérhető eredeti formájában, ezt a funkciót a bejelentkezést megvalósító Firebase Authentication valósítja meg, amely jelszó módosítási lehetőséget is lehetővé tesz.
+A felhasználónak mindenekelőtt be kell tudnia jelentkezni, ahhoz, hogy elérje a terméklistáját, ez azért fontos, mivel eszköz váltás esetén nem szeretnénk elveszíteni az addig követett termékeket. A bejelentkezéshez szükséges adatok a regisztrációkor megadott email cím, illetve jelszó. A felhasználó jelszava titkosítva kell legyen tárolás előtt, valamint lehetősége kell legyen igényelni annak változtatását.
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[scale=0.5, width=\textwidth]{figures/images/login_activity.png}
-    \caption{Login Activity}
-    \label{fig:login_activity_diag}
-\end{figure}
+Abban az esetben, ha a felhasználó nincs regisztrálva, természetesen ez a funkcionalitás is rendelkezésére áll. A regisztrációhoz szükséges egy érvényes e-mail cím, valamint jelszó megadása. Sikeres regisztrálás esetén a felhasználó vissza kerül a bejelentkező ablakra, ahol be tud lépni, azzal a feltétellel, hogy az automatikusan küldött levél által visszaigazolta email címét. A bejelentkezést követően a felhasználó a főoldalra kerül, ahol a követett termékek listáját tekintheti meg, valamint ezen az oldalon lehetősége van a új termékeket hozzá adni a listához.
 
-Abban az esetben, ha a felhasználó nincs regisztrálva, megteheti ezt a „ Not registered? Click here! ” szövegre kattintva. A regisztrációhoz szükséges egy érvényes e-mail cím, valamint jelszó megadása. Sikeres regisztrálás esetén a felhasználó vissza kerül a bejelentkező ablakra, ahol be tud lépni, azzal a feltétellel, hogy az automatikusan küldött levél által visszaigazolta email címét.
-
-A bejelentkezést követően a felhasználó a főoldalra kerül, ahol a követett termékek listáját tekintheti meg. A listában minden egyes elemnek látható a megnevezése, egy a terméket ábrázoló kép, illetve az adott termék aktuális ára. Továbbá ezen az oldalon lehetősége van a felhasználónak új termékeket hozzá adni a listához, lásd \ref{fig:dashboard_activity_diag} ábra.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[scale=0.3]{figures/images/dashboard_activity.png}
-    \caption{Dashboard Activity}
-    \label{fig:dashboard_activity_diag}
-\end{figure}
-
-Egy a listában lévő elemre kattintva, az alkalmazás átvisz egy másik oldalra, ahol több információt kapunk a követett termékről. A termék árát tartalmazó gombra kattintva, egy grafikonon tekinthetjük meg a termék árának változását a hozzáadás napjától az aktuális dátumig, lásd \ref{fig:chart_example} ábra. Az „ See product page ” gombra kattintva az alkalmazás megnyitja a terméket tartalmazó weboldalt. Ugyanitt található a törlés gomb, melyre kattintva a termek törlésre kerül a listából és nem fogjuk tovább követni, lásd \ref{fig:detailed_view_diag} ábra.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[scale=0.3]{figures/images/chart_view_activity.png}
-    \caption{Detailed View}
-    \label{fig:detailed_view_diag}
-\end{figure}
+A felhasználó egy grafikonon tekintheti meg az adott termék árának változását a hozzáadás napjától az aktuális dátumig, lásd \ref{fig:chart_example} ábra. Ha a felhasználó úgy dönt, hogy érdekli a termék, lehetősége kell legyen megnyitni az adott oldalt. Amennyiben a felhasználó már nem érdekelt a termék követesében, törölheti az adott terméket, igy az többet nem fog szerepelni a listájában.
 
 \begin{figure}[H]
     \centering
     \includegraphics[scale=1]{figures/images/chart_example.png}
-    \caption{Chart of Price Change}
+    \caption{Az ár változását ábrázoló diagram}
     \label{fig:chart_example}
 \end{figure}
 
-A felhasználó rendelkezésére áll továbbá két menü. Egy információs, amely röviden leírja az alkalmazás használatát, illetve tartalmazza az általa támogatott weboldalak listáját. A másik a felhasználó fiókjával kapcsolatos információkat és funkciókat tartalmaz. Itt tekintheti meg a felhasználó, hogy milyen email címmel jelentkezett be, megváltoztathatja az aktuális jelszavát, törölheti a fiókját, illetve kijelentkezhet az alkalmazásból, lásd \ref{fig:additional_info} ábra.
+A felhasználónak rendelkezésére kell bocsájtani egy információs részt, amely röviden leírja az alkalmazás használatát, illetve tartalmazza az általa támogatott weboldalak listáját. Továbbá, hasonló módon, a fiókjával kapcsolatos információkat és funkciókat is el kell érnie. Itt tekintheti meg a felhasználó, hogy milyen email címmel jelentkezett be, törölheti a fiókját, illetve kijelentkezhet az alkalmazásból.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[scale=0.3]{figures/images/additional_features.png}
-    \caption{Additional information}
-    \label{fig:additional_info}
+    \includegraphics[scale=1.2]{figures/images/general_use_case.png}
+    \caption{Use Case diagram}
+    \label{fig:general_use_case}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=1.2]{figures/images/admin_use_case.png}
+    \caption{Use Case diagram}
+    \label{fig:admin_use_case}
 \end{figure}
 
 \section{Rendszer Követelmények}
@@ -57,27 +43,19 @@ Bejelentkezést követően, a felhasználó egy felületet lát, melyen bizonyos
 
 Ugyancsak a főoldalról a felhasználónak lehetősége van az alkalmazás használatával kapcsolatos információk megtekintésére mely tartalmaz egy listát is. A lista bizonyos weboldalkát tartalmaz, melyeket kiválasztva, az alkalmazás átirányít az adott elem oldalára.
 
-A felhasználónak lehetősége van termékeket hozzáadni és kitörölni a listájából, valamint görgetni a lista tartalmában. A terméklistában egy elemet kiválasztva, részletes reprezentációt kap az adott elem tárolt adatairól.
+A felhasználónak lehetősége van termékeket hozzáadni és kitörölni a listájából, valamint görgetni a lista tartalmában. Amennyiben frissíteni szeretné a lista tartalmát, ez úgy lehetséges, hogy a lista tetején tartózkodva, annak tartalmát megpróbálja lehúzni. A terméklistában egy elemet kiválasztva, részletes reprezentációt kap az adott elem tárolt adatairól.
 
-\textcolor{red}{a rendszer magatol kell erzekelje ha az adatbazisban valtozas tortent ?ez ide johet?}
+Amennyiben egy új termék került hozzáadásra vagy a termék törlése következett be, a rendszernek ezt fel kell ismernie és elvégeznie a szükséges lepéseket annak érdekében, hogy a felhasználó számára mindig a legfrissebb adatok legyenek láthatóak.
+
+A rendszer back-end részének autonóm módon kell működni, minimális beavatkozással. Amikor egy felhasználó hozzá szeretne adni egy terméket, a rendszer azonnal reagáljon erre a kérésre. A termékek időszakos ellenőrzése is autonóm módon történjen, a megadott időszakokban.
 
 \subsection{Nem-Funkcionális követelmények}
 
-A rendszer backend része, mely a felhasználok által hozzáadott teremkék árainak ellenőrzését, frissítését, hozzáadását végzi, megszakítás nélkül kell működnie, napszaktól függetlenül. A rendszernek képesnek kell lennie Python 3-as kódot futtatnia, fel kell legyen telepítve a Python 3.8.0. Létfontosságú, hogy egy stabil internetkapcsolattal rendelkezzen, vagyis a kapcsolatban ne legyenek megszakítások, valamint a fel-letöltési sebesség ne csökkenjen 10 Mb/s alá, annak érdekében, hogy megfelelő sebességgel lehessen az adatfeldolgozást, valamint az adatok adatbázisba való fel-, letolteset elvégezni. Amennyiben a kapcsolat megszakad, a rendszer azonnal próbáljon újrakapcsolódni, mindaddig amig ez a művelet nem sikers.
+A rendszer backend része, mely a felhasználok által hozzáadott teremkék árainak ellenőrzését, frissítését, hozzáadását végzi, megszakítás nélkül kell működnie, napszaktól függetlenül. A rendszernek képesnek kell lennie Python 3-as kódot futtatnia, fel kell legyen telepítve a Python 3.8.0. Létfontosságú, hogy egy stabil Internetkapcsolattal rendelkezzen, vagyis a kapcsolatban ne legyenek megszakítások, valamint a fel-letöltési sebesség ne csökkenjen 10 Mb/s alá, annak érdekében, hogy megfelelő sebességgel lehessen az adatfeldolgozást, valamint az adatok adatbázisba való fel-, letolteset elvégezni. Amennyiben a kapcsolat megszakad, a rendszer azonnal próbáljon újrakapcsolódni, mindaddig amig ez a művelet nem sikers.
 
-% TODO
-\textcolor{red}{TODO: chromium alapu bongeszokon kell fusson, internet kapcsolat} \newline
-\textcolor{red}{UPDATE: megirtam hogy elvaras hogy chrome alapon fusson es milyen verzio, ez eleg?}
+A rendszer vizuális felülete két alapvető platformon kell elérhető legyen. Az egyik egy böngésző kiegészítő, mely bármilyen Chromium alapú böngészőre telepíthető, asztali, valamint hordozható számítógépek eseteben is, legalább 58-as verziójú Chrome-ot tamogatva. Természetesen ebben az esetben is elengedhetetlen az Internethez való csatlakozás.
 
-A rendszer vizuális felülete két alapvető platformon kell elérhető legyen. Az egyik egy böngésző kiegészítő, mely bármilyen Chromium alapú böngészőre telepíthető, asztali, valamint hordozható számítógépek eseteben is, legalább 58-as verziójú Chrome-ot tamogatva. Természetesen ebben az esetben is elengedhetetlen az internethez való csatlakozás.
-
-%TODO
-\textcolor{red}{TODO: android operacios rendszeren, min x.x verzio, internet kapcsolat} \newline
-\textcolor{red}{UPDATE: megirtam androidos reszre is hogy mi a kovetelmeny}
-
-A másik egy telefonos alkalmazás, mely Android operációs rendszerrel felszerelt készülékeken legyen elérhető. Az alkalmazásnak legalább 7.0 verziójú Androiddal felszerelt telefonokon kell működnie, mely rendelkezik stabil internetkapcsolattal.
-\textcolor{red}{Q: Ide jonnek azok az informaciok, hogy telefonon legyen dark mode pl, listaban jelenitsuk meg a tarmekeket stb? kinezettel kapcsolatos kovetelmenyek}
-
+A másik egy telefonos alkalmazás, mely Android operációs rendszerrel felszerelt készülékeken legyen elérhető. Az alkalmazásnak legalább 7.0 verziójú Androiddal felszerelt telefonokon kell működnie, mely rendelkezik stabil Internetkapcsolattal. Rendelkeznie kell Ligh illetve Dark móddal is, melyek közötti váltást automatikusan végzi, az operációs rendszer beállításaihoz igazodva. A felhasználó számára, a követett termékeit egy görgethető listában kell megjeleníteni. Egy listaelem tartalmazza a termék megnevezését, aktuális árát, illetve egy képet róla. A termék ára mellett egy nyíl található, mely azt jelzi a felhasználó számára, hogy az aktuális ár hogyan változott a korábbi ellenőrzéshez kepést. A termék árának csökkenését, egy lefele irányuló, a növekedését egy felfele irányuló, amennyiben pedig az nem változott, egy vízszintesen irányított nyíl jelzi. Ezeket a változásokat színekkel is kell jelezni, mely az árra és az előbb említett nyílra hat ki. Csökkenés esetén zöld, növekvés esetén piros, valamint, ha változatlan, akkor fehér vagy fekete színnel kell jelölni ezeket.
 
 A rendszer a Firebase által biztosított Realtime Database nevű adatbázist kell használnia az adatok tárolására. A felhasználó bejelentkezését és a fiókjához tartozó műveleteket szinten a Firebase által biztosított Authentication szolgáltatás végezze, mivel ez biztonságos módon tárolja a szükséges információkat, ugyanakkor, a jelszavakat titkosítva kezeli. Továbbá, ezen keresztül lehessen új jelszót beállítani, a felhasználót törölni, ugyanakkor a regisztrálás után szükséges email visszaigazolása is ezen a szolgáltatáson keresztül történjen, mivel ezekre egyszerűen használható, ugyanakkor hatékony és biztonságos megoldást nyújt.
 

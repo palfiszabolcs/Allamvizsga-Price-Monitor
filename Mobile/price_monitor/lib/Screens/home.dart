@@ -38,34 +38,34 @@ class DomainParser{
 
 class _HomeScreenState extends State<HomeScreen>{
 
-    RegExp linkRegExp = RegExp(r"[a-zA-z]+\.ro+|[a-zA-z]+\.com+|[a-zA-z]+\.eu+");
-    bool verified = _auth.currentUser.emailVerified;
+    // RegExp linkRegExp = RegExp(r"[a-zA-z]+\.ro+|[a-zA-z]+\.com+|[a-zA-z]+\.eu+");
+  bool verified = _auth.currentUser.emailVerified;
 
-    @override
-    void initState() {
-      super.initState();
-      _verificationCheck();
-      _startChangeListener();
-      _urlShareListener();
+  @override
+  void initState() {
+    super.initState();
+    _verificationCheck();
+    _startChangeListener();
+    _urlShareListener();
 
-      // print("initState");
-    }
+    // print("initState");
+  }
 
-    @override
-    void dispose() {
-      super.dispose();
-    }
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
-    void _verificationCheck(){
-      _timer = Timer.periodic(Duration(seconds: 2), (timer) async {
-        _auth.currentUser.reload();
-          if(verified){
-              _timer.cancel();
-              setState(() {});
-          }
-          verified = _auth.currentUser.emailVerified;
-      });
-    }
+  void _verificationCheck(){
+    _timer = Timer.periodic(Duration(seconds: 2), (timer) async {
+      _auth.currentUser.reload();
+        if(verified){
+            _timer.cancel();
+            setState(() {});
+        }
+        verified = _auth.currentUser.emailVerified;
+    });
+  }
 
   void _startChangeListener(){
     _db.child("USERS").child(_auth.currentUser.uid).onChildChanged.listen((event) async {
@@ -476,7 +476,7 @@ class _HomeScreenState extends State<HomeScreen>{
   }
 
   void _showInfo(context, darkModeOn){
-    // SweetAlert.show(context, title: "Description");
+  // SweetAlert.show(context, title: "Description");
     showDialog(context: context,
         builder: (BuildContext context){
           return AlertDialog(
@@ -497,80 +497,80 @@ class _HomeScreenState extends State<HomeScreen>{
   }
 
   void _showUser(context, darkModeOn){
-      showDialog(context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-                backgroundColor: darkModeOn ? Colors.black : Colors.white ,
-                title: Center(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Text(_auth.currentUser.email, style: TextStyle(color: darkModeOn ? Colors.white : Colors.black),))),
-                scrollable: true,
-                content: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children : <Widget>[
-                      Container(
-                          width: double.infinity,
-                          child: RaisedButton(
-                              child: Text("Delete Account",
-                                style: TextStyle(color: Colors.white),),
-                              color: colorDeleteAccountButton,
-                              onPressed: (){
-                                SweetAlert.show(context,
-                                    title: "Delete Account",
-                                    subtitle: "Are you sure?",
-                                    style: SweetAlertStyle.confirm,
-                                    confirmButtonText: "Delete",
-                                    showCancelButton: true,
-                                    // cancelButtonColor: Colors.red,
-                                    // confirmButtonColor: colorPrimaryBlue,
-                                    onPress: (bool isConfirm) {
-                                      if (isConfirm) {
-                                        //TODO: delete products too if delete pressed
-                                        _auth.currentUser.delete();
-                                        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => LoginScreen()), (r) => false);
-                                        return false;
-                                      }
-                                      return true;
+    showDialog(context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              backgroundColor: darkModeOn ? Colors.black : Colors.white ,
+              title: Center(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Text(_auth.currentUser.email, style: TextStyle(color: darkModeOn ? Colors.white : Colors.black),))),
+              scrollable: true,
+              content: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children : <Widget>[
+                    Container(
+                        width: double.infinity,
+                        child: RaisedButton(
+                            child: Text("Delete Account",
+                              style: TextStyle(color: Colors.white),),
+                            color: colorDeleteAccountButton,
+                            onPressed: (){
+                              SweetAlert.show(context,
+                                  title: "Delete Account",
+                                  subtitle: "Are you sure?",
+                                  style: SweetAlertStyle.confirm,
+                                  confirmButtonText: "Delete",
+                                  showCancelButton: true,
+                                  // cancelButtonColor: Colors.red,
+                                  // confirmButtonColor: colorPrimaryBlue,
+                                  onPress: (bool isConfirm) {
+                                    if (isConfirm) {
+                                      //TODO: delete products too if delete pressed
+                                      _auth.currentUser.delete();
+                                      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => LoginScreen()), (r) => false);
+                                      return false;
                                     }
-                                );
-                              }
-                          )
-                      ),
-                      Container(
-                          width: double.infinity,
-                          child: RaisedButton(
-                              child: Text("SignOut",
-                                style: TextStyle(color: Colors.white),),
-                              color: colorSignOutButton,
-                              onPressed: (){
-                                SweetAlert.show(context,
-                                    title: "Log Out",
-                                    subtitle: "Do you want to log out?",
-                                    style: SweetAlertStyle.confirm,
-                                    confirmButtonText: "Log Out",
-                                    showCancelButton: true,
-                                    // cancelButtonColor: Colors.red,
-                                    // confirmButtonColor: colorPrimaryBlue,
-                                    onPress: (bool isConfirm) {
-                                      if (isConfirm) {
-                                        _auth.signOut().then((value) =>
-                                            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => LoginScreen()), (r) => false)
-                                      );
-                                        return false;
-                                      }
-                                      return true;
+                                    return true;
+                                  }
+                              );
+                            }
+                        )
+                    ),
+                    Container(
+                        width: double.infinity,
+                        child: RaisedButton(
+                            child: Text("SignOut",
+                              style: TextStyle(color: Colors.white),),
+                            color: colorSignOutButton,
+                            onPressed: (){
+                              SweetAlert.show(context,
+                                  title: "Log Out",
+                                  subtitle: "Do you want to log out?",
+                                  style: SweetAlertStyle.confirm,
+                                  confirmButtonText: "Log Out",
+                                  showCancelButton: true,
+                                  // cancelButtonColor: Colors.red,
+                                  // confirmButtonColor: colorPrimaryBlue,
+                                  onPress: (bool isConfirm) {
+                                    if (isConfirm) {
+                                      _auth.signOut().then((value) =>
+                                          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => LoginScreen()), (r) => false)
+                                    );
+                                      return false;
                                     }
-                                );
-                              }
-                          )
-                      ),
-                    ]
-                )
-            );
-          });
-    }
+                                    return true;
+                                  }
+                              );
+                            }
+                        )
+                    ),
+                  ]
+              )
+          );
+        });
+  }
 
 
 }
