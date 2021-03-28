@@ -148,7 +148,7 @@ function push_to_new(url = "test-url") {
       }).then(function(){
             Swal.fire({
                title: "Done!",
-               text: "Item will be added within 5 minutes",
+               text: "Item will be added shortly",
                customClass: "swall_wide",
                icon: "success",
                showConfirmButton: false,
@@ -431,7 +431,7 @@ document.getElementById("user").onclick = function(){
                  Swal.fire({
                     title: 'Logged Out',
                     icon: 'success',
-                    timer: 3000
+                    timer: 2500
                  }).then(function(){
                     logout();
                  })

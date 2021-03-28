@@ -201,7 +201,14 @@ def listener(event):
 
 
 def run_new_products_listener():
-    admin_db.reference(constants.NEW, None, constants.database).listen(listener)
+    try:
+        admin_db.reference(constants.NEW, None, constants.database).listen(listener)
+    except:
+        logging.critical("Can not start listener")
+        for i in range(5, 0, -1):
+            logger.info("Retrying in... " + str(i) + " seconds")
+            time.sleep(1)
+        return run_new_products_listener()
 
 
 def run_scheduled_checks():
@@ -209,30 +216,43 @@ def run_scheduled_checks():
     schedule.every().day.at('10:00').do(update_prices)
     schedule.every().day.at('18:00').do(update_prices)
     while True:
-        schedule.run_pending()
-        time.sleep(60)
+        try:
+            schedule.run_pending()
+            time.sleep(60)
+        except:
+            logging.critical("CAN NOT RUN SCHEDULED TASKS")
+            for i in range(5, 0, -1):
+                logger.info("Retrying in... " + str(i) + " seconds")
+                time.sleep(1)
 
 
 def run():
-    print("\nChose running mode:\n"
-          "     1 - Continuous (Will run scheduled tasks and start all listeners)\n"
-          "     2 - Update (Will update all products then resume in Continuous mode)\n")
-    mode = int(input("Mode: "))
+    try:
+        print("\nChose running mode:\n"
+              "     1 - Continuous (Will run scheduled tasks and start all listeners)\n"
+              "     2 - Update (Will update all products then resume in Continuous mode)\n")
+        mode = int(input("Mode: "))
 
-    if (mode != 1) and (mode != 2):
-        print("Invalid option, please select again!")
+        if (mode != 1) and (mode != 2):
+            print("Invalid option, please select again!")
+            return run()
+        else:
+            if mode == 1:
+                logger.info("Starting in CONTINUOUS mode")
+                run_new_products_listener()
+                run_scheduled_checks()
+            if mode == 2:
+                logger.info("Starting in UPDATE mode")
+                update_prices()
+                logger.info("All products updated, starting CONTINUOUS mode!")
+                run_new_products_listener()
+                run_scheduled_checks()
+    except Exception:
+        logging.critical("Can not start service")
+        for i in range(5, 0, -1):
+            logger.info("Retrying in... " + str(i) + " seconds")
+            time.sleep(1)
         return run()
-    else:
-        if mode == 1:
-            logger.info("Starting in CONTINUOUS mode")
-            run_new_products_listener()
-            run_scheduled_checks()
-        if mode == 2:
-            logger.info("Starting in UPDATE mode")
-            update_prices()
-            logger.info("All products updated, starting CONTINUOUS mode!")
-            run_new_products_listener()
-            run_scheduled_checks()
 
 
 # ############################################ - MAIN - ####################################################

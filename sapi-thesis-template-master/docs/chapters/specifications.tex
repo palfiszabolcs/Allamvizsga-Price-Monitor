@@ -2,21 +2,6 @@ A jelen dolgozatban egy árakat figyelő alkalmazás készítéséről van szó,
 
 \section{Felhasználói Követelmények}
 
-A felhasználónak mindenekelőtt be kell tudnia jelentkezni, ahhoz, hogy elérje a terméklistáját, ez azért fontos, mivel eszköz váltás esetén nem szeretnénk elveszíteni az addig követett termékeket. A bejelentkezéshez szükséges adatok a regisztrációkor megadott email cím, illetve jelszó. A felhasználó jelszava titkosítva kell legyen tárolás előtt, valamint lehetősége kell legyen igényelni annak változtatását.
-
-Abban az esetben, ha a felhasználó nincs regisztrálva, természetesen ez a funkcionalitás is rendelkezésére áll. A regisztrációhoz szükséges egy érvényes e-mail cím, valamint jelszó megadása. Sikeres regisztrálás esetén a felhasználó vissza kerül a bejelentkező ablakra, ahol be tud lépni, azzal a feltétellel, hogy az automatikusan küldött levél által visszaigazolta email címét. A bejelentkezést követően a felhasználó a főoldalra kerül, ahol a követett termékek listáját tekintheti meg, valamint ezen az oldalon lehetősége van a új termékeket hozzá adni a listához.
-
-A felhasználó egy grafikonon tekintheti meg az adott termék árának változását a hozzáadás napjától az aktuális dátumig, lásd \ref{fig:chart_example} ábra. Ha a felhasználó úgy dönt, hogy érdekli a termék, lehetősége kell legyen megnyitni az adott oldalt. Amennyiben a felhasználó már nem érdekelt a termék követesében, törölheti az adott terméket, igy az többet nem fog szerepelni a listájában.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[scale=1]{figures/images/chart_example.png}
-    \caption{Az ár változását ábrázoló diagram}
-    \label{fig:chart_example}
-\end{figure}
-
-A felhasználónak rendelkezésére kell bocsájtani egy információs részt, amely röviden leírja az alkalmazás használatát, illetve tartalmazza az általa támogatott weboldalak listáját. Továbbá, hasonló módon, a fiókjával kapcsolatos információkat és funkciókat is el kell érnie. Itt tekintheti meg a felhasználó, hogy milyen email címmel jelentkezett be, törölheti a fiókját, illetve kijelentkezhet az alkalmazásból.
-
 \begin{figure}[H]
     \centering
     \includegraphics[scale=1.2]{figures/images/general_use_case.png}
@@ -24,12 +9,39 @@ A felhasználónak rendelkezésére kell bocsájtani egy információs részt, a
     \label{fig:general_use_case}
 \end{figure}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[scale=1.2]{figures/images/admin_use_case.png}
-    \caption{Use Case diagram}
-    \label{fig:admin_use_case}
-\end{figure}
+Amint a fenti \ref{fig:general_use_case} ábra mutatja, a rendszer használata során két alapvető szerepet lehet elkülöníteni, az egyik a tulajdonképpeni felhasználó, aki használja a rendszert, igénybe veszi a szolgáltatást, a másik pedig egy adminisztrátor szerepkört betöltő személy. A következőkben e két szerepet betöltő személy követelményei lesznek bemutatva.
+
+\textbf{Felhasználó:}
+\begin{itemize}
+    \item Menedzselni tudja a profilját, vagyis regisztrálni, bejelentkezni tud, illetve, lehetősége van a jelszavának módosítására vagy adott esetben a profil törlésére
+    \item Megtekintheti a termékeket tartalmazó listáját
+    \item Kezelheti a termékeket tartalmazó listáját, vagyis új termékeket adhat hozzá, esetleg törölhet belőle
+    \item Részletes reprezentálást kaphat a követett termékek árának változásáról, a követes pillanatától kezdődően
+\end{itemize}
+
+\textbf{Adminisztrátor:}
+\begin{itemize}
+    \item Kezeli a felhasználók fiókjait, az azokkal közbejövő problémákat
+    \item Kezeli az adatbázist
+    \item Felügyeli a rendszerek helyes működését, karbantartja a rendszert
+\end{itemize}
+
+% A felhasználónak mindenekelőtt be kell tudnia jelentkezni, ahhoz, hogy elérje a terméklistáját, ez azért fontos, mivel eszköz váltás esetén nem szeretnénk elveszíteni az addig követett termékeket. A bejelentkezéshez szükséges adatok a regisztrációkor megadott email cím, illetve jelszó. A felhasználó jelszava titkosítva kell legyen tárolás előtt, valamint lehetősége kell legyen igényelni annak változtatását.
+
+% Abban az esetben, ha a felhasználó nincs regisztrálva, természetesen ez a funkcionalitás is rendelkezésére áll. A regisztrációhoz szükséges egy érvényes e-mail cím, valamint jelszó megadása. Sikeres regisztrálás esetén a felhasználó vissza kerül a bejelentkező ablakra, ahol be tud lépni, azzal a feltétellel, hogy az automatikusan küldött levél által visszaigazolta email címét. A bejelentkezést követően a felhasználó a főoldalra kerül, ahol a követett termékek listáját tekintheti meg, valamint ezen az oldalon lehetősége van a új termékeket hozzá adni a listához.
+
+% A felhasználó egy grafikonon tekintheti meg az adott termék árának változását a hozzáadás napjától az aktuális dátumig, lásd \ref{fig:chart_example} ábra. Ha a felhasználó úgy dönt, hogy érdekli a termék, lehetősége kell legyen megnyitni az adott oldalt. Amennyiben a felhasználó már nem érdekelt a termék követesében, törölheti az adott terméket, igy az többet nem fog szerepelni a listájában.
+
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[scale=1]{figures/images/extension_chart_ss.png}
+%     \caption{Az ár változását ábrázoló diagram}
+%     \label{fig:chart_example}
+% \end{figure}
+
+% A felhasználónak rendelkezésére kell bocsájtani egy információs részt, amely röviden leírja az alkalmazás használatát, illetve tartalmazza az általa támogatott weboldalak listáját. Továbbá, hasonló módon, a fiókjával kapcsolatos információkat és funkciókat is el kell érnie. Itt tekintheti meg a felhasználó, hogy milyen email címmel jelentkezett be, törölheti a fiókját, illetve kijelentkezhet az alkalmazásból.
+
+% Amint a \ref{fig:general_use_case} ábra is mutatja, a rendszernek szüksége van egy adminisztrátor szerepkört betöltő felhasználóra is, aki figyelemmel tudja követni a rendszerek helyes működését, illetve javító munkálatokat tud végezni úgy az adatbázis, mint a termékeket kezelő szoftver esetében is.
 
 \section{Rendszer Követelmények}
 
@@ -43,11 +55,11 @@ Bejelentkezést követően, a felhasználó egy felületet lát, melyen bizonyos
 
 Ugyancsak a főoldalról a felhasználónak lehetősége van az alkalmazás használatával kapcsolatos információk megtekintésére mely tartalmaz egy listát is. A lista bizonyos weboldalkát tartalmaz, melyeket kiválasztva, az alkalmazás átirányít az adott elem oldalára.
 
-A felhasználónak lehetősége van termékeket hozzáadni és kitörölni a listájából, valamint görgetni a lista tartalmában. Amennyiben frissíteni szeretné a lista tartalmát, ez úgy lehetséges, hogy a lista tetején tartózkodva, annak tartalmát megpróbálja lehúzni. A terméklistában egy elemet kiválasztva, részletes reprezentációt kap az adott elem tárolt adatairól.
+A felhasználónak lehetősége van termékeket hozzáadni és kitörölni a listájából, valamint görgetni a lista tartalmában. Amennyiben frissíteni szeretné a lista tartalmát, ez úgy lehetséges, hogy a lista tetején tartózkodva, annak tartalmát megpróbálja görgetni (swipe down). A terméklistában egy elemet kiválasztva, részletes reprezentációt kap az adott elem tárolt adatairól, mint például aktuális ár, annak időbeli változása, hozzáadás időpontja, termék megnevezése.
 
 Amennyiben egy új termék került hozzáadásra vagy a termék törlése következett be, a rendszernek ezt fel kell ismernie és elvégeznie a szükséges lepéseket annak érdekében, hogy a felhasználó számára mindig a legfrissebb adatok legyenek láthatóak.
 
-A rendszer back-end részének autonóm módon kell működni, minimális beavatkozással. Amikor egy felhasználó hozzá szeretne adni egy terméket, a rendszer azonnal reagáljon erre a kérésre. A termékek időszakos ellenőrzése is autonóm módon történjen, a megadott időszakokban.
+A rendszer back-end részének, mely a termékek hozzáadásáért és az adatbázis periodikus frissítéséért felelős, autonóm módon kell működni, minimális beavatkozással. Amikor egy felhasználó hozzá szeretne adni egy terméket, a rendszer azonnal reagáljon erre a kérésre. A termékek időszakos ellenőrzése is autonóm módon történjen, a megadott időszakokban.
 
 \subsection{Nem-Funkcionális követelmények}
 
@@ -55,7 +67,7 @@ A rendszer backend része, mely a felhasználok által hozzáadott teremkék ár
 
 A rendszer vizuális felülete két alapvető platformon kell elérhető legyen. Az egyik egy böngésző kiegészítő, mely bármilyen Chromium alapú böngészőre telepíthető, asztali, valamint hordozható számítógépek eseteben is, legalább 58-as verziójú Chrome-ot tamogatva. Természetesen ebben az esetben is elengedhetetlen az Internethez való csatlakozás.
 
-A másik egy telefonos alkalmazás, mely Android operációs rendszerrel felszerelt készülékeken legyen elérhető. Az alkalmazásnak legalább 7.0 verziójú Androiddal felszerelt telefonokon kell működnie, mely rendelkezik stabil Internetkapcsolattal. Rendelkeznie kell Ligh illetve Dark móddal is, melyek közötti váltást automatikusan végzi, az operációs rendszer beállításaihoz igazodva. A felhasználó számára, a követett termékeit egy görgethető listában kell megjeleníteni. Egy listaelem tartalmazza a termék megnevezését, aktuális árát, illetve egy képet róla. A termék ára mellett egy nyíl található, mely azt jelzi a felhasználó számára, hogy az aktuális ár hogyan változott a korábbi ellenőrzéshez kepést. A termék árának csökkenését, egy lefele irányuló, a növekedését egy felfele irányuló, amennyiben pedig az nem változott, egy vízszintesen irányított nyíl jelzi. Ezeket a változásokat színekkel is kell jelezni, mely az árra és az előbb említett nyílra hat ki. Csökkenés esetén zöld, növekvés esetén piros, valamint, ha változatlan, akkor fehér vagy fekete színnel kell jelölni ezeket.
+A másik egy telefonos alkalmazás, mely Android operációs rendszerrel felszerelt készülékeken legyen elérhető. Az alkalmazásnak legalább 7.0 verziójú Androiddal felszerelt telefonokon kell működnie, mely rendelkezik stabil Internetkapcsolattal. Rendelkeznie kell Light illetve Dark móddal is, melyek közötti váltást automatikusan végzi, az operációs rendszer beállításaihoz igazodva. A felhasználó számára, a követett termékeit egy görgethető listában kell megjeleníteni. Egy listaelem tartalmazza a termék megnevezését, aktuális árát, illetve egy képet róla. A termék ára mellett egy nyíl található, mely azt jelzi a felhasználó számára, hogy az aktuális ár hogyan változott a korábbi ellenőrzéshez kepést. A termék árának csökkenését, egy lefele irányuló, a növekedését egy felfele irányuló, amennyiben pedig az nem változott, egy vízszintesen irányított nyíl jelzi. Ezeket a változásokat színekkel is kell jelezni, mely az árra és az előbb említett nyílra hat ki. Csökkenés esetén zöld, növekvés esetén piros, valamint, ha változatlan, akkor fehér vagy fekete színnel kell jelölni ezeket.
 
 A rendszer a Firebase által biztosított Realtime Database nevű adatbázist kell használnia az adatok tárolására. A felhasználó bejelentkezését és a fiókjához tartozó műveleteket szinten a Firebase által biztosított Authentication szolgáltatás végezze, mivel ez biztonságos módon tárolja a szükséges információkat, ugyanakkor, a jelszavakat titkosítva kezeli. Továbbá, ezen keresztül lehessen új jelszót beállítani, a felhasználót törölni, ugyanakkor a regisztrálás után szükséges email visszaigazolása is ezen a szolgáltatáson keresztül történjen, mivel ezekre egyszerűen használható, ugyanakkor hatékony és biztonságos megoldást nyújt.
 

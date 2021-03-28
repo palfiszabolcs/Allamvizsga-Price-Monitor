@@ -28,11 +28,7 @@ register_form.addEventListener("submit", (event) => {
     const email = register_form["inputEmail"].value;
     const password = register_form["inputPassword"].value;
     const confirmpassword = register_form["inputConfirmPassword"].value;
-    // let email = "palfi.szabolcs.8@gmail.com"
-    // let password = "terminator";
-    // let confirmpassword = "terminator";
     
-
     if(password != confirmpassword){
         Swal.fire({
             title: "Error!",

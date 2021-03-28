@@ -20,16 +20,12 @@ var test_config = {
   };
 firebase.initializeApp(config);
 const auth = firebase.auth();
-// var bg = chrome.extension.getBackgroundPage();
-// bg.login();
 
 const login_form = document.querySelector("#login-form");
 login_form.addEventListener("submit", (event) => {
     event.preventDefault();
     const email = login_form["inputEmail"].value;
     const password = login_form["inputPassword"].value;
-    // let email = "palfi.szabolcs.8@gmail.com";
-    // let password = "terminator";
 
     auth.signInWithEmailAndPassword(email, password).then(creadential => {
         if (auth.currentUser.emailVerified === true){
@@ -44,7 +40,6 @@ login_form.addEventListener("submit", (event) => {
                 chrome.runtime.sendMessage({
                     msg: "login"
                 });
-                // window.location.href = "popup.html";
             })
         }else{
             Swal.fire({
@@ -82,11 +77,3 @@ login_form.addEventListener("submit", (event) => {
         }
       });
 })
-
-// document.getElementById("login-google").onclick = function(){
-//     chrome.runtime.sendMessage({
-//         msg: "google"
-//     });
-//     console.log("google")
-// }
-

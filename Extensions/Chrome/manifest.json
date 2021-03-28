@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "name": "Price-Monitor",
+  "name": "Price Monitor",
   "description": "Price monitoring interface",
-  "version": "0.5",
+  "version": "0.9",
   "icons": {"128": "icons/icon128.png"},
   "browser_action" : {
     "default_icon": "icons/icon19.png",

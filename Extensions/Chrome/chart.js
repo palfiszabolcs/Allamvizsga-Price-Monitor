@@ -1,3 +1,8 @@
+var kosar = ["alma", "korte", "szilva"]
+for(let gyum of kosar){
+    console.log(gyum)
+}
+
 var card = document.getElementById('card');
 
 var currentDate = new Date()

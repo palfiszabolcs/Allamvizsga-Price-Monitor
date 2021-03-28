@@ -29,38 +29,38 @@ const database = firebase.database();
 //     save_user_id(uid);
 // });
 
-function login (){
-    let email = "palfi.szabolcs.8@gmail.com";
-    let password = "terminator";
+// function login (){
+    // let email = "palfi.szabolcs.8@gmail.com";
+    // let password = "terminator";
 
     
-    firebase.auth().signInWithEmailAndPassword(email, password).then(creadential => {
-        console.log("auth successfull");
-        chrome.storage.sync.set({"firebase_uid": creadential.user.uid});
-    }).catch(function(error) {
-        switch(error.code){
-            case "auth/wrong-password":
-                // Swal.fire({
-                //     title: "Error!",
-                //     text: "Wrong password!",
-                //     icon: "error"
-                // })
-                console.log("auth/wrong-password");
-            break;
-            case "auth/user-not-found":
-                // Swal.fire({
-                //     title: "Error!",
-                //     text: "User not found",
-                //     icon: "error"
-                // })
-                console.log("auth/user-not-found");
-            break;
-        }
-        // var errorCode = error.code;
-        // var errorMessage = error.message;
-        // console.log("Error: " + errorCode + ", " + errorMessage);
-      });
-}
+//     firebase.auth().signInWithEmailAndPassword(email, password).then(creadential => {
+//         console.log("auth successfull");
+//         chrome.storage.sync.set({"firebase_uid": creadential.user.uid});
+//     }).catch(function(error) {
+//         switch(error.code){
+//             case "auth/wrong-password":
+//                 // Swal.fire({
+//                 //     title: "Error!",
+//                 //     text: "Wrong password!",
+//                 //     icon: "error"
+//                 // })
+//                 console.log("auth/wrong-password");
+//             break;
+//             case "auth/user-not-found":
+//                 // Swal.fire({
+//                 //     title: "Error!",
+//                 //     text: "User not found",
+//                 //     icon: "error"
+//                 // })
+//                 console.log("auth/user-not-found");
+//             break;
+//         }
+//         // var errorCode = error.code;
+//         // var errorMessage = error.message;
+//         // console.log("Error: " + errorCode + ", " + errorMessage);
+//       });
+// }
 
 function get_uid(){
     chrome.storage.sync.get('firebase_uid', function (result) {
@@ -188,6 +188,6 @@ chrome.runtime.onMessage.addListener(
     }
 );
 
-console.log("background");
+// console.log("background");
 get_uid();
 load_data();
