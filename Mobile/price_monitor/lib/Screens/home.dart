@@ -162,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen>{
           }
       }else{
         if(url != "null"){
-          Fluttertoast.showToast(msg: "Store not supported", toastLength: Toast.LENGTH_LONG);
+          Fluttertoast.showToast(msg: "Store not supported!", toastLength: Toast.LENGTH_LONG);
         }
       }
     }

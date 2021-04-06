@@ -1,3 +1,15 @@
+\lstset
+{
+    basicstyle=\footnotesize,
+    numbers=left,
+    stepnumber=1,
+    showstringspaces=false,
+    tabsize=1,
+    breaklines=true,
+    breakatwhitespace=false,
+}
+
+
 \begin{figure}[H]
     \centering
     \includegraphics[scale=1.2]{figures/images/architecture_horizontal_HU.png}
@@ -11,36 +23,61 @@ A böngésző kiegészítő szükséges, mivel sokkal gyorsabban el lehet érni 
 
 Mivel azonban nem mindig vagyunk laptop vagy asztali gép közelben, ezért lehetőséget nyújtunk arra, hogy telefonos applikáció segítségével is el lehessen érni a követett termékeket, valamint minden ehhez tartozó műveletet, akárcsak az előbb említett kiegészítő esetén. Egy termék hozzáadása ezúttal az operációs rendszer megosztási menüjén keresztül történik, ami által az alkalmazás megkapja a követni kívánt termék elérhetőségét.
 
-Ahhoz, hogy az eszközök kommunikálni tudjanak egymással, egyértelmű, hogy szükség van valamiféle összeköttetésre, amely a mi esetünkben az internet lesz. Ez a funkció létfontosságú, mivel minden adatot fel, illetve le kell tölteni az adatbázisból, függetlenül az eszközök tartózkodási helyétől, ugyanakkor a szolgáltatást biztosító rendszer is ezen keresztül éri el a termékek weboldalát.
+Ahhoz, hogy az eszközök kommunikálni tudjanak egymással, egyértelmű, hogy szükség van valamiféle összeköttetésre, amely a mi esetünkben az Internet lesz. Ez a funkció létfontosságú, mivel minden adatot fel, illetve le kell tölteni az adatbázisból, függetlenül az eszközök tartózkodási helyétől, ugyanakkor a szolgáltatást biztosító rendszer is ezen keresztül éri el a termékek weboldalát.
 
-Az architektúra fontos részét képezik a webshop-ok is, mivel ezeket úgy a termék hozzáadásakor, mint azoknak periodikus ellenőrzésekor el kell érni, az adatok begyűjtése érdekében. A támogatott webshop-ok főként népszerűségüket tekintve lettek kiválasztva, mint például az Emag, viszont ezen kívül két más webáruház is támogatott, ezek a Flanco és QuickMobile. Mivel minden weboldal másképp épül fel, mindegyik oldal struktúrájából másképp kell kinyerni az adatokat, ezért ezt a folyamatot személyre szabottan kell végezni. Ugyanakkor változhatnak is idővel ezek a struktúrák, ezeket figyelni kell. 
+Az architektúra fontos részét képezik a webshop-ok is, mivel ezeket úgy a termék hozzáadásakor, mint azoknak periodikus ellenőrzésekor el kell érni, az adatok begyűjtése érdekében. A támogatott webshop-ok főként népszerűségüket tekintve lettek kiválasztva. Mivel minden weboldal másképp épül fel, mindegyik oldal struktúrájából másképp kell kinyerni az adatokat, ezért ezt a folyamatot személyre szabottan kell végezni. Ugyanakkor változhatnak is idővel ezek a struktúrák, ezeket folyamatosan figyelni kell. 
 
 \section{A modulok megvalósítása}
 
 \subsection{Chrome Extension}
 
-A böngésző kiegészítő vagy angolul browser extension, egy a böngésző környezetén belül futó alkalmazás, ami olyan funkciókat hivatott hozzáadni a felhasználói felülethez, melyek megkönnyítik vagy jobbá teszik a felhasználóii élményt. Előnye, hogy alkalmazások ezrei állnak a felhasználok rendelkezésére, melyeket par kattintással telepíthetnek is. Ezek már szinte minden böngészőn megtalálhatók valamilyen formában, a legnépszerűbbek esetében, mint például, Google Chrome, Firefox ez a funkció régóta jelen van.
+A böngésző kiegészítő vagy angolul browser extension, egy a böngésző környezetén belül futó alkalmazás, ami olyan funkciókat hivatott hozzáadni a felhasználói felülethez, melyek megkönnyítik vagy jobbá teszik a felhasználói élményt. Előnye, hogy alkalmazások ezrei állnak a felhasználok rendelkezésére, melyeket pár kattintással telepíthetnek is. Ezek már szinte minden böngészőn megtalálhatók valamilyen formában, a legnépszerűbbek esetében, mint például, Google Chrome, Firefox ez a funkció régóta jelen van.
 
 Ezen kiegészítők működése valószínűleg sokak számára ismert, amolyan lenyíló ablakként jelennek meg a böngészőben, anélkül, hogy hatással lennének az éppen megjelenített tartalomra. Ennek tudatában, ez a megközelítés tűnt a legmegfelelőbbnek a dolgozatban tárgyalt szoftver felhasználói felületének elkészítése során. Mivel ezek a funkciók csak asztali gépeken érhetőek el, ezért szükséges volt egy telefonos interface kifejlesztése is, mely a későbbiekben kerül bemutatásra.
 
-A kiegészítő megvalósítása során, JavaScript, HTML, CSS programozási nyelvek voltak felhasználva. Mivel korábban nem volt tapasztalatom böngészőhöz való kiegészítők fejlesztésében, ezért az implementálási folyamat információ gyűjtéssel kezdődött. Utánanéztem hogyan is zajlik egy ilyen kiegészítő fejlesztése, mik a követendő lepések illetve fázisok.
+A kiegészítő megvalósítása során, JavaScript, HTML, CSS programozási nyelvek voltak felhasználva. Mivel korábban nem volt tapasztalatom böngészőhöz való kiegészítők fejlesztésében, ezért az implementálási folyamat információ gyűjtéssel kezdődött.
 
 Első lépésben szükséges egy manifest.json file létrehozása, mely a kiegészítő alapvető információit tartalmazza, mint például verziószám, név, rövid leírás, felhasznált függőségek, engedélyezett műveletek stb... . Ezek után, a fejlesztés hasonló egy hagyományos weboldal elkészítéséhez. 
 
-A fejlesztés során több könyvtár került felhasználásra, különböző funkciók ellátására, ezek a Bootstrap\footnote{\url{https://getbootstrap.com/}}, sweetalert2\footnote{\url{https://sweetalert2.github.io/}}, firebase\footnote{\url{https://firebase.google.com/}}, amcharts\footnote{\url{https://www.amcharts.com/}}. A bootstrap egy ingyenes, nyílt forráskádul CSS framework, mely segítségével interaktívabbá, szebbé tehetjük a weboldalunkat, előre definiált mintákat biztosit nekünk, gombok, navigáció vagy más komponensek esetében. A sweetalert2 egy úgynevezett riasztásokért felelős könyvtár, olyan esetekben került használatra, amikor egy felugró ablak segítségével szeretnénk megerősítést kérni a felhasználótól egy bizonyos művelet elvégzésére, mint például termékek törlése vagy kijelentkezés során, viszont egyéb, információ közlési célokra is felhasználva lett, mint például egy művelet sikeres elvégzésének visszajelzése. A firebase könyvtárakat bejelentkezési, valamint adatbázis kezelő funkciók miatt volt szükséges használni. Az árak időbeli változását ábrázoló diagramok eseteben több könyvtárat is kipróbáltam, viszont a végső választás az amcharts nevűre eset, mivel ez volt a leg megfelelőbb az adott esetben.
+% \begin{lstlisting}[caption={manifest.json file}, label={lst:manifest}, basicstyle=\footnotesize]
+%     {
+%         "manifest_version": 2,
+%         "name": "Price Monitor",
+%         "description": "Price monitoring interface",
+%         "version": "0.9",
+%         "icons": {"128": "icons/icon128.png"},
+%         "browser_action" : {
+%             "default_icon": "icons/icon19.png",
+%             "default_popup": "login.html"
+%         },
+%         "content_scripts":[{
+%             "matches":["<all_urls>"],
+%             "js": ["content.js"]
+%         }],
+%         "background": {
+%             "page": "background.html"
+%         },
+%         "permissions": ["storage", "unlimitedStorage", "tabs", "activeTab", "<all_urls>"],
+%         "content_security_policy": "script-src 'self' https://cdn.amcharts.com/lib/4/core.js https://cdn.amcharts.com/lib/4/charts.js https://cdn.amcharts.com/lib/4/themes/dataviz.js https://cdn.amcharts.com/lib/4/themes/animated.js https://www.gstatic.com/ https://*.firebaseio.com https://apis.google.com https://www.googleapis.com https://securetoken.googleapis.com; object-src 'self'; connect-src 'self' https://securetoken.googleapis.com https://apis.google.com https://www.googleapis.com wss://*.firebaseio.com"
+%     }
+% \end{lstlisting}
 
-Amikor a felhasználó először használja a kiegészítőt, egy login oldal jelenik meg számára, melyen be tud jelentkezni, valamint regisztrálni tud \ref{fig:ext_login_reg}.
+\lstinputlisting[caption={manifest.json file}, label={lst:manifest}]{E:/1.UniFuckinVersity/Allamvizsga/Extensions/Chrome/manifest.json}
+
+A fejlesztés során több könyvtár került felhasználásra, különböző funkciók ellátására, ezek a Bootstrap\footnote{\url{https://getbootstrap.com/}}, sweetalert2\footnote{\url{https://sweetalert2.github.io/}}, firebase\footnote{\url{https://firebase.google.com/}}, amcharts\footnote{\url{https://www.amcharts.com/}}. A bootstrap egy ingyenes, nyílt forráskádul CSS framework, mely segítségével interaktívabbá, szebbé tehetjük a weboldalunkat, előre definiált mintákat biztosit nekünk, gombok, navigáció vagy más komponensek esetében. A sweetalert2 egy úgynevezett riasztásokért felelős könyvtár, olyan esetekben került használatra, amikor egy felugró ablak segítségével szeretnénk megerősítést kérni a felhasználótól egy bizonyos művelet elvégzésére, mint például termékek törlése vagy kijelentkezés során, viszont egyéb, információ közlési célokra is felhasználva lett, mint például egy művelet sikeres elvégzésének visszajelzése. A firebase könyvtárakat bejelentkezési, valamint adatbázis kezelő funkciók miatt volt szükséges használni. Az árak időbeli változását ábrázoló diagramok eseteben több könyvtárat is kipróbáltam (Chart, Highcharts, ApexCharts), viszont a végső választás az amCharts nevűre esett, mivel ez volt a leg megfelelőbb az adott esetben, főleg az úgynevezett „panning” funkció miatt, mely lehetővé teszi hogy görgessünk a diagramon, illetve az idő skálát is változtatni tudjuk, mindezt valós időben. Ezen funkciók segítségével pontosabban és hatékonyabban tudjuk követni az árak változását, ugyanakkor vizuális szempontból is kellemes élményt nyújt.
+
+Amikor a felhasználó először használja a kiegészítőt, egy login oldal jelenik meg számára, melyen be tud jelentkezni, valamint regisztrálni tud (\ref{fig:ext_login_reg} ábra).
 
 \begin{figure}[H]
     \centering
     \includegraphics[scale=1]{figures/images/login-reg-ext.png}
-    \caption{Kiegeszito bejelentkezési/regisztrálási felülete}
+    \caption{Kiegészítő bejelentkezési/regisztrálási felülete}
     \label{fig:ext_login_reg}
 \end{figure}
 
 Bejelentkezés után a felhasználó a főoldalon találja magát, ahol megtekintheti a követett termékeit, ugyanakkor az alkalmazás használatával kapcsolatos információkat is megtalálja, a fejlécben található “i” szimbólummal jelölt gombra kattintva, valamint ugyanitt vannak felsorolva a támogatott oldalak, melyekre kattintva, az adott weboldalra navigálhatunk. A jelenleg támogatott webshopok az Emag\footnote{\url{https://www.emag.ro/}}, Flanco\footnote{\url{https://www.flanco.ro/}} és QuickMobile\footnote{\url{https://www.quickmobile.ro/}}. Továbbá, szintén a fejlécben található a felhasználó fiókjához tartozó információkat elérő gomb, melynek hatására egy felrúgó ablakban tekintheti meg az email címet, amivel bejelentkezett, illetve itt tud adminisztrációs műveleteket is végezni. Az előbb tárgyaltokat \ref{fig:ext_homescreen_info_user} ábrán láthatjuk.
 
-Új termék hozzáadásakor, az ablak tetején található „Track product on this page” gombra kattintva (\ref{fig:ext_homescreen_info_user} ábra) tehetjük ezt meg, melyek után pillanatokon belül látható majd a listában az adott termék. Amennyiben nem az alkalmazás által nem támogatott oldalon tartózkodunk, ez az opció nem elérhető, a gomb egyszerűen nem jelenik meg.
+Új termék hozzáadásakor, az ablak tetején található „Track product on this page” gombra kattintva (\ref{fig:ext_homescreen_info_user} ábra) tehetjük ezt meg, melyek után pillanatokon belül látható majd a listában az adott termék. Amennyiben nem az alkalmazás által nem támogatott oldalon tartózkodunk, ez az opció nem elérhető, a gomb egyszerűen nem jelenik meg. Amikor követni szeretnénk egy termeket, az alkalmazás beszúrja a termék URL-jét az adatbázisba, ami után majd az szoftver backend része végzi majd az információk lekérését, erről később részletesen is szó lesz.
 
 \begin{figure}[H]
     \centering
@@ -60,3 +97,90 @@ Ha egy termék gombjára kattintunk, akkor megnézhetjük az adott termék arán
     \label{fig:ext_chart}
 \end{figure}
 
+A diagram megvalósítása az amcharts nevű könyvtárral történt, mely a mi felhasználásunkra tökéletesnek minősült, minden funkciót hozva, amely megkönnyíti az adatok megtekintését, elemzését. Első lépésben az adathalmaz került létrehozásra és formázásra, annak megfelelően, ahogy az adott diagram elvárja azt (Listing \ref{lst:create_chart_data}).
+
+\lstinputlisting[caption={Adathalmaz létrehozása}, label={lst:create_chart_data}, firstline=15, lastline=18]{E:/1.UniFuckinVersity/Allamvizsga/Extensions/Chrome/chart.js}
+
+Következő lépésben maga a diagram lett létrehozva a különböző beállításokkal együtt, mint például időskála formázása, tengelyek elnevezése, a diagram kezdeti állapota, ezt a \ref{lst:create_chart} kódrészlet valósítja meg.
+
+\lstinputlisting[caption={Diagram létrehozása, beállitása}, label={lst:create_chart}, firstline=20, lastline=51]{E:/1.UniFuckinVersity/Allamvizsga/Extensions/Chrome/chart.js}
+
+\subsection{Telefonos alkalmazás}
+
+A telefonos alkalmazás Flutterben került megvalósításra. A Flutter\footnote{\url{https://flutter.dev/}} egy nyílt forráskódú szoftver fejlesztési csomag, melyet a Google hozott a piacra 2018-ban és főként felhasználói felületek fejlesztésére alkalmazzák. Az utóbbi időben rendkívül nagy népszerűségnek örvend a platform, mivel széleskörű felhasználása van. Segítségével Android, iOS, Windows, Mac, Linux valamint a kevésbé ismert Google Fuchsia alatt futó alkalmazásokat lehet fejleszteni, amelyeket egyetlen kódbázisból állít elő, azaz nem szükséges minden egyes platformra külön-külön megírni ezeket.
+
+A Flutter alkalmazások Dart nyelven íródnak, mely szintén a Google által fejlesztett objektum orientált, osztály alapú programozási nyelv, ami 2013 debütált, viszont csak évekkel később terjedt el szélesebb körben.
+
+A Flutter sajátossága az úgynevezett “Hot Reaload”, mely lehetővé teszi a futás közbeni változtatások elvégzését, ami nagyban felgyorsítja a fejlesztési folyamatot, hiszen nem kerül az egész alkalmazás újra kompilálásra. Ezt a “just-in-time” kompilálás teszi lehetővé, melyet más nevén dinamikus fordításnak is neveznek, lényege hogy a kód futás közben kerül kompilálásra és nem pedig az alkalmazás indítása előtt. A platform egy Widget alapú megközelítést alkalmaz, azaz több definiált komponenst biztosít ahhoz, hogy felépítsük az általunk megvalósítani kívánt alkalmazást.
+
+A telefonos alkalmazás fejlesztése Android Studio integrált fejlesztői környezetben történt, felhasználva az általa biztosított Android Emulator programot is, mely segítségével egy telefont lehet emulálni, annak érdekében, hogy az alkalmazást minél valósabb környezetben lehessen fejleszteni, minél változatosabb specifikációjú telefonon lehessen kipróbálni, természetesen ez fizikai telefonon is végezhető. A fejlesztés során úgy virtuális, mint fizikai környezetben is periodikusan ellenőrizve lett az alkalmazás.
+
+Első lépéseben az alkalmazás bejelentkezési funkciója lett megvalósítva, amely a flutter\textunderscore login\footnote{\url{ https://pub.dev/packages/flutter_login}} nevű könyvtár segítségével történt, mivel ez nagyban felgyorsította a fejlesztést, ugyanakkor komplexebb funkcionalitásokat illetve vizuális hatásokat is tartalmaz, melyek kellemesebbé teszik a felhasználói élményt. Ilyenek például az error üzenetek megjelenítése melyek leírják milyen hiba történt, animációk. Ugyanúgy, mint az előbbiekben tárgyalt böngészős kiegészítő esetében, az alkalmazás telepítése után az alkalmazás első használatakor a bejelentkező felületet látjuk. Itt is lehetőségünk van regisztrálni, ha még nem rendelkezünk felhasználói fiókkal, vagy amennyiben esetleg elfelejtettük a jelszavunkat, újat állíthatunk be. A bejelentkező felületet megvalósító kódrészlet valamint a tulajdonképpeni vizuális felület a \ref{lst:flutter_login_code} kódrészleten valamint a \ref{fig:flutter_login_reg} ábrán lathatjuk.
+
+\lstinputlisting[caption={Bejelentkező felületet megvalósító kódrészlet}, label={lst:flutter_login_code}, firstline=59, lastline=84]{E:/1.UniFuckinVersity/Allamvizsga/Mobile/price_monitor/lib/Screens/login.dart}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=1]{figures/images/flutter_login.png}
+    \caption{Telefonos alkalmazás bejelentkezési/regisztrálási felülete}
+    \label{fig:flutter_login_reg}
+\end{figure}
+
+A bejelentkezés, regisztrálás a Firebase segítségével lett megvalósítva, melyek nagyon egyszerűvé és biztonságossá teszik ezeket a funkciókat. A jelszavak titkosítva tárolódnak az adatbázisban, ezáltal ezek ismeretlenek az adatbázist kezelő személyzetnek is. A könyvtár csomag biztosítja számunkra továbbá a jelszavak cseréjét, amennyiben elfelejtettük a régit vagy csak egyszerűen cserélni szeretnénk. Az ezeket megvalósító függvényeket és használatukat a \ref{lst:flutter_login_functions} kódrészlet illusztrálja.
+
+\begin{lstlisting}[caption={Bejelentkező/regisztráló/jelszó csere funkciót megvalósító függvények}, label={lst:flutter_login_functions}, basicstyle=\footnotesize]
+    // Sign in
+    await _auth.signInWithEmailAndPassword(email: data.name, password: data.password);
+    
+    // Register
+    await _auth.createUserWithEmailAndPassword(email: data.name, password: data.password);
+    
+    // Reset Password
+    await _auth.sendPasswordResetEmail(email: email);
+\end{lstlisting}
+
+A felület készítésekor az egységesség játszott nagy szerepet, ezért túlnyomó részben ugyanazt a design nyelvet követtük, mint a már bemutatott böngészős kiegészítő esetében, de telefonos formára igazítva. Ennek megfelelően, a bejelentkezés után szintén egy görgethető listában láthatja a felhasználó a követett termékeit, mint azt a \ref{fig:flutter_home_info_user} ábra is mutatja. A felhasználó számara ugyanúgy rendelkezésére áll egy információs, valamint egy a felhasználói fiókjához kapcsolódó menüpont melyek a fejlécben kaptak helyet. Funkciójuk az alkalmazás rövid leírása, támogatott weboldalak listázása, valamint a felhasználó fiókjához tartozó műveletek elérése (\ref{fig:flutter_home_info_user} ábra).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=1]{figures/images/flutter_home_info_user.png}
+    \caption{Főoldal, adminisztrációs rész}
+    \label{fig:flutter_home_info_user}
+\end{figure}
+
+Egy termék hozzáadása a telefon megosztási menüjéből történik. Ehhez, az adott webshop oldalán kell lennünk, vagy amennyiben az adott oldal rendelkezik telefonos alkalmazással, mint például az Emag esetében, akkor ezt a funkciót onnan is el lehet érni. Ha megtaláltuk a követni kívánt terméket, a telefon megosztási menüjében ki kell választani az alkalmazás ikonját, ahogy ezt a \ref{fig:flutter_add} ábra mutatja. Miután ez megtörtént, át is kerülünk az alkalmazásba, ahol egy felrúgó ablakban jelenik meg számunkra, hogy biztosan hozzá szeretnénk-e adni az adott terméket. Amennyiben ezt jóváhagytuk az “Add” gomb megnyomásával, pillanatokon belül láthatjuk is a termékünket a lista alján (\ref{fig:flutter_add}).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=1]{figures/images/flutter_add.png}
+    \caption{Termék hozzáadása}
+    \label{fig:flutter_add}
+\end{figure}
+
+Ebben az esetben is, a termékek árainak színe, illetve a mellettük található nyíl jelképezi, hogy az ár hogyan változott az utolsó ellenőrzés óta, a zöld szín, valamint lefele irányuló nyíl csökkenést, a piros szín, felfele irányuló nyíllal drágulást, az egyenesen irányított nyíllal pedig az ár változatlanságát jelképezni. Amennyiben a termék nem elérhető, az ár helyét az „UNAVAILABLE” szöveg veszi át. Amikor egy elemet kiválasztunk a listából, az alkalmazás átvisz minket egy másik oldalra, ahol az árak változását láthatjuk egy diagram formájában. A diagram alapértelmezetten az elmúlt heti változásokat mutatja, viszont a diagram alatt található gombok segítségével változtathatjuk az idő skálát, a heti szint mellett hónapos vagy a teljes adathalmaz ábrázolása érdekében, melyek működését a \ref{fig:flutter_chart} ábrán lathatjuk.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=1]{figures/images/flutter_chart.png}
+    \caption{Termék árváltozása}
+    \label{fig:flutter_chart}
+\end{figure}
+
+Az ablak jobb alsó sarkában található egy bevásárló kosárral jelölt gomb, melyet, ha megnyomunk az alkalmazás átirányít minket és a telefon alapértelmezett böngészőjében megnyitja nekünk a termék weboldalát (\ref{fig:flutter_chart}). Amennyiben már nem vagyunk érdekeltek a termék követésesben, a jobb felső sarokban található, kukával jelölt gombbal törölhetjük azt a követési listánkból.
+
+Ha egy nem támogatott oldal termekét próbáljuk meg hozzáadni, akkor egy felrúgó úgynevezett „toast” üzenetben az alkalmazás közli a felhasználóval hogy nem támogatott oldalról van szó a "Store not supported!" szöveggel, ugyanakkor ha már követi az adott terméket, akkor annak megfelelő „Product already followed!” szöveget ír ki, ezek megvalósítása és működése a \ref{lst:flutter_add_error} kódrészletben és a  \ref{fig:flutter_add_error} ábrán láthatóak.
+
+\begin{lstlisting}[caption={Informáló üzeneteket megjelenítő függvények}, label={lst:flutter_add_error}, basicstyle=\footnotesize]
+    // Ha mar kovetjuk a termeket
+    Fluttertoast.showToast(msg: "Product already followed!", toastLength: Toast.LENGTH_LONG);
+
+    // Ha nem tamogatott oldalrol szeretnenk termeket hozzaadni
+    Fluttertoast.showToast(msg: "Store not supported!", toastLength: Toast.LENGTH_LONG);
+\end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=1]{figures/images/flutter_add_error.png}
+    \caption{Informáló üzenetek}
+    \label{fig:flutter_add_error}
+\end{figure}

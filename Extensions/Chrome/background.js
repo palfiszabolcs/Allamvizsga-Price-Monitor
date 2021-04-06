@@ -91,20 +91,14 @@ function load_data(){
         var uid = result.firebase_uid;
         sessionStorage.setItem("uid", uid);
         database.ref('/USERS/' + uid).on("value", function(item){
-           let items = item.val();
-        //    chrome.storage.sync.set({"products": items});
-            // console.log(items)
+            let items = item.val();
             localStorage.setItem("products", JSON.stringify(items));
-            // console.log(JSON.stringify(items))
         },function (errorObject) {
            console.log("The read failed: " + errorObject.code);
         });
         database.ref('/NEW/' + uid).on("value", function(item){
             let items = item.val();
-         //    chrome.storage.sync.set({"products": items});
-             // console.log(items)
-             localStorage.setItem("pending_products", JSON.stringify(items));
-             // console.log(JSON.stringify(items))
+            localStorage.setItem("pending_products", JSON.stringify(items));
          },function (errorObject) {
             console.log("The read failed: " + errorObject.code);
          });

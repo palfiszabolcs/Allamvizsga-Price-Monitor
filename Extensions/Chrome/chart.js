@@ -1,24 +1,13 @@
-var kosar = ["alma", "korte", "szilva"]
-for(let gyum of kosar){
-    console.log(gyum)
-}
-
 var card = document.getElementById('card');
-
 var currentDate = new Date()
 var week = currentDate.setDate(currentDate.getDate() - 7)
 var month = currentDate.setDate(currentDate.getDate() - 30)
-
 let prod_id = localStorage.getItem("chart_prod_id")
-// console.log(prod_id)
 let product = localStorage.getItem("chart");
 product = JSON.parse(product);
-// var element = check;
 
-// console.log(product.check)
 let url = product.url;
 let currency = product.currency;
-// console.log(url)
 
 var checks = Object.values(product.check);
 var allTime = checks[0].date
@@ -28,66 +17,38 @@ for(let id of Object.keys(checks)){
   data.push({date: new Date(checks[id].date), price: checks[id].price})
 }
 
-// Themes begin
 am4core.ready(function() {
+    am4core.useTheme(am4themes_dataviz);
+    am4core.useTheme(am4themes_animated);
+    
+    var chart = am4core.create("chartContainer", am4charts.XYChart);
+    chart.data = data;
 
-// Themes begin
-am4core.useTheme(am4themes_dataviz);
-am4core.useTheme(am4themes_animated);
-// Themes end
+    var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+    dateAxis.baseInterval = {
+        "timeUnit": "day",
+        "count": 0.5
+    };
+    dateAxis.tooltipDateFormat = "d MMM";
 
-// Create chart
-var chart = am4core.create("chartContainer", am4charts.XYChart);
+    var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+    valueAxis.tooltip.disabled = true;
+    valueAxis.title.text = product.currency;
 
-chart.data = data;
-// chart.data = generateChartData();
+    var series = chart.series.push(new am4charts.LineSeries());
+    series.dataFields.dateX = "date";
+    series.dataFields.valueY = "price";
+    series.tooltipText = "Price: [bold]{valueY}[/]";
+    series.fillOpacity = 0.3;
 
-var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
-dateAxis.baseInterval = {
-  "timeUnit": "day",
-  "count": 0.5
-};
-dateAxis.tooltipDateFormat = "d MMM";
+    chart.cursor = new am4charts.XYCursor();
+    chart.cursor.lineY.opacity = 0;
+    chart.scrollbarX = new am4charts.XYChartScrollbar();
+    chart.scrollbarX.series.push(series);
 
-var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-valueAxis.tooltip.disabled = true;
-valueAxis.title.text = product.currency;
-
-var series = chart.series.push(new am4charts.LineSeries());
-series.dataFields.dateX = "date";
-series.dataFields.valueY = "price";
-series.tooltipText = "Price: [bold]{valueY}[/]";
-series.fillOpacity = 0.3;
-
-
-chart.cursor = new am4charts.XYCursor();
-chart.cursor.lineY.opacity = 0;
-chart.scrollbarX = new am4charts.XYChartScrollbar();
-chart.scrollbarX.series.push(series);
-
-dateAxis.start = 0.8;
-dateAxis.keepSelection = true;
-      
+    dateAxis.start = 0.8;
+    dateAxis.keepSelection = true;
 });
-        
-
-// chart.render();
-
-// var scaleForm = document.scaleForm.scale_selector;
-// var scale = null;
-// for(var button of scaleForm){
-//     button.addEventListener('change', function() {
-//         if (this !== scale) {
-//             console.log(options.xaxis.min)
-//             scale = this;
-            
-//             if(scale.value == "week") chart.zoomX(week)
-//             if(scale.value == "month") chart.zoomX(month)
-//             if(scale.value == "alltime") chart.zoomX(alltime)
-//         }
-//         // chart.update();
-//     });
-// }
 
 let link_div = document.createElement("div");
 link_div.setAttribute("class", "prod_link");
@@ -110,17 +71,10 @@ delete_button.appendChild(icon);
 let button_text = document.createTextNode(" Delete");
 delete_button.appendChild(button_text);
 
-
-// let a_url = document.createElement("a");
-// a_url.setAttribute("href", url);
-// a_url.setAttribute("target", "_blank");
-// a_url.textContent = url
-
 let url_button = document.createElement("button");
 url_button.setAttribute("type", "button");
 url_button.setAttribute("id", "url_button");
 url_button.setAttribute("class", "btn btn-info btn-block");
-// url_button.setAttribute("onclick", url);
 
 let url_icon = document.createElement("i");
 url_icon.setAttribute("class", "fa fa-shopping-cart");
@@ -128,7 +82,6 @@ url_button.appendChild(url_icon);
 
 let url_button_text = document.createTextNode(" See product page");
 url_button.appendChild(url_button_text);
-// a_url.appendChild(url_button);
 link_div.appendChild(url_button); 
 
 document.getElementById("delete_button").onclick = function(){
@@ -174,13 +127,6 @@ document.getElementById("delete_button").onclick = function(){
 document.getElementById("url_button").onclick = function(){
     window.open(url, "_blank");
 }
-    // });
-
-
-
-// });
-
-// console.log("referrer " + document.referrer)
 
 document.getElementById("back_button").onclick = function(){
     history.back();

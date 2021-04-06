@@ -14,13 +14,11 @@ class LoginScreen extends StatelessWidget {
   Future<String> _authUser(LoginData data) async {
     try{
       var result = await _auth.signInWithEmailAndPassword(email: data.name, password: data.password);
-      // var uid = result.user.uid;
       if(!_auth.currentUser.emailVerified){
         return "You need to confirm your email address first!";
       }else{
         return null;
       }
-      // print("UID = $uid");
     }catch(e){
       if(e.hashCode.toString() == "505284406"){
         return "User not found";
@@ -33,18 +31,13 @@ class LoginScreen extends StatelessWidget {
   }
 
   Future<String> _registerUser(LoginData data) async {
-    // var username = data.name;
-    // var password = data.password;
-    var username = "szabirey@gmail.com";
-    var password = "terminator";
     try{
-      var result = await _auth.createUserWithEmailAndPassword(email: username, password: password);
-      // print("res " + result.toString());
+      var result = await _auth.createUserWithEmailAndPassword(email: data.name, password: data.password);
       await _auth.currentUser.sendEmailVerification();
       return null;
     }catch(e){
       if(e.hashCode.toString() == "34618382"){
-        return "Already Registered with this email address";
+        return "You already registered with this email address!";
       }
       return null;
      }
@@ -66,10 +59,8 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     var title = "";
     if(MediaQuery.of(context).size.width > MediaQuery.of(context).size.height){
-      // print("Landscape");
     }else{
-      title = "Price-Monitor";
-      // print("Portrait");
+      title = "Price Monitor";
     }
     return FlutterLogin(
       title: title,
@@ -83,7 +74,6 @@ class LoginScreen extends StatelessWidget {
         recoverPasswordButton: "SEND",
         recoverPasswordDescription: ""
       ),
-      // logo: 'assets/images/ecorp-lightblue.png',
       onLogin: _authUser,
       onSignup: _registerUser,
       onRecoverPassword: _recoverPassword,
