@@ -1,12 +1,11 @@
-import firebase_admin
+from urllib.request import urlopen
+
+import firebase_admin.exceptions
 import requests
 from bs4 import BeautifulSoup
 from dacite import from_dict
 from firebase import firebase as fb
-import firebase_admin
-from firebase_admin import credentials
 from firebase_admin import db as admin_db
-from datetime import date
 from datetime import datetime
 import schedule
 import time
@@ -15,7 +14,9 @@ from logging.config import fileConfig
 from configparser import ConfigParser
 
 import Classes.class_FirebaseResponse
+from Classes.class_ProductData import ProductData
 from Util import constants, util_functions as util
+import webbrowser
 
 config_file = "config.ini"
 config = ConfigParser()
@@ -25,83 +26,49 @@ fileConfig('logging_config.ini')
 logger = logging.getLogger()
 
 
-def get_url_info(url):
+def make_request(url):
+    html_content = None
     try:
         html_content = requests.get(url, timeout=int(config["connection"]["timeout"])).text
-        soup = BeautifulSoup(html_content, "html.parser")
-        is_captcha_on_page = soup.find("div", attrs={"class": "g-recaptcha"}) is not None
-        if is_captcha_on_page:
-            logger.critical("!!! CAPTCHA !!!")
-            # print("!!! CAPTCHA !!!")
-            message = input("\nValidate CAPTCHA then type k to continue... ")
-            if message == "k":
-                html_content = requests.get(url).text
-                soup = BeautifulSoup(html_content, "html.parser")
-
-        address = util.get_site_address(url)
-
-        if address == config["supported"]["emag"]:
-            return util.get_and_parse_emag(soup)
-
-        if address == config["supported"]["flanco"]:
-            return util.get_and_parse_flanco(soup)
-
-        if address == config["supported"]["quickmobile"]:
-            return util.get_and_parse_quickmobile(soup)
-
     except (requests.RequestException, requests.ConnectionError, requests.Timeout) as error:
-        logging.critical("^^^ !!! request error !!! - " + str(error) + " | full url - " + url)
-        for i in range(5, 0, -1):
-            logger.info("Retrying in... " + str(i) + " seconds")
-            time.sleep(1)
+        logging.critical("!!! request error !!! - " + str(error) + " | full url - " + url)
+        for count in range(1, 6, 1):
+            for seconds in range(5, 0, -1):
+                logger.info("Retrying in... " + str(seconds) + " seconds")
+                time.sleep(1)
+            try:
+                html_content = requests.get(url, timeout=int(config["connection"]["timeout"])).text
+                return html_content
+            except (requests.RequestException, requests.ConnectionError, requests.Timeout) as error:
+                logging.critical("retry no. " + str(count))
+    return html_content
 
-        return get_url_info(url)
 
-        # resp = input("\n Type r to retry... ")
-        # if resp == "r":
-        #     return get_url_info(url)
-        # else:
-        #     return None
+def get_url_info(url):
+    html_content = make_request(url)
+    if html_content is None:
+        logging.critical("!!! request failed multiple times !!! - " + str(url))
+        return ProductData(constants.error, constants.error, constants.error, constants.error)
+    soup = BeautifulSoup(html_content, "html.parser")
+    is_captcha_on_page = soup.find("div", attrs={"class": "g-recaptcha"}) is not None
+    if is_captcha_on_page:
+        logger.critical("!!! CAPTCHA !!!")
+        # print("!!! CAPTCHA !!!")
+        message = input("\nValidate CAPTCHA then type k to continue... ")
+        if message == "k":
+            html_content = requests.get(url).text
+            soup = BeautifulSoup(html_content, "html.parser")
 
-    # if address == "mediagalaxy.ro":
-    #     return util.get_and_parse_mediagalaxy(soup)
+    address = util.get_site_address(url)
 
-    # if address == "cel.ro":
-    #     return util.get_and_parse_cel(soup)
+    if address == config["supported"]["emag"]:
+        return util.get_and_parse_emag(soup)
 
-    # if address == "dedeman.ro":
-    #     return util.get_and_parse_dedeman(soup)
+    if address == config["supported"]["flanco"]:
+        return util.get_and_parse_flanco(soup)
 
-    # if address == "autovit.ro":
-    #     return util.get_and_parse_autovit(soup)
-
-    # if address == "altex.ro":
-    #     return util.get_and_parse_altex(soup)
-
-    # if address == "evomag.ro":
-    #     return util.get_and_parse_evomag(soup)
-
-    # if address == "gymbeam.ro":
-    #     return util.get_and_parse_gymbeam(soup)
-
-    # if address == "megaproteine.ro":
-    #     return util.get_and_parse_megaproteine(soup)
-
-    # if address == "sportisimo.ro":
-    #     return util.get_and_parse_sportisimo(soup)
-
-    # if address == "footshop.eu":
-    #     return util.get_and_parse_footshop(soup)
-
-    # if address == "marso.ro":
-    #     return util.get_and_parse_marso(soup)
-
-    # if address == "intersport.ro":
-    #     return util.get_and_parse_intersport(soup)
-
-    # # !!!!! Resolve exception when advert is no longer active !!!!
-    # if address == "ebay.com":
-    #     return util.get_and_parse_ebay(soup)
+    if address == config["supported"]["quickmobile"]:
+        return util.get_and_parse_quickmobile(soup)
 
 
 def push_new_data_to_db(user, url):
@@ -158,6 +125,7 @@ def update_users_new_products():
 
 
 def update_prices():
+    webbrowser.open("https://www.emag.ro")
     users_list = util.get_existing_users()
     # util.print_log("update prices")
     logger.info("Updating prices")
@@ -190,35 +158,46 @@ def update_prices():
     logger.info("Finished updating all products")
 
 
-def listener(event):
+def listener_handler(event):
     if event.data:
         update_users_new_products()
     else:
         logger.info("Listener event - no data")
-        # print("event type: " + str(event.event_type))  # can be 'put' or 'patch'
-        # print("event path: " + str(event.path))  # relative to the reference, it seems
-        # print("event data: " + str(event.data))  # new data at /reference/event.path. None if deleted
 
 
 def run_new_products_listener():
     try:
-        admin_db.reference(constants.NEW, None, constants.database).listen(listener)
-    except:
-        logging.critical("Can not start listener")
+        admin_db.reference(constants.NEW, None, constants.database).listen(listener_handler)
+    except admin_db.exceptions.FirebaseError as error:
+        logging.critical("Can not start listener - " + str(error))
         for i in range(5, 0, -1):
             logger.info("Retrying in... " + str(i) + " seconds")
             time.sleep(1)
         return run_new_products_listener()
 
 
+def stop_new_products_listener():
+    admin_db.reference(constants.NEW, None, constants.database).delete()
+    logger.critical("Stopping database listener!")
+
+
+def internet_on():
+    try:
+        response = urlopen('https://www.google.com/', timeout=10)
+    except:
+        logging.critical("No Internet connection! - Service failed - Restarting")
+        stop_new_products_listener()
+        run(1)
+
+
 def run_scheduled_checks():
-    # schedule.every(4).minutes.do(update_users_new_products)
+    schedule.every().second.do(internet_on)
     schedule.every().day.at('10:00').do(update_prices)
     schedule.every().day.at('18:00').do(update_prices)
     while True:
         try:
             schedule.run_pending()
-            time.sleep(60)
+            time.sleep(5)
         except:
             logging.critical("CAN NOT RUN SCHEDULED TASKS")
             for i in range(5, 0, -1):
@@ -226,16 +205,17 @@ def run_scheduled_checks():
                 time.sleep(1)
 
 
-def run():
+def run(mode):
     try:
-        print("\nChose running mode:\n"
-              "     1 - Continuous (Will run scheduled tasks and start all listeners)\n"
-              "     2 - Update (Will update all products then resume in Continuous mode)\n")
-        mode = int(input("Mode: "))
+        if mode is None:
+            print("\nChoose running mode:\n"
+                  "     1 - Continuous (Will run scheduled tasks and start all listeners)\n"
+                  "     2 - Update (Will update all products then resume in Continuous mode)\n")
+            mode = int(input("Mode: "))
 
         if (mode != 1) and (mode != 2):
             print("Invalid option, please select again!")
-            return run()
+            return run(None)
         else:
             if mode == 1:
                 logger.info("Starting in CONTINUOUS mode")
@@ -247,18 +227,18 @@ def run():
                 logger.info("All products updated, starting CONTINUOUS mode!")
                 run_new_products_listener()
                 run_scheduled_checks()
-    except Exception:
-        logging.critical("Can not start service")
+    except Exception as error:
+        logging.critical("Error while starting service!" + str(error))
         for i in range(5, 0, -1):
             logger.info("Retrying in... " + str(i) + " seconds")
             time.sleep(1)
-        return run()
+        return run(mode)
 
 
 # ############################################ - MAIN - ####################################################
 
 
-run()
+run(None)
 
 
 # ############################################ - TEST BENCH - ####################################################

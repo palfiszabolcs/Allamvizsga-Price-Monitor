@@ -184,3 +184,111 @@ Ha egy nem támogatott oldal termekét próbáljuk meg hozzáadni, akkor egy fel
     \caption{Informáló üzenetek}
     \label{fig:flutter_add_error}
 \end{figure}
+
+\subsection{Backend}
+
+A rendszer backend részéért egy Python script valósítja meg. Ez Python3-as nyelven íródott, felhasználva több, a célnak megfelelő függvény könyvtárat, mint például request: a http kérések intézéséhez, BeautifulSoup: a HTML kódban való kereséshez, különböző Firebase függvény könyvtárak: az egyes adatbázissal kapcsolatos műveletek megvalósítására, Schedule: az időszakos ellenőrzések automatizálására, valamint logging: az események naplózására, valamint terminálra való egységes rendezett kiírására.
+
+A rendszernek ez a része felelős a termékek hozzáadásáért, azok árainak frissítéséért. Ez úgy történik, hogy lekéri az adatbázisból a termékek URL-jét, majd ezekhez egy HTTP kérést intéz. Az adott weboldal visszaküldi a megjelenítéshez szükséges HTML kódot, melyet aztán a BeautifulSoup függvény könyvtár segítségével, egy elemenként kereshető formátumra alakítja. Ebben már tulajdonképpeni HTML tag-ekre kereshetünk, megadva bizonyos tulajdonságaikat, ezekből kinyerjük a számunkra szükséges információkat, amik a termék megnevezése, ára, valamint egy hozzá tartozó kép. A rendszer ezekhez társítja az ellenőrzés időpontját, majd ez feltöltésre kerül az adatbázisba, a megfelelő felhasználóhoz kötve. 
+
+A script terminálban fut, indítás után kiválaszthatjuk milyen futási módban szeretnénk indítani (\ref{fig:python_start} ábra). Ezek a Continuous vagy folytonos, illetve az Update. A folytonos mód kiválasztása esetén a rendszer elindítja az új termékek hozzáadását figyelő és az ütemezett ellenőrzésekért felelős modulokat. Az új termékek hozzáadásáért felelős modul folyamatosan figyeli, hogy az adatbázis részéről érkezett-e valamiféle jelzés. Amennyiben egy új terméket akarunk hozzáadni az alkalmazásokon keresztül, ahogy azt az előbbi modulok tárgyalásánál láthattuk, a követni kívánt termék hozzáadásra kerül az adatbázisba, ami ezek után jelzést küld a Python scriptnek. Amint megérkezett a jelzés, azonnal elkezdődik az adatok kinyerése és hozzáadása a felhasználó listájához, az előzőekben tárgyalt módon. Az ütemezett ellenőrzésekért felelős modul segítségével, előre meghatározott időpillanatokban elindul az árak frissítése, amely az adatbázisban található összes termék árát frissíti. Ezen a modulon belül találatunk egy az internetkapcsolatot figyelő részt is, amely egy esetleges kapcsolat megszűnése esetén azonnal próbál újrakapcsolódni, amint ez sikerül, újraindítja a rendszer funkcióit, amelyek esetleg leálltak az internetkapcsolat megszűnésekor. Az Update módot kiválasztva, a rendszer azonnal elkezdi az összes termék frissítését, lásd \ref{fig:python_start} ábra, majd miután végzett, automatikusan folytatja a futást folytonos módban. Az ehhez tartozó megvalósítás a \ref{lst:python_start} kódrészleten látható.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.9]{figures/images/python_start.png}
+    \caption{Python script Update módban való indítása}
+    \label{fig:python_start}
+\end{figure}
+
+\begin{lstlisting}[caption={Backend szolgáltatás indítása}, label={lst:python_start}, basicstyle=\footnotesize]
+    def run(mode):
+    try:
+        if mode is None:
+            print("\nChoose running mode:\n"
+                  "     1 - Continuous (Will run scheduled tasks and start all listeners)\n"
+                  "     2 - Update (Will update all products then resume in Continuous mode)\n")
+            mode = int(input("Mode: "))
+
+        if (mode != 1) and (mode != 2):
+            print("Invalid option, please select again!")
+            return run(None)
+        else:
+            if mode == 1:
+                logger.info("Starting in CONTINUOUS mode")
+                run_new_products_listener()
+                run_scheduled_checks()
+            if mode == 2:
+                logger.info("Starting in UPDATE mode")
+                update_prices()
+                logger.info("All products updated, starting CONTINUOUS mode!")
+                run_new_products_listener()
+                run_scheduled_checks()
+    except Exception as error:
+        logging.critical("Error while starting service!" + str(error))
+        for i in range(5, 0, -1):
+            logger.info("Retrying in... " + str(i) + " seconds")
+            time.sleep(1)
+        return run(mode)
+\end{lstlisting}
+
+Amint az előbbiekben szó volt, a BeautifulSoup nevű függvénykönyvtár segítségével lesznek kinyerve a szükséges információk, a weboldalak HTML kódjából. Ez a művelet a „find” nevű függvénnyel történik, melynek meg kell adni két paramétert. Az egyik, hogy milyen típusú tag-eket szeretnénk keresni, mint például, div, span, h1, p, a másik pedig hogy ezek milyen tulajdonságokkal rendelkeznek, például a tag egy bizonyos osztálynévvel van ellátva. A \ref{lst:python_emag} kódrészlet tartalmazza egy termék adatainak feldolgozását, amennyiben az, az Emag webáruházról származik. 
+
+\begin{lstlisting}[caption={Emag linket feldolgozó függvény}, label={lst:python_emag}, basicstyle=\footnotesize]
+    def get_and_parse_emag(soup):
+    title = find_title(soup, "h1", "page-title")
+    out_of_stock = soup.find("span", attrs={"class": "label-out_of_stock"})
+
+    if out_of_stock or (title is constants.error):
+        price = constants.error
+    else:
+        try:
+            form = soup.find("form", attrs={"class": "main-product-form"})
+            price = form.find("p", attrs={"class": "product-new-price"}).text.strip()
+            s = list(price)
+            s.insert(-6, ",")
+            price = "".join(s)
+            price = re.sub("Lei", '', price)
+            price = re.sub("\.", "", price)
+            price = re.sub(",", ".", price)
+            try:
+                price = float(price.strip())
+            except ValueError:
+                price = re.sub("de la", "", price)
+                try:
+                    price = float(price.strip())
+                except ValueError:
+                    price = constants.error
+        except AttributeError:
+            price = constants.error
+    prod_currency = currency.ron
+    try:
+        image = soup.find("div", attrs={"id": "product-gallery"}).img["src"]
+    except AttributeError:
+        image = "error"
+    product_data = class_ProductData.ProductData(title, price, prod_currency, image)
+    return product_data
+\end{lstlisting}
+
+\subsection{Web áruházak}
+
+A rendszer fontos részét képezik maguk a web áruházak is, hiszen ezek biztosítják számunkra a szükséges adatokat. A weboldalak HTML nyelven felépített elemekből állnak, melyeket a böngészőnk megjelenít számunkra. Ezt a struktúrát bárki megtekintheti, ha egy weboldalon tartózkodva megnyomja az F12 billentyűt, vagy egy jobb klikket követően az Inspect opciót kiválasztva. Amint azt korábban is említettük, az alkalmazás ezek között a struktúrák között keresi a számunkra értékes információt. Hogy ezt hogyan is találjuk meg, azt a \ref{fig:inspect_screenshot} ábrán láthatjuk is. Ezen egy termék ára lett kijelölve, majd az előbb említett Inspect opció lett kiválasztva. A böngészőnk ki is adta, hogy a kijelölt információ egy <p> tag alatt található, amely egy „product new price” osztálynévvel van ellátva. Az alkalmazás pontosan ezeket az információkat bányássza ki egy weboldal struktúrájából, legyen az az ár, a megnevezés vagy akár a társított kép elérhetősége.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.45]{figures/images/inspect_screenshot.png}
+    \caption{Információ lokalizálása a weboldal strukturájában - Emag}
+    \label{fig:inspect_screenshot}
+\end{figure}
+
+Mivel minden weboldal más struktúrával rendelkezik, ezért az ezeken található információ is másképp van elrendezve. Bármilyen weboldalon szeretnénk keresni, nagy valószínűséggel mindegyiknek más, egyedi struktúrája lesz (lásd \ref{fig:webshop_different_structure} ábra), ezért ezeket személyre szabottan kell kezelni. Ugyanakkor, előfordulnak változások is a struktúrában, ezért ezeket folyamatosan figyelni kell és el kell végezni a szükséges változtatásokat, annak érdekében, hogy a szoftver helyesen működjön. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.95]{figures/images/webshop_different_structure.png}
+    \caption{Támogatott weboldalak különböző strukturája}
+    \label{fig:webshop_different_structure}
+\end{figure}
+
+\subsection{Adatbázis}
+
+Az rendszer adatbázisként a Firebase Realtime Database-t használja. Ez az adatbázis a Google platform által biztosított valós idejű adatbázis, amely számos funkcióval rendelkezik. Egy NoSQL adatbázisról van szó, amely az adatokat egy JSON formátumhoz hasonló struktúrában tárolja, ezáltal megkönnyítve a használatát, valamint az integrációt az egyes programozási nyelvek esetében. A rendszer valós idejűsége miatt, az adatok azonnal szinkronizálódnak az összes felhasználó között, igy mindig a legaktuálisabb adatokat látjak.
