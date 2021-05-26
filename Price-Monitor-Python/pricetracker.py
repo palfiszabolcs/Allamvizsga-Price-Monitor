@@ -183,14 +183,14 @@ def stop_new_products_listener():
 
 def internet_on():
     try:
-        response = urlopen('https://www.google.com/', timeout=10)
+        urlopen('https://www.google.com/', timeout=10)
     except:
         logging.critical("No Internet connection! - Service failed - Restarting")
         stop_new_products_listener()
-        run(1)
+        run(0)
 
 
-def run_scheduled_checks():
+def run_scheduled_tasks():
     schedule.every().second.do(internet_on)
     schedule.every().day.at('10:00').do(update_prices)
     schedule.every().day.at('18:00').do(update_prices)
@@ -217,16 +217,20 @@ def run(mode):
             print("Invalid option, please select again!")
             return run(None)
         else:
+            if mode == 0:
+                logger.info("Restarting due to No Internet Connection")
+                run_new_products_listener()
+
             if mode == 1:
                 logger.info("Starting in CONTINUOUS mode")
                 run_new_products_listener()
-                run_scheduled_checks()
+                run_scheduled_tasks()
             if mode == 2:
                 logger.info("Starting in UPDATE mode")
                 update_prices()
                 logger.info("All products updated, starting CONTINUOUS mode!")
                 run_new_products_listener()
-                run_scheduled_checks()
+                run_scheduled_tasks()
     except Exception as error:
         logging.critical("Error while starting service!" + str(error))
         for i in range(5, 0, -1):

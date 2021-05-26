@@ -69,13 +69,12 @@ class _HomeScreenState extends State<HomeScreen>{
 
   void _startChangeListener(){
     _db.child("USERS").child(_auth.currentUser.uid).onChildChanged.listen((event) async {
-        print("there was a change - child changed");
+        // print("there was a change - child changed");
         await Future.delayed(Duration(seconds: 1));
         _refreshListView();
     });
     _db.child("USERS").child(_auth.currentUser.uid).onChildRemoved.listen((event) async {
-        print("there was a change - child removed");
-        // await Future.delayed(Duration(seconds: 1));
+        // print("there was a change - child removed");
         _refreshListView();
     });
   }
@@ -84,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen>{
       var brightness = MediaQuery.of(context).platformBrightness;
       bool darkModeOn = brightness == Brightness.dark;
 
-      print("url = " + url);
+      // print("url = " + url);
 
       // TODO:
       await Future.delayed(Duration(seconds: 3));
@@ -287,14 +286,6 @@ class _HomeScreenState extends State<HomeScreen>{
                             width: MediaQuery.of(context).size.width * 0.28,
                             child: CachedNetworkImage(
                               imageUrl: imageURL,
-                              // imageBuilder: (context, imageProvider) => Container(
-                              //   decoration: BoxDecoration(
-                              //     borderRadius: BorderRadius.circular(15),
-                              //     image: DecorationImage(
-                              //         image: imageProvider,
-                              //       ),
-                              //   ),
-                              // ),
                               progressIndicatorBuilder: (context, url, downloadProgress) =>
                                   Center(child:
                                         CircularProgressIndicator(
@@ -346,12 +337,6 @@ class _HomeScreenState extends State<HomeScreen>{
                         bottom: Radius.elliptical(MediaQuery.of(context).size.width, 25),
                       ),
                     ),
-                    // title: Row(
-                    //   children: [
-                    //     appBarIcon,
-                    //     title
-                    //   ],
-                    // ),
                     actions:<Widget> [
                       Row(
                         children: [
@@ -400,7 +385,7 @@ class _HomeScreenState extends State<HomeScreen>{
                   ) : Center(child: notConfirmedText),
             ),
           ),
-        );
+      );
   }
 
   void _makeProductList(AsyncSnapshot snapshot){
@@ -420,11 +405,12 @@ class _HomeScreenState extends State<HomeScreen>{
           text: TextSpan(
               text: "Emag",
               style: TextStyle(color: Colors.blue, height: 2, decoration: TextDecoration.underline),
-              recognizer: new TapGestureRecognizer()..onTap = () async {if (await canLaunch(url_emag)) {
-                await launch(url_emag);
-              } else {
-                throw 'Could not launch $url_emag';
-              }
+              recognizer: new TapGestureRecognizer()..onTap = () async {
+                if (await canLaunch(url_emag)) {
+                  await launch(url_emag);
+                } else {
+                  throw 'Could not launch $url_emag';
+                }
               }
 
           ),
@@ -433,37 +419,27 @@ class _HomeScreenState extends State<HomeScreen>{
           text: TextSpan(
               text: "Flanco",
               style: TextStyle(color: Colors.blue, height: 2, decoration: TextDecoration.underline),
-              recognizer: new TapGestureRecognizer()..onTap = () async {if (await canLaunch(url_flanco)) {
-                await launch(url_flanco);
-              } else {
-                throw 'Could not launch $url_flanco';
-              }
+              recognizer: new TapGestureRecognizer()..onTap = () async {
+                if (await canLaunch(url_flanco)) {
+                  await launch(url_flanco);
+                } else {
+                  throw 'Could not launch $url_flanco';
+                }
               }
 
           ),
         ),
-        // RichText(
-        //   text: TextSpan(
-        //     text: "Altex",
-        //     style: TextStyle(color: Colors.blue, height: 2, decoration: TextDecoration.underline),
-        //     recognizer: new TapGestureRecognizer()..onTap = () async {if (await canLaunch(_url_altex)) {
-        //       await launch(_url_altex);
-        //     } else {
-        //         throw 'Could not launch $_url_altex';
-        //       }
-        //     }
-        //
-        //   ),
-        // ),
+
         RichText(
           text: TextSpan(
               text: "Quickmobile",
               style: TextStyle(color: Colors.blue, height: 2, decoration: TextDecoration.underline),
-              recognizer: new TapGestureRecognizer()..onTap = () async {if (await canLaunch(url_quickmobile)) {
-                await launch(url_quickmobile);
-              } else {
+              recognizer: new TapGestureRecognizer()..onTap = () async {
+                if (await canLaunch(url_quickmobile)) {
+                  await launch(url_quickmobile);
+                } else {
                 throw 'Could not launch $url_quickmobile';
-              }
+                }
               }
 
           ),
@@ -541,13 +517,13 @@ class _HomeScreenState extends State<HomeScreen>{
                     Container(
                         width: double.infinity,
                         child: RaisedButton(
-                            child: Text("SignOut",
+                            child: Text("Sign Out",
                               style: TextStyle(color: Colors.white),),
                             color: colorSignOutButton,
-                            onPressed: (){
+                            onPressed: () {
                               SweetAlert.show(context,
-                                  title: "Log Out",
-                                  subtitle: "Do you want to log out?",
+                                  title: "Signing Out",
+                                  subtitle: "Do you want to sign out?",
                                   style: SweetAlertStyle.confirm,
                                   confirmButtonText: "Log Out",
                                   showCancelButton: true,
