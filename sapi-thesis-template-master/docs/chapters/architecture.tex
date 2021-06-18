@@ -39,29 +39,6 @@ A kiegészítő megvalósítása során, JavaScript, HTML, CSS programozási nye
 
 Első lépésben szükséges egy manifest.json file létrehozása, mely a kiegészítő alapvető információit tartalmazza, mint például verziószám, név, rövid leírás, felhasznált függőségek, engedélyezett műveletek stb... . Ezek után, a fejlesztés hasonló egy hagyományos weboldal elkészítéséhez. 
 
-% \begin{lstlisting}[caption={manifest.json file}, label={lst:manifest}, basicstyle=\footnotesize]
-%     {
-%         "manifest_version": 2,
-%         "name": "Price Monitor",
-%         "description": "Price monitoring interface",
-%         "version": "0.9",
-%         "icons": {"128": "icons/icon128.png"},
-%         "browser_action" : {
-%             "default_icon": "icons/icon19.png",
-%             "default_popup": "login.html"
-%         },
-%         "content_scripts":[{
-%             "matches":["<all_urls>"],
-%             "js": ["content.js"]
-%         }],
-%         "background": {
-%             "page": "background.html"
-%         },
-%         "permissions": ["storage", "unlimitedStorage", "tabs", "activeTab", "<all_urls>"],
-%         "content_security_policy": "script-src 'self' https://cdn.amcharts.com/lib/4/core.js https://cdn.amcharts.com/lib/4/charts.js https://cdn.amcharts.com/lib/4/themes/dataviz.js https://cdn.amcharts.com/lib/4/themes/animated.js https://www.gstatic.com/ https://*.firebaseio.com https://apis.google.com https://www.googleapis.com https://securetoken.googleapis.com; object-src 'self'; connect-src 'self' https://securetoken.googleapis.com https://apis.google.com https://www.googleapis.com wss://*.firebaseio.com"
-%     }
-% \end{lstlisting}
-
 \lstinputlisting[caption={manifest.json file}, label={lst:manifest}]{E:/1.UniFuckinVersity/Allamvizsga/Extensions/Chrome/manifest.json}
 
 A fejlesztés során több könyvtár került felhasználásra, különböző funkciók ellátására, ezek a Bootstrap\footnote{\url{https://getbootstrap.com/}}, sweetalert2\footnote{\url{https://sweetalert2.github.io/}}, firebase\footnote{\url{https://firebase.google.com/}}, amcharts\footnote{\url{https://www.amcharts.com/}}. A bootstrap egy ingyenes, nyílt forráskádul CSS framework, mely segítségével interaktívabbá, szebbé tehetjük a weboldalunkat, előre definiált mintákat biztosit nekünk, gombok, navigáció vagy más komponensek esetében. A sweetalert2 egy úgynevezett riasztásokért felelős könyvtár, olyan esetekben került használatra, amikor egy felugró ablak segítségével szeretnénk megerősítést kérni a felhasználótól egy bizonyos művelet elvégzésére, mint például termékek törlése vagy kijelentkezés során, viszont egyéb, információ közlési célokra is felhasználva lett, mint például egy művelet sikeres elvégzésének visszajelzése. A firebase könyvtárakat bejelentkezési, valamint adatbázis kezelő funkciók miatt volt szükséges használni. Az árak időbeli változását ábrázoló diagramok eseteben több könyvtárat is kipróbáltam (Chart, Highcharts, ApexCharts), viszont a végső választás az amCharts nevűre esett, mivel ez volt a leg megfelelőbb az adott esetben, főleg az úgynevezett „panning” funkció miatt, mely lehetővé teszi hogy görgessünk a diagramon, illetve az idő skálát is változtatni tudjuk, mindezt valós időben. Ezen funkciók segítségével pontosabban és hatékonyabban tudjuk követni az árak változását, ugyanakkor vizuális szempontból is kellemes élményt nyújt.
@@ -70,7 +47,7 @@ Amikor a felhasználó először használja a kiegészítőt, egy login oldal je
 
 \begin{figure}[H]
     \centering
-    \includegraphics[scale=1]{figures/images/login-reg-ext.png}
+    \includegraphics[scale=0.9]{figures/images/login-reg-ext.png}
     \caption{Kiegészítő bejelentkezési/regisztrálási felülete}
     \label{fig:ext_login_reg}
 \end{figure}
@@ -88,7 +65,7 @@ Bejelentkezés után a felhasználó a főoldalon találja magát, ahol megtekin
 
 Amint a \ref{fig:ext_homescreen_info_user} ábrán is láthatjuk, a termékek gombjai tartalmazzák a termék aktuális árát, tőlük jobbra egy nyilat, valamint ezek különböző színűek. A nyilak, illetve, színkódolás azért van, hogy a felhasználónak visszajelzést adjuk arról, hogy a termék drágult, olcsóbb lett, nem változott az ára, esetleg jelenleg nem elkérető. Amennyiben a termék drágul, ezt egy felfele mutató nyíl és piros szín jelzi, csökkenés esetén a nyíl lefele mutat és a gomb színe zöldre vált, az utóbbi az \ref{fig:ext_chart} ábrán látható. Amikor egy termék ára nem változik, ezt egy vízszintesen irányuló nyíl és a kék szín jelzi, valamint, ha a termék nem elérhető, akkor ezt sárga szín és az „UNAVAILABLE” szöveg mutatja.
 
-Ha egy termék gombjára kattintunk, akkor megnézhetjük az adott termék arának változását egy diagramon, a követés pillanatától az aktuális dátumig. Amint a \ref{fig:ext_chart} ábra mutatja, a diagramon szépen látható az arák változása, ami sok esetben naponta akár többször is változhat. Mivel az adatmennyiség idővel nagyon nagy lehet, ezért a diagramot mozgatni lehet, hogy egy adott intervallumot vizsgáljunk, vagy az időskálát növelhetjük, illetve csökkenthetjük, igénynek megfelelően, a diagram tetején található csúszka segítségével. Láthatjuk továbbá azt is, hogy ha az egeret a diagram egy adott pontján tartjuk, akkor az levetíti nekünk az adott dátumon a termék árát. Az ablak alján található a törlés gomb, ezzel törölhetjük a terméket a listánkból, ha esetleg már nem vagyunk érdekeltek az adott árucikk követesében. Az előbb említett törlés gomb fölött helyezkedik el még egy gomb, mely megnyomásával az adott termék weboldala nyílik meg számunkra a böngésző egy új ablakában.
+Ha egy termék gombjára kattintunk, akkor megnézhetjük az adott termék árának változását egy diagramon, a követés pillanatától az aktuális dátumig. Amint a \ref{fig:ext_chart} ábra mutatja, a diagramon szépen látható az arák változása, ami sok esetben naponta akár többször is változhat. Mivel az adatmennyiség idővel nagyon nagy lehet, ezért a diagramot mozgatni lehet, hogy egy adott intervallumot vizsgáljunk, vagy az időskálát növelhetjük, illetve csökkenthetjük, igénynek megfelelően, a diagram tetején található csúszka segítségével. Láthatjuk továbbá azt is, hogy ha az egeret a diagram egy adott pontján tartjuk, akkor az levetíti nekünk az adott dátumon a termék árát. Az ablak alján található a törlés gomb, ezzel törölhetjük a terméket a listánkból, ha esetleg már nem vagyunk érdekeltek az adott árucikk követesében. Az előbb említett törlés gomb fölött helyezkedik el még egy gomb, mely megnyomásával az adott termék weboldala nyílik meg számunkra a böngésző egy új ablakában.
 
 \begin{figure}[H]
     \centering
@@ -97,13 +74,13 @@ Ha egy termék gombjára kattintunk, akkor megnézhetjük az adott termék arán
     \label{fig:ext_chart}
 \end{figure}
 
-A diagram megvalósítása az amcharts nevű könyvtárral történt, mely a mi felhasználásunkra tökéletesnek minősült, minden funkciót hozva, amely megkönnyíti az adatok megtekintését, elemzését. Első lépésben az adathalmaz került létrehozásra és formázásra, annak megfelelően, ahogy az adott diagram elvárja azt (Listing \ref{lst:create_chart_data}).
+A diagram megvalósítása az amcharts nevű könyvtárral történt, mely a mi felhasználásunkra tökéletesnek minősült, minden funkciót hozva, amely megkönnyíti az adatok megtekintését, elemzését. Első lépésben az adathalmaz került létrehozásra és formázásra, annak megfelelően, ahogy az adott diagram elvárja azt (Listing \ref{lst:create_chart_data}). Következő lépésben maga a diagram lett létrehozva a különböző beállításokkal együtt, mint például időskála formázása, tengelyek elnevezése, a diagram kezdeti állapota, ezt a \ref{lst:create_chart} kódrészlet valósítja meg.
+
 
 \lstinputlisting[caption={Adathalmaz létrehozása}, label={lst:create_chart_data}, firstline=15, lastline=18]{E:/1.UniFuckinVersity/Allamvizsga/Extensions/Chrome/chart.js}
 
-Következő lépésben maga a diagram lett létrehozva a különböző beállításokkal együtt, mint például időskála formázása, tengelyek elnevezése, a diagram kezdeti állapota, ezt a \ref{lst:create_chart} kódrészlet valósítja meg.
 
-\lstinputlisting[caption={Diagram létrehozása, beállitása}, label={lst:create_chart}, firstline=20, lastline=51]{E:/1.UniFuckinVersity/Allamvizsga/Extensions/Chrome/chart.js}
+\lstinputlisting[caption={Diagram létrehozása, beállitásai}, label={lst:create_chart}, firstline=20, lastline=51]{E:/1.UniFuckinVersity/Allamvizsga/Extensions/Chrome/chart.js}
 
 \subsection{Telefonos alkalmazás}
 
@@ -131,10 +108,10 @@ A bejelentkezés, regisztrálás a Firebase segítségével lett megvalósítva,
 \begin{lstlisting}[caption={Bejelentkező/regisztráló/jelszó csere funkciót megvalósító függvények}, label={lst:flutter_login_functions}, basicstyle=\footnotesize]
     // Sign in
     await _auth.signInWithEmailAndPassword(email: data.name, password: data.password);
-    
+
     // Register
     await _auth.createUserWithEmailAndPassword(email: data.name, password: data.password);
-    
+
     // Reset Password
     await _auth.sendPasswordResetEmail(email: email);
 \end{lstlisting}
@@ -168,15 +145,7 @@ Ebben az esetben is, a termékek árainak színe, illetve a mellettük találhat
 
 Az ablak jobb alsó sarkában található egy bevásárló kosárral jelölt gomb, melyet, ha megnyomunk az alkalmazás átirányít minket és a telefon alapértelmezett böngészőjében megnyitja nekünk a termék weboldalát (\ref{fig:flutter_chart}). Amennyiben már nem vagyunk érdekeltek a termék követésesben, a jobb felső sarokban található, kukával jelölt gombbal törölhetjük azt a követési listánkból.
 
-Ha egy nem támogatott oldal termekét próbáljuk meg hozzáadni, akkor egy felrúgó úgynevezett „toast” üzenetben az alkalmazás közli a felhasználóval hogy nem támogatott oldalról van szó a "Store not supported!" szöveggel, ugyanakkor ha már követi az adott terméket, akkor annak megfelelő „Product already followed!” szöveget ír ki, ezek megvalósítása és működése a \ref{lst:flutter_add_error} kódrészletben és a  \ref{fig:flutter_add_error} ábrán láthatóak.
-
-\begin{lstlisting}[caption={Informáló üzeneteket megjelenítő függvények}, label={lst:flutter_add_error}, basicstyle=\footnotesize]
-    // Ha mar kovetjuk a termeket
-    Fluttertoast.showToast(msg: "Product already followed!", toastLength: Toast.LENGTH_LONG);
-
-    // Ha nem tamogatott oldalrol szeretnenk termeket hozzaadni
-    Fluttertoast.showToast(msg: "Store not supported!", toastLength: Toast.LENGTH_LONG);
-\end{lstlisting}
+Ha egy nem támogatott oldal termekét próbáljuk meg hozzáadni, akkor egy felrúgó úgynevezett „toast” üzenetben az alkalmazás közli a felhasználóval hogy nem támogatott oldalról van szó a "Store not supported!" szöveggel, ugyanakkor ha már követi az adott terméket, akkor annak megfelelő „Product already followed!” szöveget ír ki, ahogy az a  \ref{fig:flutter_add_error} ábrán látható.
 
 \begin{figure}[H]
     \centering
@@ -231,13 +200,39 @@ A script terminálban fut, indítás után kiválaszthatjuk milyen futási módb
         return run(mode)
 \end{lstlisting}
 
+A funkciók könnyebb kezelése végett készült egy felhasználói felület az admin szerepet betöltő felhasználó számára is, ez PyQt5\footnote{\url{https://pypi.org/project/PyQt5/}} segítségével lett megvalósítva. A felület az előbbiekben említett funkcionalitásokat kepés elindítani, leállítani, valamint lehetőséget nyújt a konfigurációs file módosítására, amely tartalmazza a program működéséhez szükséges információkat, legfontosabbak ezek közül az egyes weboldalak által használt tag-ekkel kapcsolatos információk, amelyek alapján történik az egyes adatok bányászása. Ezek módosítását teszi lehetővé a \ref{fig:python_ui} ábrán látható fogaskerékkel jelölt gomb.  
+
+Az árak napi kétszeri frissítésekor, a rendszer a \ref{lst:python_update_pseudo} pszeudokód alapján végzi az aktualizálást.
+
+\begin{lstlisting}[caption={Termékek árának frissitesét leiró pszeudokód}, label={lst:python_update_pseudo}, basicstyle=\footnotesize]
+Update Prices
+    Get users list from database
+    for user in users_list:
+        Get product list of user
+        for product in product_list:
+            get product price from url
+            check for potential errors
+            if error then 
+                upload error to database
+            else
+                upload new price to database
+\end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.8]{figures/images/python_ui.png}
+    \caption{Backend rész adminisztrációs felülete}
+    \label{fig:python_ui}
+\end{figure}
+
+
+
 Amint az előbbiekben szó volt, a BeautifulSoup nevű függvénykönyvtár segítségével lesznek kinyerve a szükséges információk, a weboldalak HTML kódjából. Ez a művelet a „find” nevű függvénnyel történik, melynek meg kell adni két paramétert. Az egyik, hogy milyen típusú tag-eket szeretnénk keresni, mint például, div, span, h1, p, a másik pedig hogy ezek milyen tulajdonságokkal rendelkeznek, például a tag egy bizonyos osztálynévvel van ellátva. A \ref{lst:python_emag} kódrészlet tartalmazza egy termék adatainak feldolgozását, amennyiben az, az Emag webáruházról származik. 
 
 \begin{lstlisting}[caption={Emag linket feldolgozó függvény}, label={lst:python_emag}, basicstyle=\footnotesize]
     def get_and_parse_emag(soup):
     title = find_title(soup, "h1", "page-title")
     out_of_stock = soup.find("span", attrs={"class": "label-out_of_stock"})
-
     if out_of_stock or (title is constants.error):
         price = constants.error
     else:
@@ -269,18 +264,20 @@ Amint az előbbiekben szó volt, a BeautifulSoup nevű függvénykönyvtár seg�
     return product_data
 \end{lstlisting}
 
+
+
 \subsection{Web áruházak}
 
 A rendszer fontos részét képezik maguk a web áruházak is, hiszen ezek biztosítják számunkra a szükséges adatokat. A weboldalak HTML nyelven felépített elemekből állnak, melyeket a böngészőnk megjelenít számunkra. Ezt a struktúrát bárki megtekintheti, ha egy weboldalon tartózkodva megnyomja az F12 billentyűt, vagy egy jobb klikket követően az Inspect opciót kiválasztva. Amint azt korábban is említettük, az alkalmazás ezek között a struktúrák között keresi a számunkra értékes információt. Hogy ezt hogyan is találjuk meg, azt a \ref{fig:inspect_screenshot} ábrán láthatjuk is. Ezen egy termék ára lett kijelölve, majd az előbb említett Inspect opció lett kiválasztva. A böngészőnk ki is adta, hogy a kijelölt információ egy <p> tag alatt található, amely egy „product new price” osztálynévvel van ellátva. Az alkalmazás pontosan ezeket az információkat bányássza ki egy weboldal struktúrájából, legyen az az ár, a megnevezés vagy akár a társított kép elérhetősége.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[scale=0.95]{figures/images/inspect_screenshot.png}
+    \includegraphics[scale=0.93]{figures/images/inspect_screenshot.png}
     \caption{Információ lokalizálása a weboldal strukturájában - Emag}
     \label{fig:inspect_screenshot}
 \end{figure}
 
-Mivel minden weboldal más struktúrával rendelkezik, ezért az ezeken található információ is másképp van elrendezve. Bármilyen weboldalon szeretnénk keresni, nagy valószínűséggel mindegyiknek más, egyedi struktúrája lesz (lásd \ref{fig:webshop_different_structure} ábra), ezért ezeket személyre szabottan kell kezelni. Ugyanakkor, előfordulnak változások is a struktúrában, ezért ezeket folyamatosan figyelni kell és el kell végezni a szükséges változtatásokat, annak érdekében, hogy a szoftver helyesen működjön. 
+Mivel minden weboldal más struktúrával rendelkezik, ezért az ezeken található információ is másképp van elrendezve. Bármilyen weboldalon szeretnénk keresni, nagy valószínűséggel mindegyiknek más, egyedi struktúrája lesz (lásd \ref{fig:webshop_different_structure} ábra), ezért ezeket üzletre szabottan kell kezelni, viszont ami közös, az az, hogy alapvetően minden információ valamelyik klasszikus HTML tag között lesz eltárolva. Ugyanakkor, előfordulnak változások is a struktúrában, ezért ezeket folyamatosan figyelni kell és el kell végezni a szükséges változtatásokat, annak érdekében, hogy a szoftver helyesen működjön. 
 
 \begin{figure}[H]
     \centering
@@ -291,4 +288,12 @@ Mivel minden weboldal más struktúrával rendelkezik, ezért az ezeken találha
 
 \subsection{Adatbázis}
 
-Az rendszer adatbázisként a Firebase Realtime Database-t használja. Ez az adatbázis a Google platform által biztosított valós idejű adatbázis, amely számos funkcióval rendelkezik. Egy NoSQL adatbázisról van szó, amely az adatokat egy JSON formátumhoz hasonló struktúrában tárolja, ezáltal megkönnyítve a használatát, valamint az integrációt az egyes programozási nyelvek esetében. A rendszer valós idejűsége miatt, az adatok azonnal szinkronizálódnak az összes felhasználó között, igy mindig a legaktuálisabb adatokat látjak.
+Az rendszer adatbázisként a Firebase Realtime Database-t használja. Ez az adatbázis a Google platform által biztosított valós idejű adatbázis, amely számos funkcióval rendelkezik. Egy NoSQL adatbázisról van szó, amely az adatokat egy JSON formátumhoz hasonló struktúrában tárolja, ezáltal megkönnyítve a használatát, valamint az integrációt az egyes programozási nyelvek esetében. A választás egy NoSQL adatbázisra továbbá azért esett, mivel ez a formátum sokkal rugalmasabb, mint a hagyományos SQL adatbázisoké, egy esetleges változtatás vagy kiegészítés során jóval könnyebb módosítani az egyes struktúrákon. A rendszer valós idejűsége miatt, az adatok azonnal szinkronizálódnak az összes felhasználó között, igy mindig a legaktuálisabb adatokat látjak. Az adatok ábrázolása az adatbázisban \ref{fig:database} ábrán látható.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=1]{figures/images/database.png}
+    \caption{Adatok tárolása az adatbázisba}
+    \label{fig:database}
+\end{figure}
+

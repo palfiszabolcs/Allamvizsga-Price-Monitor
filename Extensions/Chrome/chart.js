@@ -30,22 +30,22 @@ am4core.ready(function() {
         "count": 0.5
     };
     dateAxis.tooltipDateFormat = "d MMM";
-
+    
     var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
     valueAxis.tooltip.disabled = true;
     valueAxis.title.text = product.currency;
-
+    
     var series = chart.series.push(new am4charts.LineSeries());
     series.dataFields.dateX = "date";
     series.dataFields.valueY = "price";
     series.tooltipText = "Price: [bold]{valueY}[/]";
     series.fillOpacity = 0.3;
-
+    
     chart.cursor = new am4charts.XYCursor();
     chart.cursor.lineY.opacity = 0;
     chart.scrollbarX = new am4charts.XYChartScrollbar();
     chart.scrollbarX.series.push(series);
-
+    
     dateAxis.start = 0.8;
     dateAxis.keepSelection = true;
 });

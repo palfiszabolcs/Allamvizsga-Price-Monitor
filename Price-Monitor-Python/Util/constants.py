@@ -1,6 +1,11 @@
+import logging
 from configparser import ConfigParser
+from logging.config import fileConfig
 import firebase_admin
 from firebase_admin import credentials
+
+fileConfig('logging_config.ini')
+logger = logging.getLogger()
 
 config_file = "config.ini"
 config = ConfigParser()
@@ -16,7 +21,13 @@ CHECK = config["database"]["check_section"]
 ERROR = config["database"]["ERROR_section"]
 
 error = "error"
+image_error = "image"
+title_error = "title"
 
-emag = config["supported"]["emag"]
-flanco = config["supported"]["flanco"]
-quickmobile = config["supported"]["quickmobile"]
+
+def update_config(new_config):
+    with open(config_file, "w") as file:
+        file.write(new_config)
+    file.close()
+    config.read(config_file)
+    logger.info("Config file updated!")

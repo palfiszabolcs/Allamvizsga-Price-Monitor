@@ -18,7 +18,6 @@ def find_price(soup, tag, class_name):
         price = soup.find(tag, attrs={"class": class_name}).text.strip()
     except AttributeError:
         return constants.error
-        # raise Exception("object has no attribute: text (title tag changed / url may not exist)")
     return price
 
 
@@ -27,7 +26,6 @@ def find_title(soup, tag, class_name):
         title = soup.find(tag, attrs={"class": class_name}).text.strip()
     except AttributeError:
         return constants.error
-        # raise Exception("object has no attribute: text (title tag changed / url may not exist)")
     return title
 
 
@@ -167,7 +165,7 @@ def pretty_print_dict(data):
     print(json.dumps(data, indent=4, sort_keys=True))
 
 
-def upload_error(user, product_id, cur_date, url):
+def upload_error(user, product_id, cur_date, url, error_type):
     from firebase import firebase
 
     firebase = firebase.FirebaseApplication(constants.database, None)
@@ -175,6 +173,7 @@ def upload_error(user, product_id, cur_date, url):
     error_data = {
         'prod_id:': product_id,
         'url': url,
+        'type': error_type,
         'date': cur_date
     }
     try:
@@ -185,7 +184,7 @@ def upload_error(user, product_id, cur_date, url):
         for i in range(5, 0, -1):
             logger.info("Retrying in... " + str(i) + " seconds")
             time.sleep(1)
-        return upload_error(user, product_id, cur_date, url)
+        return upload_error(user, product_id, cur_date, url, error_type)
 
 
 def upload_check_data(user, product_id, price, cur_date):
@@ -210,15 +209,22 @@ def upload_check_data(user, product_id, price, cur_date):
 
 
 def get_and_parse_emag(soup):
-    title = find_title(soup, "h1", "page-title")
-    out_of_stock = soup.find("span", attrs={"class": "label-out_of_stock"})
+    try:
+        title = soup.find(constants.config["emag_title"]["tag"], attrs={constants.config["emag_title"]["attribute"]: constants.config["emag_title"]["attribute_value"]}).text.strip()
+    except AttributeError:
+        title = constants.error
+
+    try:
+        out_of_stock = soup.find(constants.config["emag_stock"]["tag"], attrs={constants.config["emag_stock"]["attribute"]: constants.config["emag_title"]["attribute_value"]})
+    except AttributeError:
+        out_of_stock = False
 
     if out_of_stock or (title is constants.error):
         price = constants.error
     else:
         try:
-            form = soup.find("form", attrs={"class": "main-product-form"})
-            price = form.find("p", attrs={"class": "product-new-price"}).text.strip()
+            form = soup.find(constants.config["emag_form"]["tag"], attrs={constants.config["emag_form"]["attribute"]: constants.config["emag_form"]["attribute_value"]})
+            price = form.find(constants.config["emag_price"]["tag"], attrs={constants.config["emag_price"]["attribute"]: constants.config["emag_price"]["attribute_value"]}).text.strip()
             s = list(price)
             s.insert(-6, ",")
             price = "".join(s)
@@ -237,7 +243,7 @@ def get_and_parse_emag(soup):
             price = constants.error
     prod_currency = currency.ron
     try:
-        image = soup.find("div", attrs={"id": "product-gallery"}).img["src"]
+        image = soup.find(constants.config["emag_image"]["tag"], attrs={constants.config["emag_image"]["attribute"]: constants.config["emag_image"]["attribute_value"]}).img["src"]
     except AttributeError:
         image = "error"
     product_data = class_ProductData.ProductData(title, price, prod_currency, image)
@@ -245,14 +251,22 @@ def get_and_parse_emag(soup):
 
 
 def get_and_parse_flanco(soup):
-    stockless = soup.find("div", attrs={"class": "stockless"})
     try:
-        title = soup.find("h1", attrs={"id": "product-title"}).text.strip()
+        out_of_stock = soup.find(constants.config["flanco_stock"]["tag"], attrs={constants.config["flanco_stock"]["attribute"]: constants.config["flanco_stock"]["attribute_value"]})
     except AttributeError:
-        title = "error"
+        out_of_stock = False
 
-    price = find_price(soup, "div", "produs-price")
-    if stockless or price is constants.error:
+    try:
+        title = soup.find(constants.config["flanco_title"]["tag"], attrs={constants.config["flanco_title"]["attribute"]: constants.config["flanco_title"]["attribute_value"]}).text.strip()
+    except AttributeError:
+        title = constants.error
+
+    try:
+        price = soup.find(constants.config["flanco_price"]["tag"], attrs={constants.config["flanco_price"]["attribute"]: constants.config["flanco_price"]["attribute_value"]}).text.strip()
+    except AttributeError:
+        price = constants.error
+
+    if out_of_stock or price is constants.error:
         price = constants.error
     else:
         if price != constants.error:
@@ -265,7 +279,7 @@ def get_and_parse_flanco(soup):
                 price = constants.error
     prod_currency = currency.ron
     try:
-        image = soup.find("div", attrs={"class": "product_image_zoom_container"}).img["src"]
+        image = soup.find(constants.config["flanco_image"]["tag"], attrs={constants.config["flanco_image"]["attribute"]: constants.config["flanco_image"]["attribute_value"]}).img["src"]
     except AttributeError:
         image = "error"
     product_data = class_ProductData.ProductData(title, price, prod_currency, image)
@@ -273,24 +287,34 @@ def get_and_parse_flanco(soup):
 
 
 def get_and_parse_quickmobile(soup):
-    title = find_title(soup, "div", "product-page-title page-product-title-wth")
-    price = find_price(soup, "div", "priceFormat total-price price-fav product-page-price")
-    image = constants.error
-    if title is not constants.error or price is not constants.error:
+    try:
+        title = soup.find(constants.config["quick_title"]["tag"], attrs={constants.config["quick_title"]["attribute"]: constants.config["quick_title"]["attribute_value"]}).text.strip()
+    except AttributeError:
+        title = "error"
+
+    try:
+        price = soup.find(constants.config["quick_price"]["tag"], attrs={constants.config["quick_price"]["attribute"]: constants.config["quick_price"]["attribute_value"]}).text.strip()
+    except AttributeError:
+        price = "error"
+
+    if (title is not constants.error) or (price is not constants.error):
         price = re.sub("Lei", '', price)
         try:
             price = float(price)
         except ValueError:
             price = constants.error
 
-        try:
-            image = soup.find("img", attrs={"class": "img-responsive image-gallery"})['src'].strip()
-        except AttributeError:
-            image = constants.error
+    try:
+        image = soup.find(constants.config["quick_image"]["tag"], attrs={constants.config["quick_image"]["attribute"]: constants.config["quick_image"]["attribute_value"]})['src'].strip()
+    except AttributeError:
+        image = constants.error
 
     prod_currency = currency.ron
     product_data = class_ProductData.ProductData(title, price, prod_currency, image)
     return product_data
+
+
+# --------------------------------------------
 
 
 def get_and_parse_altex(soup):
@@ -311,7 +335,6 @@ def get_and_parse_altex(soup):
     return product_data
 
 
-# --------------------------------------------
 def get_and_parse_mediagalaxy(soup):
     title = find_title(soup, "h1", "font-bold leading-none text-black m-0"
                                    " text-center text-base lg:text-3xl bg-gray-lighter "

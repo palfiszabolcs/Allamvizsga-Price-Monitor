@@ -1,6 +1,4 @@
 from urllib.request import urlopen
-
-import firebase_admin.exceptions
 import requests
 from bs4 import BeautifulSoup
 from dacite import from_dict
@@ -11,16 +9,18 @@ import schedule
 import time
 import logging
 from logging.config import fileConfig
-from configparser import ConfigParser
 
 import Classes.class_FirebaseResponse
 from Classes.class_ProductData import ProductData
 from Util import constants, util_functions as util
 import webbrowser
 
-config_file = "config.ini"
-config = ConfigParser()
-config.read(config_file)
+import sys
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+
+from pygtail import Pygtail
 
 fileConfig('logging_config.ini')
 logger = logging.getLogger()
@@ -29,7 +29,7 @@ logger = logging.getLogger()
 def make_request(url):
     html_content = None
     try:
-        html_content = requests.get(url, timeout=int(config["connection"]["timeout"])).text
+        html_content = requests.get(url, timeout=int(constants.config["connection"]["timeout"])).text
     except (requests.RequestException, requests.ConnectionError, requests.Timeout) as error:
         logging.critical("!!! request error !!! - " + str(error) + " | full url - " + url)
         for count in range(1, 6, 1):
@@ -37,7 +37,7 @@ def make_request(url):
                 logger.info("Retrying in... " + str(seconds) + " seconds")
                 time.sleep(1)
             try:
-                html_content = requests.get(url, timeout=int(config["connection"]["timeout"])).text
+                html_content = requests.get(url, timeout=int(constants.config["connection"]["timeout"])).text
                 return html_content
             except (requests.RequestException, requests.ConnectionError, requests.Timeout) as error:
                 logging.critical("retry no. " + str(count))
@@ -53,7 +53,6 @@ def get_url_info(url):
     is_captcha_on_page = soup.find("div", attrs={"class": "g-recaptcha"}) is not None
     if is_captcha_on_page:
         logger.critical("!!! CAPTCHA !!!")
-        # print("!!! CAPTCHA !!!")
         message = input("\nValidate CAPTCHA then type k to continue... ")
         if message == "k":
             html_content = requests.get(url).text
@@ -61,21 +60,26 @@ def get_url_info(url):
 
     address = util.get_site_address(url)
 
-    if address == config["supported"]["emag"]:
+    if address == constants.config["supported"]["emag"]:
         return util.get_and_parse_emag(soup)
 
-    if address == config["supported"]["flanco"]:
+    if address == constants.config["supported"]["flanco"]:
         return util.get_and_parse_flanco(soup)
 
-    if address == config["supported"]["quickmobile"]:
+    if address == constants.config["supported"]["quickmobile"]:
         return util.get_and_parse_quickmobile(soup)
 
 
 def push_new_data_to_db(user, url):
     logger.info("Pushing to database")
     data = get_url_info(url)
-    if (data.title and data.price and data.image) is constants.error:
-        return None
+
+    if data.title is constants.error:
+        logger.warning("Found title error! - " + url)
+        util.upload_error(user, "new_product", datetime.now(), url, constants.title_error)
+    if data.image is constants.error:
+        logger.warning("Found image error! - " + url)
+        util.upload_error(user, "new_product", datetime.now(), url, constants.image_error)
 
     firebase = fb.FirebaseApplication(constants.database, None)
 
@@ -94,8 +98,6 @@ def push_new_data_to_db(user, url):
         'date': datetime.today()
     }
     response_check = firebase.post(constants.USERS + user + "/" + prod_id + constants.CHECK, check_data)
-
-    # logger.info("Added " + user + " to database")
 
     return prod_id
 
@@ -119,15 +121,12 @@ def update_users_new_products():
         for item in users_product_list:
             push_new_data_to_db(user, item.product.url)
         logger.info("Product added to " + user + "'s list")
-        # print("Deleting " + user + " from NEW section")
         delete_result = delete_user(user)
-        # print("----------------")
 
 
 def update_prices():
     webbrowser.open("https://www.emag.ro")
     users_list = util.get_existing_users()
-    # util.print_log("update prices")
     logger.info("Updating prices")
     for user in users_list:
         users_product_list = util.make_product_list(user)
@@ -140,10 +139,10 @@ def update_prices():
 
             if product_data.title is constants.error:
                 logger.warning("Found title error! - " + item.product_data.url)
-                util.upload_error(user, item.product_id, datetime.now(), item.product_data.url)
+                util.upload_error(user, item.product_id, datetime.now(), item.product_data.url, constants.title_error)
             if product_data.image is constants.error:
                 logger.warning("Found image error! - " + item.product_data.url)
-                util.upload_error(user, item.product_id, datetime.now(), item.product_data.url)
+                util.upload_error(user, item.product_id, datetime.now(), item.product_data.url, constants.image_error)
 
             res = util.upload_check_data(user, item.product_id, product_data.price, datetime.now())
 
@@ -152,7 +151,7 @@ def update_prices():
             # if now > 17:
             #     time.sleep(20)
 
-            time.sleep(10)
+            time.sleep(int(constants.config["request_delay"]["delay"]))
 
         logger.info("Updated " + user + "'s products")
     logger.info("Finished updating all products")
@@ -187,25 +186,86 @@ def internet_on():
     except:
         logging.critical("No Internet connection! - Service failed - Restarting")
         stop_new_products_listener()
-        run(0)
+        # run_program(0)
+
+
+def update_display(qt_signal):
+    qt_signal.emit("")
+
+
+main_scheduler = schedule.Scheduler()
+qt_scheduler = schedule.Scheduler()
 
 
 def run_scheduled_tasks():
-    schedule.every().second.do(internet_on)
-    schedule.every().day.at('10:00').do(update_prices)
-    schedule.every().day.at('18:00').do(update_prices)
+    main_scheduler.every().second.do(internet_on)
+    main_scheduler.every().day.at('10:00').do(update_prices)
+    main_scheduler.every().day.at('18:00').do(update_prices)
     while True:
         try:
-            schedule.run_pending()
-            time.sleep(5)
-        except:
-            logging.critical("CAN NOT RUN SCHEDULED TASKS")
+            main_scheduler.run_pending()
+            time.sleep(1)
+        except Exception as error:
+            logging.critical("CAN NOT RUN SCHEDULED TASKS - " + str(error))
+            input("Please check the error before continuing...")
             for i in range(5, 0, -1):
                 logger.info("Retrying in... " + str(i) + " seconds")
                 time.sleep(1)
 
 
-def run(mode):
+def run_qt_display_scheduler(qt_signal):
+    qt_scheduler.every().second.do(update_display, qt_signal)
+    while True:
+        try:
+            qt_scheduler.run_pending()
+            time.sleep(1)
+        except Exception as error:
+            logging.critical("CAN NOT RUN SCHEDULED TASKS - QT - " + str(error))
+            for i in range(5, 0, -1):
+                logger.info("Retrying in... " + str(i) + " seconds")
+                time.sleep(1)
+
+
+# def run_program(mode):
+#     try:
+#         if mode is None:
+#             print("\nChoose running mode:\n"
+#                   "     1 - Continuous (Will run scheduled tasks and start all listeners)\n"
+#                   "     2 - Update (Will update all products then resume in Continuous mode)\n")
+#             mode = int(input("Mode: "))
+#
+#         if (mode != 0) and (mode != 1) and (mode != 2):
+#             print("Invalid option, please select again!")
+#             return run_program(None)
+#         else:
+#             if mode == 0:
+#                 logger.info("Restarting due to No Internet Connection")
+#                 run_new_products_listener()
+#
+#             if mode == 1:
+#                 logger.info("Starting in CONTINUOUS mode")
+#                 run_new_products_listener()
+#                 run_scheduled_tasks()
+#             if mode == 2:
+#                 logger.info("Starting in UPDATE mode")
+#                 update_prices()
+#                 logger.info("All products updated, starting CONTINUOUS mode!")
+#                 run_new_products_listener()
+#                 run_scheduled_tasks()
+#     except Exception as error:
+#         logging.critical("Error while starting service!" + str(error))
+#         for i in range(5, 0, -1):
+#             logger.info("Retrying in... " + str(i) + " seconds")
+#             time.sleep(1)
+#         return run_program(mode)
+
+def run_sec(n):
+    for i in range(0, n):
+        logger.info("schedule blocking test")
+        time.sleep(2)
+
+
+def run_program_qt_test(mode):
     try:
         if mode is None:
             print("\nChoose running mode:\n"
@@ -213,9 +273,9 @@ def run(mode):
                   "     2 - Update (Will update all products then resume in Continuous mode)\n")
             mode = int(input("Mode: "))
 
-        if (mode != 1) and (mode != 2):
+        if (mode != 0) and (mode != 1) and (mode != 2):
             print("Invalid option, please select again!")
-            return run(None)
+            return run_program_qt_test(None)
         else:
             if mode == 0:
                 logger.info("Restarting due to No Internet Connection")
@@ -225,27 +285,182 @@ def run(mode):
                 logger.info("Starting in CONTINUOUS mode")
                 run_new_products_listener()
                 run_scheduled_tasks()
+                # run_qt_display_scheduler(qt_signal)
             if mode == 2:
                 logger.info("Starting in UPDATE mode")
                 update_prices()
+                # run_sec(10)
                 logger.info("All products updated, starting CONTINUOUS mode!")
+                # qt_signal.emit("update_done")
                 run_new_products_listener()
                 run_scheduled_tasks()
+                # run_qt_display_scheduler(qt_signal)
     except Exception as error:
         logging.critical("Error while starting service!" + str(error))
         for i in range(5, 0, -1):
             logger.info("Retrying in... " + str(i) + " seconds")
             time.sleep(1)
-        return run(mode)
-
-
+        return run_program_qt_test(mode)
 # ############################################ - MAIN - ####################################################
 
 
-run(None)
+# run_program(None)
 
 
 # ############################################ - TEST BENCH - ####################################################
+class SettingsWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Price Monitor - Settings")
+        self.setMinimumWidth(600)
+        self.setMinimumHeight(600)
+        config_file = open(constants.config_file)
+        text = "" . join(config_file.readlines())
+        config_file.close()
+        self.config_edit = QTextEdit()
+        self.config_edit.setFont(QFont('Times', 15))
+        self.config_edit.setText(text)
+
+        self.button_save = QPushButton("Save", self)
+        self.button_save.setMinimumHeight(50)
+        self.button_save.setMinimumWidth(100)
+        self.button_save.setFont(QFont('Times', 20))
+        self.button_save.setStyleSheet("QPushButton{color: rgb(0,153,0);background-color: white;border: 2px solid rgb(0,153,0);border-radius: 10px;}QPushButton::disabled{color: white;background-color: rgb(169,169,169);border: 2px solid rgb(169,169,169);border-radius: 10px;}QPushButton::hover{color: white;background-color: rgb(0,153,0);border-radius: 10px;}")
+        self.button_save.pressed.connect(self.update_config)
+
+        main_layout = QVBoxLayout()
+        main_layout.addWidget(self.config_edit)
+        main_layout.addWidget(self.button_save)
+        widget = QWidget()
+        widget.setLayout(main_layout)
+        self.setCentralWidget(widget)
+
+    def update_config(self):
+        constants.update_config(self.config_edit.toPlainText())
+        self.close()
+
+
+class Window(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Price Monitor - Admin")
+        self.setMinimumWidth(1000)
+        self.setMinimumHeight(600)
+        self.worker = WorkerThread()
+        self.display_schedule_worker = DisplayWorker()
+        self.display_schedule_worker.qt_signal.connect(self.update_display)
+        self.display_schedule_worker.start()
+
+        self.display = QTextEdit()
+        self.display.setReadOnly(True)
+        self.display.setFont(QFont('Times', 10))
+        self.display.setTextColor(QColor(255, 255, 255))
+        self.display.setStyleSheet("background-color: rgb(0, 0, 0);border-radius: 10px")
+
+        self.button_start = QPushButton("Start", self)
+        self.button_start.setMinimumHeight(50)
+        self.button_start.setMinimumWidth(100)
+        self.button_start.setFont(QFont('Times', 20))
+        self.button_start.setStyleSheet("QPushButton{color: rgb(0,153,0);background-color: white;border: 2px solid rgb(0,153,0);border-radius: 10px;}QPushButton::disabled{color: white;background-color: rgb(169,169,169);border: 2px solid rgb(169,169,169);border-radius: 10px;}QPushButton::hover{color: white;background-color: rgb(0,153,0);border-radius: 10px;}")
+        self.button_start.pressed.connect(self.start)
+
+        self.button_stop = QPushButton("Stop", self)
+        self.button_stop.setMinimumHeight(50)
+        self.button_stop.setMinimumWidth(100)
+        self.button_stop.setFont(QFont('Times', 20))
+        self.button_stop.setStyleSheet("QPushButton{color: rgb(204,0,0);background-color: white;border: 2px solid rgb(204,0,0);border-radius: 10px;}QPushButton::disabled{color: white;border: 2px solid rgb(169,169,169);background-color: rgb(169,169,169);border-radius: 10px;}QPushButton::hover{color: white;background-color: rgb(204,0,0);border-radius: 10px;}")
+        self.button_stop.setDisabled(True)
+        self.button_stop.pressed.connect(self.stop)
+
+        self.button_update = QPushButton("Update", self)
+        self.button_update.setMinimumHeight(50)
+        self.button_update.setMinimumWidth(100)
+        self.button_update.setFont(QFont('Times', 20))
+        self.button_update.setStyleSheet("QPushButton{color: rgb(0,0,204);background-color: white;border: 2px solid rgb(0,0,204);border-radius: 10px;}QPushButton::disabled{color: white;background-color: rgb(169,169,169);border: 2px solid rgb(169,169,169);border-radius: 10px;}QPushButton::hover{color: white;background-color: rgb(0,0,204);border-radius: 10px;}")
+        self.button_update.pressed.connect(self.update)
+
+        self.button_settings = QToolButton()
+        self.button_settings.setToolButtonStyle(Qt.ToolButtonIconOnly)
+        self.button_settings.setIcon(QIcon("settings.png"))
+        self.button_settings.setIconSize(QSize(50, 50))
+        self.button_settings.pressed.connect(self.settings)
+
+        main_layout = QVBoxLayout()
+        button_layout = QHBoxLayout()
+        button_layout.addWidget(self.button_start)
+        button_layout.addWidget(self.button_stop)
+        button_layout.addWidget(self.button_update)
+        button_layout.addWidget(self.button_settings)
+        main_layout.addLayout(button_layout)
+        main_layout.addWidget(self.display)
+        widget = QWidget()
+        widget.setLayout(main_layout)
+        self.setCentralWidget(widget)
+        self.show()
+
+    def start(self):
+        self.worker.mode = 1
+        self.worker.start()
+        self.button_start.setDisabled(True)
+        self.button_update.setDisabled(True)
+        self.button_stop.setDisabled(False)
+
+    def stop(self):
+        self.worker.terminate()
+        logger.critical("Stopped execution!")
+        self.update_display("")
+        self.button_start.setDisabled(False)
+        self.button_stop.setDisabled(True)
+        self.button_update.setDisabled(False)
+
+    def update(self):
+        self.worker.mode = 2
+        self.worker.start()
+        self.button_start.setDisabled(True)
+        self.button_update.setDisabled(True)
+        self.button_stop.setDisabled(False)
+
+    def settings(self):
+        self.settings_window = SettingsWindow()
+        self.settings_window.show()
+
+    def update_display(self, message):
+        if message == "All products updated, starting CONTINUOUS mode!":
+            self.button_update.setDisabled(True)
+            self.button_start.setDisabled(True)
+            self.button_stop.setDisabled(False)
+        last_line = str(Pygtail("control.log", read_from_end=True).read())
+        if last_line != "None":
+            self.display.append(last_line.strip())
+
+
+class DisplayWorker(QThread):
+    qt_signal = pyqtSignal(str)
+
+    def run(self):
+        run_qt_display_scheduler(self.qt_signal)
+
+
+class WorkerThread(QThread):
+    mode = None
+
+    def run(self):
+        run_program_qt_test(self.mode)
+
+
+App = QApplication(sys.argv)
+window = Window()
+App.exec()
+
+# sys.exit(App.exec())
+
+# run_sec(10)
+# print(constants.config["quick_image"]["attribute_value"])
+
+# print(constants.config["emag_title"]["tag"])
+
+
+
 
 
 # bad_url1 = "https://www.flanco.ro/apple-watch-series-5-gps-44mm-space-grey-aluminium-case-black-sport-band.html"
@@ -267,7 +482,7 @@ run(None)
 # url2 = "https://www.flanco.ro/"
 # url3 = "https://www.quickmobile.ro/"
 # url4= "https://www.emag.ro/puma-pantofi-unisex-pentru-alergare-rs-x-bold/fd/1909695/?ref=graph_profiled_similar_1_2&provider=rec&recid=rec_49_2c05649a061f7f811d5ea78af1d990d939ddc08bd4edcc09285e47ff15884a39_1613986274&scenario_ID=49"
-# test = get_url_info(url4)
+# test = get_url_info("https://www.flanco.ro/televizor-smart-led-lg-55un71003lb-138-cm-ultra-hd-4k.html")
 # test.title = "Valami"
 # if (test.title is constants.error) or (test.image is constants.error):
 #     logger.critical("none")
@@ -287,8 +502,4 @@ run(None)
 
 
 # ############################################ - TEST BENCH - ####################################################
-# test = get_url_info(bad_url2)
-# if test:
-#     print("ok")
-# else:
-#     util.upload_error("user", "id", date.today(), bad_url2)
+
