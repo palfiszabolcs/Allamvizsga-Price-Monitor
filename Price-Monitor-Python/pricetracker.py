@@ -226,46 +226,13 @@ def run_qt_display_scheduler(qt_signal):
                 time.sleep(1)
 
 
-# def run_program(mode):
-#     try:
-#         if mode is None:
-#             print("\nChoose running mode:\n"
-#                   "     1 - Continuous (Will run scheduled tasks and start all listeners)\n"
-#                   "     2 - Update (Will update all products then resume in Continuous mode)\n")
-#             mode = int(input("Mode: "))
-#
-#         if (mode != 0) and (mode != 1) and (mode != 2):
-#             print("Invalid option, please select again!")
-#             return run_program(None)
-#         else:
-#             if mode == 0:
-#                 logger.info("Restarting due to No Internet Connection")
-#                 run_new_products_listener()
-#
-#             if mode == 1:
-#                 logger.info("Starting in CONTINUOUS mode")
-#                 run_new_products_listener()
-#                 run_scheduled_tasks()
-#             if mode == 2:
-#                 logger.info("Starting in UPDATE mode")
-#                 update_prices()
-#                 logger.info("All products updated, starting CONTINUOUS mode!")
-#                 run_new_products_listener()
-#                 run_scheduled_tasks()
-#     except Exception as error:
-#         logging.critical("Error while starting service!" + str(error))
-#         for i in range(5, 0, -1):
-#             logger.info("Retrying in... " + str(i) + " seconds")
-#             time.sleep(1)
-#         return run_program(mode)
-
 def run_sec(n):
     for i in range(0, n):
         logger.info("schedule blocking test")
         time.sleep(2)
 
 
-def run_program_qt_test(mode):
+def run_program_qt(mode):
     try:
         if mode is None:
             print("\nChoose running mode:\n"
@@ -275,7 +242,7 @@ def run_program_qt_test(mode):
 
         if (mode != 0) and (mode != 1) and (mode != 2):
             print("Invalid option, please select again!")
-            return run_program_qt_test(None)
+            return run_program_qt(None)
         else:
             if mode == 0:
                 logger.info("Restarting due to No Internet Connection")
@@ -300,11 +267,10 @@ def run_program_qt_test(mode):
         for i in range(5, 0, -1):
             logger.info("Retrying in... " + str(i) + " seconds")
             time.sleep(1)
-        return run_program_qt_test(mode)
-# ############################################ - MAIN - ####################################################
+        return run_program_qt(mode)
 
 
-# run_program(None)
+# ############################################ - TEST BENCH - ####################################################
 
 
 # ############################################ - TEST BENCH - ####################################################
@@ -445,61 +411,11 @@ class WorkerThread(QThread):
     mode = None
 
     def run(self):
-        run_program_qt_test(self.mode)
+        run_program_qt(self.mode)
+
+# ############################################ - MAIN - ####################################################
 
 
 App = QApplication(sys.argv)
 window = Window()
 App.exec()
-
-# sys.exit(App.exec())
-
-# run_sec(10)
-# print(constants.config["quick_image"]["attribute_value"])
-
-# print(constants.config["emag_title"]["tag"])
-
-
-
-
-
-# bad_url1 = "https://www.flanco.ro/apple-watch-series-5-gps-44mm-space-grey-aluminium-case-black-sport-band.html"
-# bad_url2 = "https://altex.ro/boxe-audio-5-0-jamo-s-628-hcs-negru/cpd/BOXS628HCSBA/"
-# url = "https://www.quickmobile.ro/entertainment/boxe-portabile/harman-kardon-boxa-portabila-onyx-studio-6-albastru-206775"
-# url = "https://www.emag.ro/laptop-ultraportabil-asus-vivobook-s14-s431fa-cu-procesor-intelr-coretm-i5-8265u-pana-la-3-90-ghz-whiskey-lake-14-full-hd-8gb-512gb-ssd-intel-uhd-graphics-620-cobalt-blue-s431fa-eb109/pd/D7FJBBMBM/?X-Search-Id=7836a5027a92fd6c970e&X-Product-Id=6379059&X-Search-Page=1&X-Search-Position=0&X-Section=search&X-MB=0&X-Search-Action=view"
-# url1 = "https://www.emag.ro/laptop-asus-ux434fa-cu-procesor-intelr-coretm-i5-10210u-pana-la-4-20-ghz-14-0-full-hd-8gb-512gb-ssd-intel-uhd-graphics-620-windows-10-home-royal-blue-ux434fac-a5099t/pd/DCXTCMMBM/?ref=similar_products_7_7&provider=rec&recid=rec_4_6b697c07a21e33ab60b4a81989fb18624f7cdd306cbd29da3b035a1d7564486f_1598535173&scenario_ID=4"
-# url2 = "https://www.emag.ro/masina-electrica-de-tuns-gazonul-bosch-arm-32-3200-1200w-32cm-sac-31l-0600885b03/pd/DD8TVMBBM/?ref=prod_CMP-62795_5759_66266"
-# url3 = "https://www.flanco.ro/apple-watch-series-5-gps-44mm-silver-aluminium-case-white-sport-band.html"
-# url4 = "https://www.flanco.ro/televizor-smart-led-samsung-ue50tu8072-125-cm-ultra-hd-4k.html"
-# url5 = "https://www.emag.ro/laptop-ultraportabil-huawei-matebook-14-cu-procesor-amd-ryzen-5-4600h-pana-la-4-00-ghz-14-2k-16gb-512gb-ssd-amd-radeon-graphics-windows-10-home-gray-53011gsl/pd/D0S8F2MBM/?ref=graph_profiled_similar_a_1_6&provider=rec&recid=rec_49_16_c2732421_91_A_1517324c2705b459d50c09a7baac7b896babac44682d2ccc365f0110b5e2b416_1602743842&scenario_ID=49"
-# url6 = "https://altex.ro/televizor-led-smart-samsung-43tu7172-ultra-hd-4k-hdr-108-cm/cpd/UHDUE43TU7172UX/"
-# url7 = "https://mediagalaxy.ro/laptop-gaming-lenovo-legion-5-17imh05-intel-core-i5-10300h-pana-la-4-5ghz-17-3-full-hd-8gb-ssd-512gb-nvidia-geforce-gtx-1650-4gb-free-dos-negru/cpd/LAP82B3002SRM/"
-# url8 = "https://www.emag.ro/boxa-portabila-jbl-charge-3-6000-mah-rosu-charge3red/pd/DCQG32BBM/#used-products"
-# url9 = "https://www.emag.ro/laptop-hp-15-15s-fq1010nq-cu-procesor-intelr-coretm-i3-1005g1-pana-la-3-40-ghz-15-6-full-hd-8gb-256gb-ssd-intel-uhd-graphics-free-dos-gray-9qf69ea/pd/DH33MMMBM/?X-Search-Id=3a0b52475c2c4e7d900d&X-Product-Id=66367719&X-Search-Page=1&X-Search-Position=3&X-Section=search&X-MB=0&X-Search-Action=view"
-
-
-# url1 = "https://www.emag.ro/"
-# url2 = "https://www.flanco.ro/"
-# url3 = "https://www.quickmobile.ro/"
-# url4= "https://www.emag.ro/puma-pantofi-unisex-pentru-alergare-rs-x-bold/fd/1909695/?ref=graph_profiled_similar_1_2&provider=rec&recid=rec_49_2c05649a061f7f811d5ea78af1d990d939ddc08bd4edcc09285e47ff15884a39_1613986274&scenario_ID=49"
-# test = get_url_info("https://www.flanco.ro/televizor-smart-led-lg-55un71003lb-138-cm-ultra-hd-4k.html")
-# test.title = "Valami"
-# if (test.title is constants.error) or (test.image is constants.error):
-#     logger.critical("none")
-# print(test)
-
-
-# html_content = requests.get("https://patrickhlauke.github.io/recaptcha/").text
-# # print(html_content)
-# soup = BeautifulSoup(html_content, "html.parser")
-# # print(soup)
-
-
-
-# price = soup.find("span", attrs={"class": "label-out_of_stock"})
-# print(price)
-
-
-
-# ############################################ - TEST BENCH - ####################################################
-

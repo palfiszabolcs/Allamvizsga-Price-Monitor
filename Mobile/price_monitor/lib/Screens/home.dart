@@ -47,8 +47,6 @@ class _HomeScreenState extends State<HomeScreen>{
     _verificationCheck();
     _startChangeListener();
     _urlShareListener();
-
-    // print("initState");
   }
 
   @override
@@ -82,8 +80,6 @@ class _HomeScreenState extends State<HomeScreen>{
   void _newProductHandler(String url) async {
       var brightness = MediaQuery.of(context).platformBrightness;
       bool darkModeOn = brightness == Brightness.dark;
-
-      // print("url = " + url);
 
       // TODO:
       await Future.delayed(Duration(seconds: 3));
@@ -412,7 +408,6 @@ class _HomeScreenState extends State<HomeScreen>{
                   throw 'Could not launch $url_emag';
                 }
               }
-
           ),
         ),
         RichText(
@@ -426,7 +421,6 @@ class _HomeScreenState extends State<HomeScreen>{
                   throw 'Could not launch $url_flanco';
                 }
               }
-
           ),
         ),
 
@@ -441,7 +435,6 @@ class _HomeScreenState extends State<HomeScreen>{
                 throw 'Could not launch $url_quickmobile';
                 }
               }
-
           ),
         )
 
@@ -452,7 +445,6 @@ class _HomeScreenState extends State<HomeScreen>{
   }
 
   void _showInfo(context, darkModeOn){
-  // SweetAlert.show(context, title: "Description");
     showDialog(context: context,
         builder: (BuildContext context){
           return AlertDialog(
@@ -499,8 +491,6 @@ class _HomeScreenState extends State<HomeScreen>{
                                   style: SweetAlertStyle.confirm,
                                   confirmButtonText: "Delete",
                                   showCancelButton: true,
-                                  // cancelButtonColor: Colors.red,
-                                  // confirmButtonColor: colorPrimaryBlue,
                                   onPress: (bool isConfirm) {
                                     if (isConfirm) {
                                       //TODO: delete products too if delete pressed
@@ -527,8 +517,6 @@ class _HomeScreenState extends State<HomeScreen>{
                                   style: SweetAlertStyle.confirm,
                                   confirmButtonText: "Log Out",
                                   showCancelButton: true,
-                                  // cancelButtonColor: Colors.red,
-                                  // confirmButtonColor: colorPrimaryBlue,
                                   onPress: (bool isConfirm) {
                                     if (isConfirm) {
                                       _auth.signOut().then((value) =>

@@ -16,23 +16,7 @@ void main() async {
             home: new HomeScreen()
             )
         );
-        // runApp(MaterialApp(
-        //     home: AnimatedSplashScreen(
-        //         // screenFunction: () async {
-        //         //     return HomeScreen();
-        //         // },
-        //         nextScreen: HomeScreen(),
-        //         duration: 1500,
-        //         animationDuration: Duration(milliseconds: 1500),
-        //         splash: "assets/ico/icon128.png",
-        //         backgroundColor: Colors.grey,
-        //         splashTransition: SplashTransition.slideTransition,
-        //         pageTransitionType: PageTransitionType.rightToLeft,
-        //         centered: true,
-        //         // curve: Curves.bounceOut,
-        //         )
-        //     )
-        // );
+
     }else{
         runApp(MaterialApp(
             home: new LoginScreen()

@@ -38,16 +38,11 @@ const List supportedDomains = ["emag.ro", "flanco.ro", "quickmobile.ro"];
 final lightThemeData = ThemeData(
   brightness: Brightness.light,
   primaryColor: colorPrimaryBlue,
-  // backgroundColor: colorBackGroundGrey,
 );
 
 final darkThemeData = ThemeData(
   brightness: Brightness.dark,
   primaryColor: colorPrimaryDarkBlue,
   accentColor: colorPrimaryDarkBlue,
-  // backgroundColor: Colors.black,
-  // cardTheme: CardTheme(
-  //   color: Colors.black87
-  // )
-    // textTheme:
+
 );
