@@ -1,0 +1,52 @@
+1. Szoftver projekt fejlesztés lepései.
+Waterfall modell:
+1) Kovetelmeny specifikacio:
+	Kovetelmenyek es funkcionalitasok gyujtese, megbeszeleserol szol.
+	A kliensek segitsegevel kialakitjuk a kovetelmenyeket es hasznalati eseteket.
+	Budget felmeres, riziko faktorok ellenorzese, stb.
+2) Projekt designja:
+	Megtervezzuk, lepesrol lepesre, az elkeszitendo projektet, architekturalis es logikai szinteken.
+	Lepesekre bontjuk, tehat minden lepesnel tudjuk tisztan hogy mi a feladat, es a fejlesztes igy konnyebben kovetheto is lesz.
+	Mindenki megtudja, hogy milyen fazisban milyen feladatai lesznek.
+3) Projekt implementalasa:
+	Dolgozunk a projekt felepitesen, minden lepest es objektivet sorban teljesitunk a megfelelo idon es koltsegen belul.
+4) Tesztelesi fazis:
+	A fejlesztett lepeseket leteszeljuk, minoseget ellenorizzuk.
+5) Karbantartas:
+	A kiadott szoftvert karbantartjuk, figyelunk a tovabbfejlesztesre es uj hibakra.
+	
+2. Követelmény specifikáció.
+
+	Kovetelmeny specifikacio alatt ertjuk egy projekt azon reszet, ahol egy szoftveres projekt funkcionalis es nem funkcionalis kovetelmenyeit leirjuk.
+	Funkcionalis kovetelmenyek alatt ertendo a program konkret funkcionalitasa: milyen parancsok es muveletek vegrehajtasara kell legyen kepes, milyen use caseket implemental, stb.
+	Nem funkcionalis kovetelemnyek irjak le a programm mukodeset: hogyan nez ki az UI, hogyan kell kezelni, milyen rendszer igenyei vannak, stb.
+3. UML diagramok. Használati eset diagram (dinamikus kép). Osztály diagram (statikus
+kép).
+	UML - Universal modelling language. Szinte barmi modellezheto benne: rendszer diagramok, use case diagramok, 
+	aktivitas diagramok, szekvencia diagramok, allapot diagramok stb. 2.0s kiadasnal tart.
+	Use case diagram - Leirja a kulonbozo felhasznalok szamara elerheto funkcionalitasukat es a hozzajuk tartozo muveleteket
+	Osztaly diagram - Leirja egy osztaly adattagjait (azoknak nevet, tipusat, lathatosagat) es metodusait (nevet, tipusat, parametereit, lathatosagat, visszateritesi tipusat).
+
+4. Architekturális minták. Model-View-Controller architektúra. Előnyök és hátrányok.
+	Szoftver architektura egy rendszer felepitese felulnezetbol. Itt nem konkret fuggvenyeket es megoldasokat dokumentalunk, hanem komponenseket.
+	Minden fontos komponens rajta van ezen a diagramon, a szoftverrol egy nagy kepet alkotvan.
+	
+	MVC - Model/View/Controller. A webes applikaciok egyik legelterjedtebb architekturaja. Harom szintre van bontva:
+		Model szint: feladata az adatok definialas, tarolasa, ellenorzese.
+		Controller szint: a backend funckionalitasat tartalmazza, a bejovo parancsok ertelmezesevel, az adatok manipulalasaval es a viewnak szolgalt valaszokkal foglalkozik.
+		View szint: a felhasznalo szamara elerheto feluletet definialja, a front endet. Itt vannak az adatok abrazolasa leirva.
+	Harom komponensre van bontva, mert mindegyiknek jol definialt feladata van es igy konyebb a hibajavitas es karbantartas.
+	Mas elonyei: gyors fejlesztes, konnyen modosithato es karbantarthato, minden komponens kepes ugyanazt az adatot kezelni.
+	Hatranyok: nagyobb komplexitas, tobb tudast igenyel a fejlesztes.
+	
+5. Tervezési minták. Összetétel (Composite), Egyke (Singleton), Megfigyelő (Observer)
+minták. 
+	Tervezesi minta alatt ertunk olyan sablonokat, melyek altanosak, ujrahasznosithatoak es jol bevalt modszereket javasolnak gyakori problemakra.
+	Harom fajta van:
+		Strukturalis: tobb komponens kozti tartalmazasi kapcsolat van leirva, pl Composite
+		Creational: objetumok letrehozasat ir le, pl Singleton
+		Behavioral: viselkedeseket ir le, pl Observer
+	
+	Composite: resz-resz kapcsolatot emeli ki, az az oroklodest. Pl: Katona osztalybol szarmazik a Hadnagy, Kozlegeny, igy barmilyen katonat hozzatudunk adni egy katona listahoz.
+	Singleton: Egy es csakis egy peldanya lehet, privat konstrukturral rendelkezik. Multi threadingben nehez hasnzalni.
+	Observer: az objektum esemenyeire figyel. pl: publisher-subscriber, ha a publisher kiad valami ujat, minden subscribernek ertesitest kuld.

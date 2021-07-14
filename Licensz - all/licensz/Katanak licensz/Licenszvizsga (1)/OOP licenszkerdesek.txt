@@ -1,0 +1,73 @@
+1. Osztályok és objektumok. Az osztály tagjai. (classes and objects, members)
+
+Az osztály egy felhasználói típus, amelynek alapján példányok (objektumok)
+hozhatók létre. Az osztály alapvetően adat és metódus (művelet) definíciókat
+tartalmaz.
+Információt (adatokat) tárol és kérésre műveleteket végez. Van állapota,
+viselkedése és futásidőben azonosítható.
+
+2. Statikus tagok. (static members)
+
+Statikus tagok= statikus adattagok + statikus metódustagok
+A statikus adattagok, olyan adatok, amelyeket az adott osztály példányai közösen
+használnak (osztott). 
+A statikus műveletek olyan műveletek, amelyek az
+argumentumaikon illetve az osztály statikus adattagjain dolgoznak. Ezek a tagok
+már példányok létrehozása előtt használhatók.
+
+3. Egységbezárás, az információ elrejtése. (encapsulation, information hiding)
+
+Az adatok és a metódusok osztályba való összezárását jelenti. Tulajdonképpen az
+objektum egységbezárja az állapotot (adattagok értékei) a viselkedésmóddal
+(műveletekkel). Következmény: az objektum állapotát csak a műveletein keresztül
+módosíthatjuk.
+
+4. Származtatás, örökítés (inhertitance)
+
+Olyan osztályok között értelmezett viszony, amely segítségével egy általánosabb
+típusból (ősosztály) egy sajátosabb típust tudunk létrehozni (utódosztály). Az
+utódosztály adatokat és műveleteket (viselkedésmódot) örököl, kiegészíti ezeket
+saját adatokkal és műveletekkel, illetve felülírhat bizonyos műveleteket. A kód
+újrafelhasználásának egyik módja. Megkülönböztetünk egyszeres és többszörös
+örökítést.
+
+5. Polimorfizmus. Metódusok túlterhelése és felülírása. (polymorphism, overloading,
+overriding)
+
+Poliformizmus:
+Többalakúság. Egy típuselméleti fogalom, amely szerint egy ősosztály típusú
+változó hivatkozhat ugyanazon közös ősosztályból származó (vagy ugyanazon
+interfészt megvalósító) osztályok példányaira.
+A polimorfizmus lehet statikus és dinamikus.
+(a) statikus polimorfizmus: metódusok túlterhelése, függvénysablonok,
+osztálysablonok. Satikus, fordításidejű kötés.
+(b) dinamikus polimorfizmus: metódusok felülírása. Dinamikus, futásidejű kötés.
+Overloading:
+Több azonos nevű, különböző szignatúrájú függvény. A függvényhívás aktuális
+paraméterei meghatározzák, hogy melyik függvény fog meghívódni. Ezt már a
+fordításidőben eldől (statikus, fordításidejű kötés).
+Overriding:
+Több azonos nevű, különböző szignatúrájú függvény. A függvényhívás aktuális
+paraméterei meghatározzák, hogy melyik függvény fog meghívódni. Ezt már a
+fordításidőben eldől (statikus, fordításidejű kötés).
+
+6. Interfészek és absztrakt osztályok (interfaces and abstract classes)
+
+Abstract class:
+Olyan osztály, amelynek van legalább egy absztrakt művelete. Felületet határoz
+meg és nem lehet példányosítani. Absztrakt osztály az absztrakt műveleteinek
+implementálását az utódosztályokra bízza.
+
+Interface:
+Viselkedésmódot definiál. Gyakorlatilag egy művelethalmaz deklarációját jelenti.
+Ha egy osztály implementál egy adott interfészt, akkor példányai az interfészben
+meghatározott viselkedéssel fognak rendelkezni. Csak konstans adattagokat
+tartalmazhat és minden tagja nyilvános
+
+
+7. Kivételek és feltételek. (exceptions and assertions) 
+
+Exceptions:
+Elorelathato futasideju hibak, melyeket kezelnunk kell try{} catch{} finally {} parancsokkal.
+Assertion:
+Futasideju feltetelek, melyek ellenorzik a program helyes lefutasat; hiba eseten Exceptiont dobtak.

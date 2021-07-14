@@ -21,46 +21,7 @@ var test_config = {
 firebase.initializeApp(config);
 const auth = firebase.auth();
 const database = firebase.database();
-// const uid = auth.currentUser.uid;
 
-// const user = await chrome.storage.sync.get('firebase_uid', function (result) {
-//     var uid = result.firebase_uid;
-//     console.log("user: " + uid);
-//     save_user_id(uid);
-// });
-
-// function login (){
-    // let email = "palfi.szabolcs.8@gmail.com";
-    // let password = "terminator";
-
-    
-//     firebase.auth().signInWithEmailAndPassword(email, password).then(creadential => {
-//         console.log("auth successfull");
-//         chrome.storage.sync.set({"firebase_uid": creadential.user.uid});
-//     }).catch(function(error) {
-//         switch(error.code){
-//             case "auth/wrong-password":
-//                 // Swal.fire({
-//                 //     title: "Error!",
-//                 //     text: "Wrong password!",
-//                 //     icon: "error"
-//                 // })
-//                 console.log("auth/wrong-password");
-//             break;
-//             case "auth/user-not-found":
-//                 // Swal.fire({
-//                 //     title: "Error!",
-//                 //     text: "User not found",
-//                 //     icon: "error"
-//                 // })
-//                 console.log("auth/user-not-found");
-//             break;
-//         }
-//         // var errorCode = error.code;
-//         // var errorMessage = error.message;
-//         // console.log("Error: " + errorCode + ", " + errorMessage);
-//       });
-// }
 
 function get_uid(){
     chrome.storage.sync.get('firebase_uid', function (result) {

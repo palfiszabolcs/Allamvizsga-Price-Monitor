@@ -1,0 +1,50 @@
+1. Rekurzió.
+A rekurzio egy programozasi modszer, amelyben a fuggvenyek onmagukat hivjak meg amig egy megallasi feltetel nem teljesul.
+Veges szamu lepes utan meg kell allitani.
+A rekurziv fuggvenyhivas eroforras igenyes, mivel minden hivasnal helyet kell foglalni a parametereknek es a fuggvenyeknek a veremben.
+
+2. Vermek, sorok.
+Verem egy LIFO lista, az az egydimenzios tomb, amelynek van egy teteje.
+Push, pop, top muveletek.
+Varakozasi sor - FIFO lista, egyik vegen hozzaadunk egy elemet, masikon olvassuk es toroljuk.
+Prioritasi sor - valamilyen kulcs szerint rendezunk. Egyik vegen veszunk ki, kulcs szerint szurunk be.
+
+3. Láncolt listák, körkörösen láncolt listák, fák.
+Lancolt lista - olyan adatstruktura, amelyeknek az elemeinek van egy adat cellajunk, es egy cella amely a kovetkezo lista elemere mutat. Van eleje es vege.
+[data][->]
+Korkorosen lancolt lista - ugyanaz mint a lancolt, csak az eleje mutat a vegere.
+Ket iranyban lancolt listak - mutat az elotte es utana levo elemre.
+[<-][data][->]
+Fak - egy olyan graf amelyben nincs kor, nincs seta, levellel vegzodik. Van gyokere. Fokszam - hany utod
+
+4. Bináris fák és bináris keresőfák.
+Binaris fak - egy olyan fa amelyben minden elemnek maximum 2 utoda van, es mindig levellel (nincs utod) vegzodik. Van gyokere.
+Binaris keresofa - egy olyan binaris fa, ahol a csucstol balra kisebb ertekek vannak, a csucstol jobbra nala nagyobb van ertekek vannak. Inorder bejaras sorban adja meg oket.
+
+5. Kupacok, binomiális fák.
+Kupac - egy specialis fa abrazolas, amely eleget tesz a kupacs tulajdonsagoknak:
+	Max-Kupac, ha A leszarmazottja B: Kulcs(A) >= Kulcs(B)
+	Min-Kupac, ha A leszarmazottja B: Kulcs(B) >= Kulcs(A)
+Binaris kupac - egy binaris fa tombben abrazolva. Van a gyoker, utana a gyoker kisebb es nagyobb leszarmazottja, utana az elso leszarmazott kisebb es nagyobb leszarmazottja, stb.
+Binomialis fa - 
+
+6. Rendezési algoritmusok.
+• buborékrendezés (Bubble sort) - egymasmelletti elemeket hasonlit, es felcsereli ha kell. n^2 legroszabb esetben
+• kiválasztó rendezés (Selection sort) - megkeresi a legkisebb vagy legnagyobbat, es az egyik vegere rakja. n^2 legroszabb esetben
+• számláló rendezés (Counting sort) - megszamolja hany elem kisebb a rendezetnel, es aszerint rakja a megfelelo indexbe. n^2 legroszabb esetben
+• beszúró rendezés (Insertion sort) - van egy for, van benne egy while, a kulso for vegig megy 2-tol n-ig, a belso a while fogja az elemet, es addig tolja vissza mig kap nala kisebbet. n^2 legroszabb esetben
+• Shell-rendezés (Shell sort) - 
+• összefésül® rendezés (Merge sort) - van egy random permutacio, rekurzioval es divide et imperaval addig felezi amig implicit meg tudja mondani, hogy az utolso ket elem rendezve van vagy sem. Utana rekurzioval megy felfele, es a tobbit is elrendezi paronkent, egyre nagyobb s nagyobb reszhalmazokkal.
+• kupacrendezés (Heapsort) - kiepiti a kupacot, kiveszi a gyokeret, a legalso elemet a gyoker helyebe rakja es megint kupacba rendezi. Ismetli amig visszakapja a kupacot.
+• gyorsrendezés (Quicksort) - fog egy random elemet, az lesz a pivot (tengely). A ket oldalara rendezi a nagyobbakat es kisebbeket. Miutan ez lejart, a tengely a helyere kerult. Utana megint random tengelyt s folytassa mig nem rendezett.
+• edényrendezés (Bucket sort) - elemeket egyenletes eloszlasunak tekint, linearis bonyolultsagu
+• számjegyes rendezés (Radix sort) - legkisebb szamjegy szerint rendezzunk eloszor, utana a kovetkezo nagysagrendu szamjegy szerint (tized rendu), utana szazadrendu, stb.
+
+7. Hasító (hash) táblák és hasító algoritmusok. 
+A hash tabla egy olyan adatszerkezet, amelyben egy hash fuggveny segitsegevel megtudjuk, hogy melyik kulcshoz milyen ertek tartozik, egy asszociativ tombbol (key,value pairs).
+A hash fuggveny lekepezi az adott kulcsot a tarolo tomb egyik indexere, ahol a keresett adat van.
+Idealis esetben minden kulcsnak van egyedi indexe es egyenletes az eloszlas, de ez nem mindig valosul meg, igy kezelnunk kell az esetleges konfliktusokat.
+Sok esetben a hasito tablak teljesitmenye jobb a keresofak vagy egyebb tablas szerkezeteknel, ezert szeles korben hasznaljak pl adatbazis indexekben, cache memoriaban, stb.
+
+A hasito algoritmusok feladata egy adott kulcsbol a megfelelo indexet kigeneralni. Egy aritmetikai muvelet segitsegevel kiszamolja egy K kulcs erteket es ezzel meghatarozza a K helyet az adatallomanyban.
+Sajnos ezeknek a fuggvenynek a megtalalasa nagyon nehez, foleg ha el akarjuk kerulni az azonos ertekek hozzarendelest tobb adathoz. Ezert szokas feladni az egyertelmuseg kovetelmenyet es egy modszert berakni az adatok megkulonboztetesere.

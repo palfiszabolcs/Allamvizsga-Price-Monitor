@@ -1,0 +1,59 @@
+1. A Neumann architektúrájú processzorok minimális regiszterkészletének funkcionális
+leírása.
+	Neumann architketura - utasitas es cim egyben van.
+	AC - Akkumulator regiszter, aritmetikai/logikai muveletek egyik operandusat vagy eredmenyet tarolja
+	AR - Adat regiszter, adatatvitelt biztosit a memoria es CPU belso elemei kozott, a memoriabol kiolvasott kodot tartalmazza
+	PC - Program counter, mindig a kovetkezo utasitas cimet tarolja
+	CR - Cim regiszter, a memoria felol kozvetitett utasitas cimet tartalmazza
+	UR - Utasitas regiszter, szetszedi a parancsot az 5 bites parancsra es 11 bites cimre
+	ALU - Arithmetical, Logical Unit: egy vagy ketoperandusos logikai es aritmetikai muveleteket hajt vegre
+	VEZ - Control Unit, az az vezerlo egyseg, egy tobballapotu automata mely az egesz CPU mukodeset osszhangolja
+
+2. A Neumann architektúrájú processzorok vezérlő egységének funkcionális leírása.
+	A vezerlo egyseg (CU) fofeladata vegrehajtani a memoriaban tarolt utasitas sorozatot. Minden nem logikai vagy aritmetikai muveletet o vegez (pl JUMP, STORE, LOAD, FETCH, RETURN, RETI).
+	A vezerlo sinen felugyeli a rendszer tobbi komponenset, figyeli az interruptokat.
+	
+3. A processzorok belső sínjeinek – az adatút – kialakításának lehetőségei.
+	Logikai kapuk segitsegevel: AND, OR, XOR, NAND, stb. Bool logikat alkalmaz
+	Tri state kimenetes regiszterrel: Aktiv (1), inaktiv (0) es high-impedance (HZ, nem zavarja a tobbit) allapot. Ha 1, a kimenet engedelyezett es a kozos sinre kerul, ha 0 akkor HZba marad. 
+		Logikai kimenete lehet 1 es 0. 1 orajel keses van az iras es olvasas kozott.
+	
+	3 belso sin: adat-, cim- es memoria busz.
+
+4. Függvényhívási utasítás végrehajtásához szükséges CPU alegységek és azok feladatai.
+	Stackpointer - mutat a kovetkezo ures helyre a stacken.
+	Stack - lementodik a PC+1, allapotjelzo bitek (Z, CY, Borrow-bit), ALU regiszterek es a sima regiszterek.
+	PC - A PCbe belekerul a fuggvenyhivaskor adott cim parameter.
+	
+5. Az utasítás-formátum hatása a processzorok utasítás-készlet architektúra (ISA –
+Instruction Set Architecture) szintjének tervezésére.
+	Mi esetunkben az utasitas kod (5 bit) es az utasitas adat (11 bit) egyben van. 
+	Igy egy sinrendszer kell kialakuljon mert nem kulon sin az adatnak es kulon sin a parancsnak.
+	A regiszterek ezaltal 16 bitesek (AC, AR, UR) vagy 11 bitesek (PC, CR) lettek.
+	2^X utasitasunk lehet es 2^Y cimunk. (X+Y)*2^Y memoriank lehet.
+	
+6. Az operatív tárak szervezése. Lapszervezésű virtuális tár.
+	Operativ tar lehet regiszter, RAM, ROM, EPROM, EEPROM, Flash.
+	Cimtartomany hozzakotese lapszervezesu es szegmensszervezesu. 
+	Lapszervezesunel minden lap kezdocimet taroljuk a laptablaba. Lapok merete rogzitett, 1-4k kozott. Megjelenik a MMU (Memory Management Unit).
+	Utasitas felepetise a kovetkezo: [Utasitas kod][Lapcim][Offset]; Lapcim megmutatja hogy a laptabla melyik sorara mutat; Laptabla egy lapra mutat es az offsettel egyutt megkapjuk a kezdo sor fizikai cimet.
+	Laptablanal vannak jogok is, ha nem ferhetunk hozza akkor exceptiont dob. A virtualis cim a lapcim+offset.
+
+7. Vektorizált megszakításrendszert alkalmazó I/O adatátvitelek végrehajtásának lépései.
+	Vektorizalt azt jelenti, hogy minden megszakitas keronek van kulon rutinja.
+	Minden ket utasitas kozott ellenorizzuk hogy erkezett-e megszakitas. Ha van megszakitas, beallitja a megfelelo flageket, azonositja a megszakitas forrasat. Lekerjuk a megszakitas vektor erteket, a megszakitast vezeto aramkortol.
+	Megcimezzuk a vektor tablazatot a RAM elejerol, kiolvassuk a megszakitas rutin kezdocimet, kimentjuk a processzor allapotat a verembe.
+	Ugrast vegzunk a megszakitas rutin kezdocimere, vegrehatjuk a megszakitas rutint. Vegul RETI segitsegevel a processzor eredeti allapotat visszaallitjuk.
+	A megszakitas is megszakithato.
+
+8. Közvetlen memória-hozzáférést (DMA) alkalmazó I/O adatátvitelek végrehajtásának lépései.
+	A DMA egy olyan komponense a gepnek amely engedi, hogy bizonyos hardware eszkozok hozzaferjenek a memoriahoz CPU beavatkozasa nelkul.
+	Normalisan, ha egy I/O keres kovetkezik, akkor a CPU vegig avval lenne elfoglalva, viszont DMA segitsegevel a CPU csupan engedelyezi az adatatvitelt es folytassa a munkajat, mig nem jon egy interrupt a DMAtol hogy vegzett.
+	DMAt hasznalnak a lemez tarolok, grafikus kartyak, hangkartyak es halozati kartyak.
+	A DMA meg hasznalhato ket memoria kozti adatmozditasra vagy egy memorian beluli adatmozditasra.
+	
+9. Az utasítások végrehajtásának párhuzamosítása csővezeték struktúrák (pipe-line)
+alkalmazásával.
+	Parhuzmositjuk a parancsokat, hogy egyszerre tobb tudjon egymas mellett lefutni.
+	Az eddigi vegrehajtasi ciklus felbontodik egy tobb "csovu" pipe-lineba, ahol minden parancs fel lesz bontva kulonbozo reszekre, amelyek parhuzamosan vegrehajtodnak s konkurens modon lesznek ertelmezve.
+	A pipelineositas nem csokkenti a latencyt, azaz az idot amennyi kell egy parancs vegrehajtasahoz, sot, meg ronthatja is azt felbontjuk nem optimalis lepesekre.

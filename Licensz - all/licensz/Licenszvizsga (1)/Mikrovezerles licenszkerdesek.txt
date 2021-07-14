@@ -1,0 +1,44 @@
+1. Határozza meg az I/O csatornákat vezérlő speciális funkciójú regiszterek szerepét.
+Melyik mit állít be? Ne feledkezzen meg az I/O csatorna esetleges analóg funkciójáról
+sem.
+3 digitalis regiszter:
+	TRIS X - ahol X a port amire hivatkozunk. Ennek a tartalma meghatarozza a kivezetes szerepet. Ha 1, akkor a port bemeneti (input), ha 0 akkor kimenet (output).
+	LAT (Latch) X - ahol X a port amire hivatkozunk. A kimenet logikai allapotat hatarozza meg. Ha 1, akkor 5V van a porton, ha 0 akkor 0V/GND.
+	PORT X - a csatorna pillanatnyi allapotat hatarozza meg beolvasaskor. Ha 1, akkor 5V van a porton, ha 0 akkor 0V/GND.
+Analog funckio:
+	A PortA beallithato mint a belso A/D konverter bemenete. Ebben az esetben a digitalis aramkor lekapcsolodik errol a bementrol, hogy a bemeneti feszultseg a koztes,
+	tiltott TTL (Transistor-Transistor-Logic) illetve CMOS savban hamis logikai allapotra kenyszeritse a kimeneti latch aramkorert.
+	
+	
+2. Magyarázza el röviden a hardveres időzítés két módszerét (az egyik módszer
+pontatlanabb) és határozza meg a hardveres időzítési módszer fő előnyét a szoftveres
+időzítéssel szemben.
+	Van a timer, ezt be lehet allitani hogy elore vagy hatra szamoljon egy kezdeti ertektol) mikor tul vagy alulcsordul ad egy interuptot es ettol megtudjuk-e, hogy lejart-e a beallitott ido.
+	A belso orajelkor idozitest szamol, kulso orajelre mar szamlalo uzemmodban megy.
+
+3. Magyarázza el hogyan működik a „Capture” (mintavételező) áramkörrel ellátott
+időzítő. Adjon egy példát a felhasználására, milyen esetben használtuk a „Capture”
+funkciót.
+	A Capture modull kulso labara, megszakitaskent rakjuk a jelet amit meg akarunk merni. Amikor jon a jel, ez elmegy a megszakitas kezelo rutinhoz es ott egy
+	szabadon futo timertol lekeri az idot; ez a jel ketszer fut be (fel es lefuto jel), ennek a kettonek a kulonbseget kiszamolva a jel megkapjuk a jel periodusat.
+	Figyelni kell, hogy hanyszor csordult tul az idozito. Olyan idozitot kell alkalmazni ami nagyobb a jelnek a periodusanal.
+	Pl: egy adott jel periodusanak, frekvenciajanak a merese.
+	
+4. Magyarázza el egy megszakítás kérés kiszolgálásának a menetét érintve a következő
+fontos részleteket: mi történik a programszámláló értékével, mi történik a megszakítás
+vektor címértékével, milyen adatokat kell elmenteni a megszakítás rutin elején, milyen
+jelzőbiteket kell ellenőrizni a kiszolgáló rutin elején, mi történik a megszakítás rutin
+végén.
+	A megszakitast kiszolgalo fuggveny teszteli a megszakitast jelzo bitet, utana az engedelyezo bitet. Ha mindket bit aktiv, akkor a megszakitas rutin elkezdodik,.
+	Megszakitas eseten elso lepesben elmentodik a Program Counter + 1 erteke a Stackbe. Melle kerulnek az allapotjelzo bitek, aritmetikai egysegek munkaregiszterei, az altalanos munkaregiszterek es
+	egyeb fontos valtozo ertekek. A PC+1 cimertek elmentese utan a programszamlalo erteke automatikusan felulirodik a megszakitas vektor cimertekevel.
+	Vegrehajtodik a megszakitas valasz fuggveny.
+	A valasz fuggveny vegrehajtasa utan az elmentett adatok visszaallitodnak.
+	Utolsokent az elmentett PC+1 ertek all vissza; ezutan fut tovabb a megszakitott fo program.
+
+5. Írja le röviden a mikrovezérlőbe beépített Watchdog speciális áramkör szerepét és
+működésének lényegét.
+	A Watchdog szerepe a program figyelese, figyelven az esetleges hibakat, mint amikor a program belathatatlan iranybe megy el.
+	Ha a Watchdog timer lejar, akkor az aramkornek ad egy resetet. Ajanlatos ezert figyelni szoftverileg arra, hogy ez a timer ne tudjon lejarni!
+	Az idot pre-scalerekkel lehet beallitani.
+	
