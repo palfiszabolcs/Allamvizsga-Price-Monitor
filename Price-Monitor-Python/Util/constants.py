@@ -24,6 +24,11 @@ error = "error"
 image_error = "image"
 title_error = "title"
 
+user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36"
+headers = {
+    "User-Agent": user_agent
+}
+
 
 def update_config(new_config):
     with open(config_file, "w") as file:

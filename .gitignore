@@ -124,3 +124,4 @@ dmypy.json
 .pyre/
 
 /Price-Monitor-Python/price-monitor-44858-firebase-adminsdk-rtint-ddf59f8323.json
+.idea

@@ -29,7 +29,7 @@ logger = logging.getLogger()
 def make_request(url):
     html_content = None
     try:
-        html_content = requests.get(url, timeout=int(constants.config["connection"]["timeout"])).text
+        html_content = requests.get(url, timeout=int(constants.config["connection"]["timeout"]), headers=constants.headers).text
     except (requests.RequestException, requests.ConnectionError, requests.Timeout) as error:
         logging.critical("!!! request error !!! - " + str(error) + " | full url - " + url)
         for count in range(1, 6, 1):
@@ -37,7 +37,7 @@ def make_request(url):
                 logger.info("Retrying in... " + str(seconds) + " seconds")
                 time.sleep(1)
             try:
-                html_content = requests.get(url, timeout=int(constants.config["connection"]["timeout"])).text
+                html_content = requests.get(url, timeout=int(constants.config["connection"]["timeout"]), headers=constants.headers).text
                 return html_content
             except (requests.RequestException, requests.ConnectionError, requests.Timeout) as error:
                 logging.critical("retry no. " + str(count))
